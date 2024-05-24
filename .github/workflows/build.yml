@@ -24,7 +24,7 @@ jobs:
       - name: Run gofmt
         run: |
           if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-            echo "Some files are not correctly formatted. Run `gofmt -l -w`."
+            echo "Some files are not correctly formatted. Run 'gofmt -l -w'."
             exit 1
           fi
       - name: Run golangci-lint
