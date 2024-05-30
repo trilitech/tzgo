@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.19.2
+* Update Parisnet hash
+* Update protocol history of ghostnet
+
 ## v1.19.1
 * Update Paris protocol to [ParisB2](https://research-development.nomadic-labs.com/parisB2-announcement.html)
 
