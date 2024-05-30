@@ -49,7 +49,7 @@ var (
 	Ghostnet   = MustParseChainIdHash("NetXnHfVqm9iesp")
 	Nairobinet = MustParseChainIdHash("NetXyuzvDo2Ugzb")
 	Oxfordnet  = MustParseChainIdHash("NetXxWsskGahzQB")
-	Parisnet   = MustParseChainIdHash("NetXo8SqH1c38SS")
+	Parisnet   = MustParseChainIdHash("NetXR64bNAYkP4S")
 
 	Versions = map[ProtocolHash]int{
 		ProtoGenesis:   0,
