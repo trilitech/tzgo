@@ -43,6 +43,11 @@ var (
 		Fee:      1000,
 		GasLimit: 1000,
 	}
+	// for baker param update
+	DefaultBakerParamUpdateLimits = tezos.Limits{
+		Fee:      1000,
+		GasLimit: 1000,
+	}
 	// for simulating contract calls and other operations
 	// used when no explicit costs are set
 	DefaultSimulationLimits = tezos.Limits{
