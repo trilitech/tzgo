@@ -48,6 +48,10 @@ var (
 		Fee:      1000,
 		GasLimit: 1000,
 	}
+	DefaultStakeLimits = tezos.Limits{
+		Fee:      1000,
+		GasLimit: 10000,
+	}
 	// for simulating contract calls and other operations
 	// used when no explicit costs are set
 	DefaultSimulationLimits = tezos.Limits{
