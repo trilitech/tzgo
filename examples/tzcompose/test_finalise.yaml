@@ -1,0 +1,50 @@
+version: alpha
+
+accounts:
+  - name: baker-1
+    id: 1
+  - name: staker-1
+    id: 2
+
+pipelines:
+  delegate-test:
+  - task: transfer
+    destination: $baker-1
+    amount: 20_001_000_000
+  - task: transfer
+    destination: $staker-1
+    amount: 6_100_000_000
+  # reveal the baker
+  - task: transfer
+    source: $baker-1
+    destination: $staker-1
+    amount: 1_000_000
+  # register and stake the baker
+  - task: register_baker
+    source: $baker-1
+  - task: set_baker_params
+    source: $baker-1
+    edge: 1_000_000_000
+    limit: 5_000_000
+  - task: wait
+    for: cycle
+    value: +5
+  - task: stake
+    source: $baker-1
+    amount: 10_000_000_000
+  # setup staker delegation and stake
+  - task: delegate
+    source: $staker-1
+    destination: $baker-1
+  - task: stake
+    source: $staker-1
+    amount: 500_000_000
+  # unstake
+  - task: unstake
+    source: $staker-1
+    amount: 1000_000_000
+  - task: wait
+    for: cycle
+    value: +5
+  - task: finalize_unstake
+    source: $staker-1

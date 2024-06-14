@@ -9,6 +9,7 @@ import (
 	"github.com/trilitech/tzgo/internal/compose/alpha"
 	"github.com/trilitech/tzgo/rpc"
 	"github.com/trilitech/tzgo/signer"
+	"github.com/trilitech/tzgo/tezos"
 
 	"github.com/pkg/errors"
 )
@@ -39,7 +40,8 @@ func (t *FinalizeUnstakeTask) Build(ctx compose.Context, task alpha.Task) (*code
 	opts.Signer = signer.NewFromKey(t.Key)
 	op := codec.NewOp().
 		WithSource(t.Source).
-		WithFinalizeUnstake()
+		WithFinalizeUnstake().
+		WithLimits([]tezos.Limits{rpc.DefaultStakeLimits}, 1000)
 	return op, opts, nil
 }
 
