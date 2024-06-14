@@ -147,7 +147,7 @@ func (t *DoubleEndorseTask) randomEndorsement(ctx compose.Context, head *rpc.Blo
 }
 
 func (t *DoubleEndorseTask) fetchEndorsingRights(ctx compose.Context, addr tezos.Address, id tezos.BlockHash) (int, bool, error) {
-	u := fmt.Sprintf("/chains/main/blocks/%s/helpers/endorsing_rights?delegate=%s", id, addr)
+	u := fmt.Sprintf("/chains/main/blocks/%s/helpers/attestation_rights?delegate=%s", id, addr)
 	var rights []struct {
 		Level     int64                `json:"level"`
 		Delegates []rpc.EndorsingRight `json:"delegates"`
