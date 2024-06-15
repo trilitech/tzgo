@@ -72,7 +72,7 @@ func (c *Client) ListActiveDelegates(ctx context.Context, id BlockID) (DelegateL
 	}
 	selector := "active=true"
 	if p.Version >= 13 {
-		selector = "with_minimal_stake=true"
+		selector += "&with_minimal_stake=true"
 	}
 	delegates := make(DelegateList, 0)
 	u := fmt.Sprintf("chains/main/blocks/%s/context/delegates?%s", id, selector)
