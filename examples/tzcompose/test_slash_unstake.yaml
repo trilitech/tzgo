@@ -5,6 +5,8 @@ accounts:
     id: 1
   - name: staker-1
     id: 2
+  - name: staker-2
+    id: 3
 
 pipelines:
   delegate-test:
@@ -13,6 +15,9 @@ pipelines:
     amount: 20_001_000_000
   - task: transfer
     destination: $staker-1
+    amount: 6_100_000_000
+  - task: transfer
+    destination: $staker-2
     amount: 6_100_000_000
   # reveal the baker
   - task: transfer
@@ -36,18 +41,25 @@ pipelines:
   - task: delegate
     source: $staker-1
     destination: $baker-1
+  - task: delegate
+    source: $staker-2
+    destination: $baker-1
   - task: stake
     source: $staker-1
-    amount: 500_000_000
-  # unstake
+    amount: 5_000_000_000
+  - task: stake
+    source: $staker-2
+    amount: 5_000_000_000
   - task: unstake
-    source: $staker-1
-    amount: 1000_000_000
+    source: $staker-2
+    amount: 5_000_000_000
   - task: wait
     for: cycle
-    value: +4
-  - task: register_baker
-    source: $staker-1
-  - task: stake
-    source: $staker-1
-    amount: 6_000_000_000
+    value: +2
+  # slash the baker
+  - task: double_endorse
+    destination: $baker-1
+  # wait for the punishment to be actually made
+  - task: wait
+    for: cycle
+    value: +3

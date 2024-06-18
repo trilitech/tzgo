@@ -1,62 +1,56 @@
 version: alpha
 
 accounts:
-  - name: baker-1
-    id: 1
   - name: staker-1
     id: 2
   - name: staker-2
     id: 3
+  - name: staker-3
+    id: 4
 
 pipelines:
   delegate-test:
-  - task: transfer
-    destination: $baker-1
-    amount: 20_001_000_000
   - task: transfer
     destination: $staker-1
     amount: 6_100_000_000
   - task: transfer
     destination: $staker-2
     amount: 6_100_000_000
-  # reveal the baker
   - task: transfer
-    source: $baker-1
-    destination: $staker-1
-    amount: 1_000_000
-  # register and stake the baker
-  - task: register_baker
-    source: $baker-1
+    destination: $staker-3
+    amount: 6_100_000_000
   - task: set_baker_params
-    source: $baker-1
+    source: $mbb
     edge: 1_000_000_000
     limit: 5_000_000
   - task: wait
     for: cycle
     value: +5
-  - task: stake
-    source: $baker-1
-    amount: 10_000_000_000
   # setup staker delegation and stake
   - task: delegate
     source: $staker-1
-    destination: $baker-1
+    destination: $mbb
   - task: delegate
     source: $staker-2
-    destination: $baker-1
+    destination: $mbb
+  - task: delegate
+    source: $staker-3
+    destination: $mbb
   - task: stake
     source: $staker-1
     amount: 5_000_000_000
   - task: stake
     source: $staker-2
+    amount: 5_000_000_000
+  - task: stake
+    source: $staker-3
     amount: 5_000_000_000
   - task: wait
     for: cycle
     value: +1
-  # slash the baker
-  - task: double_endorse
-    destination: $baker-1
-  # wait for the punishment to be actually made
+  - task: unstake
+    source: $staker-1
+    amount: 5_000_000_000
   - task: wait
     for: cycle
-    value: +3
+    value: +5

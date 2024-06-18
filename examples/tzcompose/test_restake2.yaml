@@ -5,11 +5,16 @@ accounts:
     id: 1
   - name: staker-1
     id: 2
+  - name: baker-2
+    id: 3
 
 pipelines:
   delegate-test:
   - task: transfer
     destination: $baker-1
+    amount: 20_001_000_000
+  - task: transfer
+    destination: $baker-2
     amount: 20_001_000_000
   - task: transfer
     destination: $staker-1
@@ -19,11 +24,21 @@ pipelines:
     source: $baker-1
     destination: $staker-1
     amount: 1_000_000
+  - task: transfer
+    source: $baker-2
+    destination: $staker-1
+    amount: 1_000_000
   # register and stake the baker
   - task: register_baker
     source: $baker-1
   - task: set_baker_params
     source: $baker-1
+    edge: 1_000_000_000
+    limit: 5_000_000
+  - task: register_baker
+    source: $baker-2
+  - task: set_baker_params
+    source: $baker-2
     edge: 1_000_000_000
     limit: 5_000_000
   - task: wait
@@ -40,14 +55,14 @@ pipelines:
     source: $staker-1
     amount: 500_000_000
   # unstake
-  - task: unstake
+  - task: undelegate
     source: $staker-1
-    amount: 1000_000_000
+  - task: delegate
+    source: $staker-1
+    destination: $baker-2
   - task: wait
     for: cycle
-    value: +4
-  - task: register_baker
-    source: $staker-1
+    value: +5
   - task: stake
     source: $staker-1
     amount: 6_000_000_000
