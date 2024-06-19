@@ -26,6 +26,7 @@ var (
 	ProtoV017      = MustParseProtocolHash("PtNairobiyssHuh87hEhfVBGCVrK3WnS8Z2FT4ymB5tAa4r1nQf")
 	ProtoV018      = MustParseProtocolHash("ProxfordYmVfjWnRcgjWH36fW6PArwqykTFzotUxRs6gmTcZDuH")
 	ProtoV019      = MustParseProtocolHash("PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ")
+	ProtoV019_2    = MustParseProtocolHash("PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -44,12 +45,12 @@ var (
 	PtNairobi = ProtoV017
 	Proxford  = ProtoV018
 	PtParisB  = ProtoV019
+	PsParisC  = ProtoV019_2
 
-	Mainnet    = MustParseChainIdHash("NetXdQprcVkpaWU")
-	Ghostnet   = MustParseChainIdHash("NetXnHfVqm9iesp")
-	Nairobinet = MustParseChainIdHash("NetXyuzvDo2Ugzb")
-	Oxfordnet  = MustParseChainIdHash("NetXxWsskGahzQB")
-	Parisnet   = MustParseChainIdHash("NetXR64bNAYkP4S")
+	Mainnet   = MustParseChainIdHash("NetXdQprcVkpaWU")
+	Ghostnet  = MustParseChainIdHash("NetXnHfVqm9iesp")
+	Parisnet  = MustParseChainIdHash("NetXR64bNAYkP4S")
+	ParisCnet = MustParseChainIdHash("NetXXWAHLEvre9b")
 
 	Versions = map[ProtocolHash]int{
 		ProtoGenesis:   0,
@@ -73,6 +74,7 @@ var (
 		ProtoV017:      17,
 		ProtoV018:      18,
 		ProtoV019:      19,
+		ProtoV019_2:    19,
 		ProtoAlpha:     20,
 	}
 
@@ -98,7 +100,8 @@ var (
 			{PtMumbai, 0, 3268609, 3760128, 593, 5, 16384, 1024},  // v16
 			{PtNairobi, 0, 3760129, 5070848, 623, 5, 16384, 1024}, // v17
 			{Proxford, 0, 5070849, 5726208, 703, 5, 16384, 1024},  // v18
-			{PtParisB, 0, 5726209, -1, 743, 2, 24576, 24576},      // v19
+			{PtParisB, 0, 5726209, 5898240, 743, 2, 24576, 24576}, // v19
+			{PsParisC, 0, 5898241, -1, 750, 2, 24576, 24576},      // v19
 		},
 		Ghostnet: {
 			{ProtoGenesis, 0, 0, 0, 0, 3, 4096, 256},            // 0
@@ -113,23 +116,16 @@ var (
 			{Proxford, 0, 5316609, 6422528, 913, 3, 8192, 512},  // v18
 			{PtParisB, 0, 6422529, -1, 1048, 2, 12288, 12288},   // v19
 		},
-		Nairobinet: {
-			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},   // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512}, // 0
-			{PtMumbai, 2, 2, 16384, 0, 3, 8192, 512},   // v16
-			{PtNairobi, 0, 16385, -1, 2, 3, 8192, 512}, // v17
-		},
-		Oxfordnet: {
-			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},   // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512}, // 0
-			{PtNairobi, 2, 2, 16384, 0, 3, 8192, 512},  // v17
-			{Proxford, 0, 16385, -1, 2, 3, 8192, 512},  // v18
-		},
 		Parisnet: {
 			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},    // 0
 			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512},  // 0
 			{Proxford, 2, 2, 8192, 0, 3, 8192, 512},     // v18
 			{PtParisB, 0, 8193, -1, 1, 2, 12288, 12288}, // v19
+		},
+		ParisCnet: {
+			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},   // 0
+			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512}, // 0
+			{PsParisC, 2, 2, -1, 0, 2, 128, 128},       // v19
 		},
 	}
 )
