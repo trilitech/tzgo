@@ -26,7 +26,7 @@ var (
 	ProtoV017      = MustParseProtocolHash("PtNairobiyssHuh87hEhfVBGCVrK3WnS8Z2FT4ymB5tAa4r1nQf")
 	ProtoV018      = MustParseProtocolHash("ProxfordYmVfjWnRcgjWH36fW6PArwqykTFzotUxRs6gmTcZDuH")
 	ProtoV019      = MustParseProtocolHash("PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ")
-	ProtoV019_2    = MustParseProtocolHash("PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi")
+	ProtoV020      = MustParseProtocolHash("PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -45,7 +45,7 @@ var (
 	PtNairobi = ProtoV017
 	Proxford  = ProtoV018
 	PtParisB  = ProtoV019
-	PsParisC  = ProtoV019_2
+	PsParisC  = ProtoV020
 
 	Mainnet   = MustParseChainIdHash("NetXdQprcVkpaWU")
 	Ghostnet  = MustParseChainIdHash("NetXnHfVqm9iesp")
@@ -74,8 +74,8 @@ var (
 		ProtoV017:      17,
 		ProtoV018:      18,
 		ProtoV019:      19,
-		ProtoV019_2:    19,
-		ProtoAlpha:     20,
+		ProtoV020:      20,
+		ProtoAlpha:     21,
 	}
 
 	Deployments = map[ChainIdHash]ProtocolHistory{
