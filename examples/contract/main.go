@@ -436,7 +436,7 @@ func balance_of(ctx context.Context, c *rpc.Client, addr, owner, id string) erro
 		return err
 	}
 	req := []contract.FA2BalanceRequest{
-		contract.FA2BalanceRequest{
+		{
 			Owner:   own,
 			TokenId: tezos.NewZ(i),
 		},
