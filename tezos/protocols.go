@@ -3,6 +3,8 @@
 
 package tezos
 
+import "sync"
+
 var (
 	ProtoAlpha     = MustParseProtocolHash("ProtoALphaALphaALphaALphaALphaALphaALphaALphaDdp3zK")
 	ProtoGenesis   = MustParseProtocolHash("PrihK96nBAFSxVL1GLJTVhu9YnzkMFiBeuJRPA8NwuZVZCE1L6i")
@@ -52,7 +54,8 @@ var (
 	Parisnet  = MustParseChainIdHash("NetXR64bNAYkP4S")
 	ParisCnet = MustParseChainIdHash("NetXXWAHLEvre9b")
 
-	Versions = map[ProtocolHash]int{
+	versionsMtx = sync.RWMutex{}
+	Versions    = map[ProtocolHash]int{
 		ProtoGenesis:   0,
 		ProtoBootstrap: 0,
 		ProtoV001:      1,

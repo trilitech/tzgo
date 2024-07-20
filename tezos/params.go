@@ -123,7 +123,9 @@ func (p *Params) WithChainId(id ChainIdHash) *Params {
 func (p *Params) WithProtocol(h ProtocolHash) *Params {
 	var ok bool
 	p.Protocol = h
+	versionsMtx.RLock()
 	p.Version, ok = Versions[h]
+	versionsMtx.RUnlock()
 	if !ok {
 		var max int
 		for _, v := range Versions {
@@ -133,6 +135,8 @@ func (p *Params) WithProtocol(h ProtocolHash) *Params {
 			max = v
 		}
 		p.Version = max + 1
+		versionsMtx.Lock()
+		defer versionsMtx.Unlock()
 		Versions[h] = p.Version
 	}
 	switch {
