@@ -40,36 +40,6 @@ var (
 		WithChainId(Ghostnet).
 		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV019))
 
-	// NairobinetParams defines the blockchain configuration for Nairobi testnet.
-	// To produce compliant transactions, use these defaults in op.WithParams().
-	NairobinetParams = (&Params{
-		MinimalBlockDelay:            8 * time.Second,
-		CostPerByte:                  250,
-		OriginationSize:              257,
-		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         2600000,
-		HardStorageLimitPerOperation: 60000,
-		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             240,
-	}).
-		WithChainId(Nairobinet).
-		WithDeployment(Deployments[Nairobinet].AtProtocol(ProtoV017))
-
-	// OxfordnetParams defines the blockchain configuration for Oxford testnet.
-	// To produce compliant transactions, use these defaults in op.WithParams().
-	OxfordnetParams = (&Params{
-		MinimalBlockDelay:            8 * time.Second,
-		CostPerByte:                  250,
-		OriginationSize:              257,
-		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         2600000,
-		HardStorageLimitPerOperation: 60000,
-		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             240,
-	}).
-		WithChainId(Oxfordnet).
-		WithDeployment(Deployments[Oxfordnet].AtProtocol(ProtoV018))
-
 	// ParisnetParams defines the blockchain configuration for Paris testnet.
 	// To produce compliant transactions, use these defaults in op.WithParams().
 	ParisnetParams = (&Params{
@@ -141,12 +111,10 @@ func (p *Params) WithChainId(id ChainIdHash) *Params {
 			p.Network = "Mainnet"
 		case Ghostnet:
 			p.Network = "Ghostnet"
-		case Nairobinet:
-			p.Network = "Nairobinet"
-		case Oxfordnet:
-			p.Network = "Oxfordnet"
 		case Parisnet:
 			p.Network = "Parisnet"
+		case ParisCnet:
+			p.Network = "ParisCnet"
 		}
 	}
 	return p
