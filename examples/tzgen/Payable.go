@@ -10,12 +10,12 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/trilitech/tzgo/contract"
 	"github.com/trilitech/tzgo/contract/bind"
 	"github.com/trilitech/tzgo/micheline"
 	"github.com/trilitech/tzgo/rpc"
 	"github.com/trilitech/tzgo/tezos"
-	"github.com/pkg/errors"
 )
 
 // Payable is a generated binding to a Tezos smart contract.
