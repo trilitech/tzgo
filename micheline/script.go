@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 
 	"github.com/trilitech/tzgo/tezos"
@@ -157,17 +158,53 @@ func (s Script) Bigmaps() map[string]int64 {
 	return DetectBigmaps(s.Code.Storage, s.Storage)
 }
 
+type StorageItem struct {
+	Type  OpCode
+	Value Prim
+}
+
+func Flatten(p Prim) []Prim {
+	res := []Prim{}
+	if p.IsPair() {
+		for _, v := range p.Args {
+			res = append(res, Flatten(v)...)
+		}
+	} else {
+		res = append(res, p)
+	}
+	return res
+}
+
+func DetectBigmaps(typ Prim, storage Prim) map[string]int64 {
+	vs := Flatten(storage)
+	m := run(typ, &vs)
+	res := map[string]int64{}
+	ks := []string{}
+	for k, v := range m {
+		if v.Type == T_BIG_MAP {
+			res[k] = v.Value.Int.Int64()
+		}
+		ks = append(ks, k)
+	}
+	sort.Strings(ks)
+	for _, k := range ks {
+		fmt.Printf("%-16s\t%v\n", k, m[k].Type)
+	}
+	fmt.Println(len(m))
+	return res
+}
+
 // Returns a map of named bigmap ids obtained from a storage type and a storage value.
 // In the edge case where a T_OR branch hides an exsting bigmap behind a None value,
 // the hidden bigmap is not detected.
-func DetectBigmaps(typ, storage Prim) map[string]int64 {
-	named := make(map[string]int64)
+func run(typ Prim, vs *[]Prim) map[string]StorageItem {
+	named := make(map[string]StorageItem)
 	uniqueName := func(n string) string {
 		if _, ok := named[n]; !ok && n != "" {
 			return n
 		}
 		if n == "" {
-			n = "bigmap"
+			n = "item"
 		}
 		for i := 0; ; i++ {
 			name := n + "_" + strconv.Itoa(i)
@@ -177,91 +214,73 @@ func DetectBigmaps(typ, storage Prim) map[string]int64 {
 			return name
 		}
 	}
-	stack := NewStack(storage)
 	_ = typ.Walk(func(p Prim) error {
-		val := stack.Pop()
 		switch p.OpCode {
-		case T_BIG_MAP:
-			if val.IsValid() && val.Type == PrimInt {
-				named[uniqueName(p.GetVarAnnoAny())] = val.Int.Int64()
-			}
-			return PrimSkip
-
 		case K_STORAGE:
-			stack.Push(val)
 			return nil
 
-		case T_LAMBDA:
-			// unsupported
-			return PrimSkip
-
-		case T_LIST, T_SET:
-			for i, p := range val.Args {
-				for n, v := range DetectBigmaps(typ.Args[0], p) {
-					n = n + "_" + strconv.Itoa(i)
-					named[uniqueName(n)] = v
+		case T_MAP:
+			val := (*vs)[0]
+			for _, v := range val.Args {
+				// v is D_ELT
+				key := v.Args[0].String
+				if key == "" {
+					key = fmt.Sprint(v.Args[0].Hash64())
+				}
+				value := v.Args[1]
+				vvs := Flatten(value)
+				for _, v := range run(p.Args[1], &vvs) {
+					named[uniqueName(key)] = v
 				}
 			}
+			*vs = (*vs)[1:]
 			return PrimSkip
 
-		case T_OR:
-			branch := p.Args[0]
-			if val.OpCode == D_RIGHT {
-				branch = p.Args[1]
-			}
-			if len(val.Args) > 0 {
-				for n, v := range DetectBigmaps(branch, val.Args[0]) {
-					named[uniqueName(n)] = v
+		case T_BIG_MAP:
+			val := (*vs)[0]
+			if val.IsValid() && val.Type == PrimInt {
+				named[uniqueName(p.GetVarAnnoAny())] = StorageItem{
+					Type:  p.OpCode,
+					Value: val,
 				}
 			}
+			*vs = (*vs)[1:]
 			return PrimSkip
 
 		case T_OPTION:
+			val := (*vs)[0]
+			// option always has only one argument
+			// val is Some or None
 			if val.OpCode == D_SOME {
-				stack.Push(val.Args...)
-				return nil
-			}
-			return PrimSkip
-
-		case T_MAP:
-			if p.Args[1].OpCode != T_BIG_MAP {
-				return PrimSkip
-			}
-			for i, v := range val.Args {
-				if v.OpCode != D_ELT || v.Args[1].Type != PrimInt {
-					break
+				vvs := Flatten(val.Args[0])
+				for n, v := range run(p.Args[0], &vvs) {
+					named[uniqueName(n)] = v
 				}
-				var name string
-				switch v.Args[0].Type {
-				case PrimString:
-					name = v.Args[0].String
-				case PrimBytes:
-					buf := v.Args[0].Bytes
-					if isASCIIBytes(buf) {
-						name = string(buf)
-					} else if tezos.IsAddressBytes(buf) {
-						a := tezos.Address{}
-						_ = a.Decode(buf)
-						name = a.String()
-					}
+			} else {
+				named[uniqueName(p.GetVarAnnoAny())] = StorageItem{
+					Type:  p.OpCode,
+					Value: val,
 				}
-				if name == "" {
-					name = p.GetVarAnnoAny() + "_" + strconv.Itoa(i)
-				}
-				named[uniqueName(name)] = v.Args[1].Int.Int64()
 			}
+			*vs = (*vs)[1:]
 			return PrimSkip
 
 		case T_PAIR:
-			switch {
-			case val.IsScalar() || val.LooksLikeContainer():
-				stack.Push(val)
-			default:
-				stack.Push(val.Args...)
+			for _, pp := range p.Args {
+				for n, v := range run(pp, vs) {
+					named[uniqueName(n)] = v
+				}
 			}
-			return nil
+			return PrimSkip
 
 		default:
+			if len(*vs) > 0 {
+				named[uniqueName(p.GetVarAnnoAny())] = StorageItem{
+					Type:  p.OpCode,
+					Value: (*vs)[0],
+				}
+				*vs = (*vs)[1:]
+			}
 			return PrimSkip
 		}
 	})

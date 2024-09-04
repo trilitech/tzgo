@@ -146,15 +146,20 @@ func (c *Client) ListContracts(ctx context.Context, id BlockID) (Contracts, erro
 	return contracts, nil
 }
 
+type RawContract struct {
+	Script micheline.Script
+}
+
 // GetContractScript returns the originated contract script in default data mode.
 func (c *Client) GetContractScript(ctx context.Context, addr tezos.Address) (*micheline.Script, error) {
-	u := fmt.Sprintf("chains/main/blocks/head/context/contracts/%s/script", addr)
-	s := micheline.NewScript()
-	err := c.Get(ctx, u, s)
+	u := fmt.Sprintf("chains/main/blocks/head/context/contracts/%s", addr)
+	//s := micheline.NewScript()
+	var rc RawContract
+	err := c.Get(ctx, u, &rc)
 	if err != nil {
 		return nil, err
 	}
-	return s, nil
+	return &rc.Script, nil
 }
 
 // GetNormalizedScript returns the originated contract script with global constants
