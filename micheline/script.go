@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"sort"
 	"strconv"
 
 	"github.com/trilitech/tzgo/tezos"
@@ -179,18 +178,20 @@ func DetectBigmaps(typ Prim, storage Prim) map[string]int64 {
 	vs := Flatten(storage)
 	m := run(typ, &vs)
 	res := map[string]int64{}
-	ks := []string{}
+	//ks := []string{}
 	for k, v := range m {
 		if v.Type == T_BIG_MAP {
 			res[k] = v.Value.Int.Int64()
 		}
-		ks = append(ks, k)
+		//ks = append(ks, k)
 	}
-	sort.Strings(ks)
-	for _, k := range ks {
-		fmt.Printf("%-16s\t%v\n", k, m[k].Type)
-	}
-	fmt.Println(len(m))
+	/*
+		sort.Strings(ks)
+		for _, k := range ks {
+			fmt.Printf("%-16s\t%v\n", k, m[k].Type)
+		}
+		fmt.Println(len(m))
+	*/
 	return res
 }
 
