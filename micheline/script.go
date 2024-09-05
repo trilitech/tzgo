@@ -274,6 +274,35 @@ func run(typ Prim, vs *[]Prim) map[string]StorageItem {
 			}
 			return PrimSkip
 
+		case T_LIST:
+			val := (*vs)[0]
+			for _, vv := range val.Args {
+				vvs := Flatten(vv)
+				for n, v := range run(p.Args[0], &vvs) {
+					named[uniqueName(n)] = v
+				}
+			}
+			*vs = (*vs)[1:]
+			return PrimSkip
+
+		case T_OR:
+			val := (*vs)[0]
+			vvs := Flatten(val.Args[0])
+			if val.OpCode == D_LEFT {
+				// Left branch in OR's first argument
+				for n, v := range run(p.Args[0], &vvs) {
+					named[uniqueName(n)] = v
+				}
+			} else {
+				// OpCode == D_RIGHT
+				// Right branch in OR's second argument
+				for n, v := range run(p.Args[1], &vvs) {
+					named[uniqueName(n)] = v
+				}
+			}
+			*vs = (*vs)[1:]
+			return PrimSkip
+
 		default:
 			if len(*vs) > 0 {
 				named[uniqueName(p.GetVarAnnoAny())] = StorageItem{
