@@ -205,7 +205,7 @@ func run(typ Prim, vs *[]Prim) map[string]StorageItem {
 			return n
 		}
 		if n == "" {
-			n = "item"
+			n = "bigmap"
 		}
 		for i := 0; ; i++ {
 			name := n + "_" + strconv.Itoa(i)
