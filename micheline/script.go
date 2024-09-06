@@ -367,39 +367,41 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 	}
 	_ = typ.Walk(func(p Prim) error {
 		switch p.OpCode {
+		case K_STORAGE:
+			return nil
+
+		case T_MAP:
+			key := p.Args[0].String
+			if key == "" {
+				key = fmt.Sprint(p.Args[0].Hash64())
+			}
+			for _, v := range DetectBigmapTypes(p.Args[1]) {
+				named[uniqueName(key)] = v
+			}
+			return PrimSkip
+
 		case T_BIG_MAP:
 			named[uniqueName(p.GetVarAnnoAny())] = NewType(p)
 			return PrimSkip
-		case T_MAP:
-			if p.Args[1].OpCode != T_BIG_MAP {
-				return PrimSkip
+
+		case T_LIST, T_OPTION:
+			for n, v := range DetectBigmapTypes(p.Args[0]) {
+				named[uniqueName(n)] = v
 			}
-			name := p.GetVarAnnoAny()
-			if n := p.Args[1].GetVarAnnoAny(); n != "" {
-				name = n
-			}
-			named[uniqueName(name)] = NewType(p.Args[1])
-			return PrimSkip
-		case T_LIST:
-			if p.Args[0].OpCode != T_BIG_MAP {
-				return PrimSkip
-			}
-			name := p.GetVarAnnoAny()
-			if n := p.Args[0].GetVarAnnoAny(); n != "" {
-				name = n
-			}
-			named[uniqueName(name)] = NewType(p.Args[0])
 			return PrimSkip
 
-		case T_LAMBDA:
+		case T_OR, T_PAIR:
+			for _, pp := range p.Args {
+				for n, v := range DetectBigmapTypes(pp) {
+					named[uniqueName(n)] = v
+				}
+			}
 			return PrimSkip
 
 		default:
-			// return PrimSkip
-			return nil
+			return PrimSkip
 		}
 	})
-
 	return named
 }
 
