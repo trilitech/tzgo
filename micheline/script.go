@@ -213,6 +213,9 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 			return name
 		}
 	}
+	// `values` is a queue of storage values collected from the storage value primitive tree.
+	// Here assumes `Walk` traverses the storage code primitive tree in the same ordering.
+	// The head of the queue should correspond to each primitive encountered here.
 	_ = typ.Walk(func(p Prim) error {
 		switch p.OpCode {
 		case K_STORAGE:
