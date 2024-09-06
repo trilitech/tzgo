@@ -6,7 +6,7 @@ package compose
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -44,7 +44,7 @@ func Fetch[T any](ctx Context, url string) (*T, error) {
 		return nil, fmt.Errorf("request failed: %s ", res.Status)
 	}
 	defer res.Body.Close()
-	buf, err := ioutil.ReadAll(res.Body)
+	buf, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
