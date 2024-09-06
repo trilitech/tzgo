@@ -221,17 +221,30 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 
 		case T_MAP:
 			val := (*values)[0]
-			for _, v := range val.Args {
-				// v is D_ELT
-				key := v.Args[0].String
-				if key == "" {
-					key = fmt.Sprint(v.Args[0].Hash64())
+			// val.Args is a list of key-value pairs
+			for i, v := range val.Args {
+				var name string
+				switch v.Args[0].Type {
+				case PrimString:
+					name = v.Args[0].String
+				case PrimBytes:
+					buf := v.Args[0].Bytes
+					if isASCIIBytes(buf) {
+						name = string(buf)
+					} else if tezos.IsAddressBytes(buf) {
+						a := tezos.Address{}
+						_ = a.Decode(buf)
+						name = a.String()
+					}
+				}
+				if name == "" {
+					name = p.GetVarAnnoAny() + "_" + strconv.Itoa(i)
 				}
 				value := v.Args[1]
 				nestedValues := flatten(value)
-				// Map's value type definition is in its second argument
+				// Map's value type definition is in the primitive's second argument
 				for _, v := range linkStorageTypeAndValue(p.Args[1], &nestedValues) {
-					named[uniqueName(key)] = v
+					named[uniqueName(name)] = v
 				}
 			}
 			*values = (*values)[1:]
