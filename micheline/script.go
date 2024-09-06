@@ -157,16 +157,14 @@ func (s Script) Bigmaps() map[string]int64 {
 	return DetectBigmaps(s.Code.Storage, s.Storage)
 }
 
-type StorageItem struct {
-	Type  OpCode
-	Value Prim
-}
-
-func Flatten(p Prim) []Prim {
+// Flattens pair primitives. Basically the same as the UNPAIR michelson operation.
+// For instance, `pair (pair (pair 1 2) 3) 4` becomes `pair 1 2 3 4`. Other container
+// primitives like map and list remain untouched.
+func flatten(p Prim) []Prim {
 	res := []Prim{}
 	if p.IsPair() {
 		for _, v := range p.Args {
-			res = append(res, Flatten(v)...)
+			res = append(res, flatten(v)...)
 		}
 	} else {
 		res = append(res, p)
@@ -174,32 +172,32 @@ func Flatten(p Prim) []Prim {
 	return res
 }
 
+// Returns a map of named bigmap ids obtained from a storage type and a storage value.
+// In the edge case where a T_OR branch hides an exsting bigmap behind a None value,
+// the hidden bigmap is not detected.
 func DetectBigmaps(typ Prim, storage Prim) map[string]int64 {
-	vs := Flatten(storage)
-	m := run(typ, &vs)
+	values := flatten(storage)
+	m := linkStorageTypeAndValue(typ, &values)
 	res := map[string]int64{}
-	//ks := []string{}
 	for k, v := range m {
 		if v.Type == T_BIG_MAP {
 			res[k] = v.Value.Int.Int64()
 		}
-		//ks = append(ks, k)
 	}
-	/*
-		sort.Strings(ks)
-		for _, k := range ks {
-			fmt.Printf("%-16s\t%v\n", k, m[k].Type)
-		}
-		fmt.Println(len(m))
-	*/
 	return res
 }
 
-// Returns a map of named bigmap ids obtained from a storage type and a storage value.
-// In the edge case where a T_OR branch hides an exsting bigmap behind a None value,
-// the hidden bigmap is not detected.
-func run(typ Prim, vs *[]Prim) map[string]StorageItem {
-	named := make(map[string]StorageItem)
+type storageItem struct {
+	// The code of the type definition in storage code.
+	Type OpCode
+	// The type's corresponding value in contract storage.
+	Value Prim
+}
+
+// Links storage values in a contract with type definitions in the contract's storage code.
+// Returns a mapping between value aliases and storage values.
+func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
+	named := make(map[string]storageItem)
 	uniqueName := func(n string) string {
 		if _, ok := named[n]; !ok && n != "" {
 			return n
@@ -218,10 +216,11 @@ func run(typ Prim, vs *[]Prim) map[string]StorageItem {
 	_ = typ.Walk(func(p Prim) error {
 		switch p.OpCode {
 		case K_STORAGE:
+			// The root node of the storage primitive; do nothing and continue
 			return nil
 
 		case T_MAP:
-			val := (*vs)[0]
+			val := (*values)[0]
 			for _, v := range val.Args {
 				// v is D_ELT
 				key := v.Args[0].String
@@ -229,87 +228,92 @@ func run(typ Prim, vs *[]Prim) map[string]StorageItem {
 					key = fmt.Sprint(v.Args[0].Hash64())
 				}
 				value := v.Args[1]
-				vvs := Flatten(value)
-				for _, v := range run(p.Args[1], &vvs) {
+				nestedValues := flatten(value)
+				// Map's value type definition is in its second argument
+				for _, v := range linkStorageTypeAndValue(p.Args[1], &nestedValues) {
 					named[uniqueName(key)] = v
 				}
 			}
-			*vs = (*vs)[1:]
+			*values = (*values)[1:]
 			return PrimSkip
 
 		case T_BIG_MAP:
-			val := (*vs)[0]
+			val := (*values)[0]
 			if val.IsValid() && val.Type == PrimInt {
-				named[uniqueName(p.GetVarAnnoAny())] = StorageItem{
+				named[uniqueName(p.GetVarAnnoAny())] = storageItem{
 					Type:  p.OpCode,
 					Value: val,
 				}
 			}
-			*vs = (*vs)[1:]
+			*values = (*values)[1:]
 			return PrimSkip
 
 		case T_OPTION:
-			val := (*vs)[0]
+			val := (*values)[0]
 			// option always has only one argument
 			// val is Some or None
 			if val.OpCode == D_SOME {
-				vvs := Flatten(val.Args[0])
-				for n, v := range run(p.Args[0], &vvs) {
+				nestedValues := flatten(val.Args[0])
+				for n, v := range linkStorageTypeAndValue(p.Args[0], &nestedValues) {
 					named[uniqueName(n)] = v
 				}
 			} else {
-				named[uniqueName(p.GetVarAnnoAny())] = StorageItem{
+				named[uniqueName(p.GetVarAnnoAny())] = storageItem{
 					Type:  p.OpCode,
 					Value: val,
 				}
 			}
-			*vs = (*vs)[1:]
+			*values = (*values)[1:]
 			return PrimSkip
 
 		case T_PAIR:
-			for _, pp := range p.Args {
-				for n, v := range run(pp, vs) {
+			for _, arg := range p.Args {
+				for n, v := range linkStorageTypeAndValue(arg, values) {
 					named[uniqueName(n)] = v
 				}
 			}
 			return PrimSkip
 
 		case T_LIST:
-			val := (*vs)[0]
-			for _, vv := range val.Args {
-				vvs := Flatten(vv)
-				for n, v := range run(p.Args[0], &vvs) {
+			val := (*values)[0]
+			for _, arg := range val.Args {
+				// List items are not flattened in previous operations and remain individual
+				// entities until now. Here the primitive is unpacked and processed against
+				// the list item type definition.
+				nestedValues := flatten(arg)
+				// The list item's type definition is in the first argument of the list type.
+				for n, v := range linkStorageTypeAndValue(p.Args[0], &nestedValues) {
 					named[uniqueName(n)] = v
 				}
 			}
-			*vs = (*vs)[1:]
+			*values = (*values)[1:]
 			return PrimSkip
 
 		case T_OR:
-			val := (*vs)[0]
-			vvs := Flatten(val.Args[0])
+			val := (*values)[0]
+			nestedValues := flatten(val.Args[0])
 			if val.OpCode == D_LEFT {
-				// Left branch in OR's first argument
-				for n, v := range run(p.Args[0], &vvs) {
+				// Left branch in OR type's first argument
+				for n, v := range linkStorageTypeAndValue(p.Args[0], &nestedValues) {
 					named[uniqueName(n)] = v
 				}
 			} else {
 				// OpCode == D_RIGHT
-				// Right branch in OR's second argument
-				for n, v := range run(p.Args[1], &vvs) {
+				// Right branch in OR type's second argument
+				for n, v := range linkStorageTypeAndValue(p.Args[1], &nestedValues) {
 					named[uniqueName(n)] = v
 				}
 			}
-			*vs = (*vs)[1:]
+			*values = (*values)[1:]
 			return PrimSkip
 
 		default:
-			if len(*vs) > 0 {
-				named[uniqueName(p.GetVarAnnoAny())] = StorageItem{
+			if len(*values) > 0 {
+				named[uniqueName(p.GetVarAnnoAny())] = storageItem{
 					Type:  p.OpCode,
-					Value: (*vs)[0],
+					Value: (*values)[0],
 				}
-				*vs = (*vs)[1:]
+				*values = (*values)[1:]
 			}
 			return PrimSkip
 		}
