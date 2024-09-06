@@ -87,10 +87,8 @@ func TestParamsStatic(t *testing.T) {
 
 func TestDefaultParams(t *testing.T) {
 	for n, p := range map[string]*tezos.Params{
-		"main":    tezos.DefaultParams,
-		"ghost":   tezos.GhostnetParams,
-		"nairobi": tezos.NairobinetParams,
-		"oxford":  tezos.OxfordnetParams,
+		"main":  tezos.DefaultParams,
+		"ghost": tezos.GhostnetParams,
 	} {
 		if p.Network == "" {
 			t.Errorf("%s params: Empty network name", n)
@@ -756,7 +754,7 @@ var paramBlocks = []BlockMetadata{
 		LevelInfo: &LevelInfo{
 			Level:              3760128,
 			Cycle:              622,
-			CyclePosition:      8191,
+			CyclePosition:      16383,
 			ExpectedCommitment: true,
 		},
 		VotingPeriodInfo: &VotingPeriodInfo{
@@ -784,7 +782,7 @@ var paramBlocks = []BlockMetadata{
 		LevelInfo: &LevelInfo{
 			Level:              5070848,
 			Cycle:              702,
-			CyclePosition:      8191,
+			CyclePosition:      16383,
 			ExpectedCommitment: true,
 		},
 		VotingPeriodInfo: &VotingPeriodInfo{
@@ -812,7 +810,7 @@ var paramBlocks = []BlockMetadata{
 		LevelInfo: &LevelInfo{
 			Level:              5726208,
 			Cycle:              742,
-			CyclePosition:      8191,
+			CyclePosition:      16383,
 			ExpectedCommitment: true,
 		},
 		VotingPeriodInfo: &VotingPeriodInfo{

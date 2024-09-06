@@ -101,6 +101,11 @@ func (c Constants) MapToChainParams() *tezos.Params {
 		MinimalBlockDelay:            time.Duration(c.MinimalBlockDelay) * time.Second,
 	}
 
+	// Paris blocks per snapshot
+	if p.BlocksPerSnapshot == 0 {
+		p.BlocksPerSnapshot = c.BlocksPerCycle
+	}
+
 	// backport preserved cycles
 	if p.ConsensusRightsDelay == 0 {
 		p.ConsensusRightsDelay = c.PreservedCycles

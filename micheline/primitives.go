@@ -1494,6 +1494,9 @@ func (p *Prim) DecodeBuffer(buf *bytes.Buffer) error {
 			p.Args = append(p.Args, prim)
 		}
 		// annotation array byte size
+		if buf.Len() < 4 {
+			return io.ErrShortBuffer
+		}
 		size = int(binary.BigEndian.Uint32(buf.Next(4)))
 		if buf.Len() < size {
 			return io.ErrShortBuffer

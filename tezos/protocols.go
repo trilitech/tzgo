@@ -3,6 +3,8 @@
 
 package tezos
 
+import "sync"
+
 var (
 	ProtoAlpha     = MustParseProtocolHash("ProtoALphaALphaALphaALphaALphaALphaALphaALphaDdp3zK")
 	ProtoGenesis   = MustParseProtocolHash("PrihK96nBAFSxVL1GLJTVhu9YnzkMFiBeuJRPA8NwuZVZCE1L6i")
@@ -25,7 +27,8 @@ var (
 	ProtoV016_2    = MustParseProtocolHash("PtMumbai2TmsJHNGRkD8v8YDbtao7BLUC3wjASn1inAKLFCjaH1")
 	ProtoV017      = MustParseProtocolHash("PtNairobiyssHuh87hEhfVBGCVrK3WnS8Z2FT4ymB5tAa4r1nQf")
 	ProtoV018      = MustParseProtocolHash("ProxfordYmVfjWnRcgjWH36fW6PArwqykTFzotUxRs6gmTcZDuH")
-	ProtoV019      = MustParseProtocolHash("PtParisBQscdCm6Cfow6ndeU6wKJyA3aV1j4D3gQBQMsTQyJCrz")
+	ProtoV019      = MustParseProtocolHash("PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ")
+	ProtoV020      = MustParseProtocolHash("PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -44,14 +47,15 @@ var (
 	PtNairobi = ProtoV017
 	Proxford  = ProtoV018
 	PtParisB  = ProtoV019
+	PsParisC  = ProtoV020
 
-	Mainnet    = MustParseChainIdHash("NetXdQprcVkpaWU")
-	Ghostnet   = MustParseChainIdHash("NetXnHfVqm9iesp")
-	Nairobinet = MustParseChainIdHash("NetXyuzvDo2Ugzb")
-	Oxfordnet  = MustParseChainIdHash("NetXxWsskGahzQB")
-	Parisnet   = MustParseChainIdHash("NetXo8SqH1c38SS")
+	Mainnet   = MustParseChainIdHash("NetXdQprcVkpaWU")
+	Ghostnet  = MustParseChainIdHash("NetXnHfVqm9iesp")
+	Parisnet  = MustParseChainIdHash("NetXR64bNAYkP4S")
+	ParisCnet = MustParseChainIdHash("NetXXWAHLEvre9b")
 
-	Versions = map[ProtocolHash]int{
+	versionsMtx = sync.RWMutex{}
+	Versions    = map[ProtocolHash]int{
 		ProtoGenesis:   0,
 		ProtoBootstrap: 0,
 		ProtoV001:      1,
@@ -73,7 +77,8 @@ var (
 		ProtoV017:      17,
 		ProtoV018:      18,
 		ProtoV019:      19,
-		ProtoAlpha:     20,
+		ProtoV020:      20,
+		ProtoAlpha:     21,
 	}
 
 	Deployments = map[ChainIdHash]ProtocolHistory{
@@ -98,38 +103,33 @@ var (
 			{PtMumbai, 0, 3268609, 3760128, 593, 5, 16384, 1024},  // v16
 			{PtNairobi, 0, 3760129, 5070848, 623, 5, 16384, 1024}, // v17
 			{Proxford, 0, 5070849, 5726208, 703, 5, 16384, 1024},  // v18
-			{PtParisB, 0, 5726209, -1, 743, 2, 24576, 24576},      // v19
+			{PtParisB, 0, 5726209, 5898240, 743, 2, 24576, 24576}, // v19
+			{PsParisC, 0, 5898241, -1, 750, 2, 24576, 24576},      // v19
 		},
 		Ghostnet: {
-			{ProtoGenesis, 0, 0, 0, 0, 3, 4096, 256},            // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 3, 4096, 256},          // 0
-			{PtHangz2, 2, 2, 8191, 0, 3, 4096, 256},             // v11
-			{Psithaca, 0, 8192, 765952, 2, 3, 4096, 256},        // v12
-			{PtJakart, 0, 765953, 1191936, 187, 3, 4096, 256},   // v13
-			{PtKathma, 0, 1191937, 1654784, 291, 3, 4096, 256},  // v14
-			{PtLimaPt, 0, 1654785, 2162688, 404, 3, 4096, 256},  // v15
-			{PtMumbai, 0, 2162689, 2957312, 528, 3, 8192, 512},  // v16
-			{PtNairobi, 0, 2957313, 5316608, 625, 3, 8192, 512}, // v17
-			{Proxford, 0, 5316609, -1, 913, 3, 8192, 512},       // v18
-			// {PtParisB, 0, 5316609, -1, 913, 3, 8192, 8192},       // v19
-		},
-		Nairobinet: {
-			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},   // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512}, // 0
-			{PtMumbai, 2, 2, 16384, 0, 3, 8192, 512},   // v16
-			{PtNairobi, 0, 16385, -1, 2, 3, 8192, 512}, // v17
-		},
-		Oxfordnet: {
-			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},   // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512}, // 0
-			{PtNairobi, 2, 2, 16384, 0, 3, 8192, 512},  // v17
-			{Proxford, 0, 16385, -1, 2, 3, 8192, 512},  // v18
+			{ProtoGenesis, 0, 0, 0, 0, 3, 4096, 256},               // 0
+			{ProtoBootstrap, 0, 1, 1, 0, 3, 4096, 256},             // 0
+			{PtHangz2, 2, 2, 8191, 0, 3, 4096, 256},                // v11
+			{Psithaca, 0, 8192, 765952, 2, 3, 4096, 256},           // v12
+			{PtJakart, 0, 765953, 1191936, 187, 3, 4096, 256},      // v13
+			{PtKathma, 0, 1191937, 1654784, 291, 3, 4096, 256},     // v14
+			{PtLimaPt, 0, 1654785, 2162688, 404, 3, 4096, 256},     // v15
+			{PtMumbai, 0, 2162689, 2957312, 528, 3, 8192, 512},     // v16
+			{PtNairobi, 0, 2957313, 5316608, 625, 3, 8192, 512},    // v17
+			{Proxford, 0, 5316609, 6422528, 913, 3, 8192, 512},     // v18
+			{PtParisB, 0, 6422529, 6729728, 1048, 2, 12288, 12288}, // v19
+			{PsParisC, 0, 6729729, -1, 1073, 2, 12288, 12288},      // v19
 		},
 		Parisnet: {
-			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},     // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512},   // 0
-			{Proxford, 2, 2, 16384, 0, 3, 8192, 512},     // v18
-			{PtParisB, 0, 16385, -1, 2, 2, 12288, 12288}, // v19
+			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},    // 0
+			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512},  // 0
+			{Proxford, 2, 2, 8192, 0, 3, 8192, 512},     // v18
+			{PtParisB, 0, 8193, -1, 1, 2, 12288, 12288}, // v19
+		},
+		ParisCnet: {
+			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},   // 0
+			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512}, // 0
+			{PsParisC, 2, 2, -1, 0, 2, 128, 128},       // v19
 		},
 	}
 )
