@@ -368,6 +368,7 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 	_ = typ.Walk(func(p Prim) error {
 		switch p.OpCode {
 		case K_STORAGE:
+			// The root node of the storage primitive; do nothing and continue
 			return nil
 
 		case T_MAP:
@@ -375,6 +376,7 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 			if key == "" {
 				key = fmt.Sprint(p.Args[0].Hash64())
 			}
+			// Map's value type definition is in its second argument
 			for _, v := range DetectBigmapTypes(p.Args[1]) {
 				named[uniqueName(key)] = v
 			}
@@ -385,14 +387,17 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 			return PrimSkip
 
 		case T_LIST, T_OPTION:
+			// Type definition of list items and option values is in the
+			// first (and the only) argument of the primitive
 			for n, v := range DetectBigmapTypes(p.Args[0]) {
 				named[uniqueName(n)] = v
 			}
 			return PrimSkip
 
 		case T_OR, T_PAIR:
-			for _, pp := range p.Args {
-				for n, v := range DetectBigmapTypes(pp) {
+			// OR candidates are defined in the arguments of the OR primitive
+			for _, arg := range p.Args {
+				for n, v := range DetectBigmapTypes(arg) {
 					named[uniqueName(n)] = v
 				}
 			}
