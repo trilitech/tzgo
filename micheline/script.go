@@ -367,39 +367,46 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 	}
 	_ = typ.Walk(func(p Prim) error {
 		switch p.OpCode {
+		case K_STORAGE:
+			// The root node of the storage primitive; do nothing and continue
+			return nil
+
+		case T_MAP:
+			key := p.Args[0].String
+			if key == "" {
+				key = fmt.Sprint(p.Args[0].Hash64())
+			}
+			// Map's value type definition is in its second argument
+			for _, v := range DetectBigmapTypes(p.Args[1]) {
+				named[uniqueName(key)] = v
+			}
+			return PrimSkip
+
 		case T_BIG_MAP:
 			named[uniqueName(p.GetVarAnnoAny())] = NewType(p)
 			return PrimSkip
-		case T_MAP:
-			if p.Args[1].OpCode != T_BIG_MAP {
-				return PrimSkip
+
+		case T_LIST, T_OPTION:
+			// Type definition of list items and option values is in the
+			// first (and the only) argument of the primitive
+			for n, v := range DetectBigmapTypes(p.Args[0]) {
+				named[uniqueName(n)] = v
 			}
-			name := p.GetVarAnnoAny()
-			if n := p.Args[1].GetVarAnnoAny(); n != "" {
-				name = n
-			}
-			named[uniqueName(name)] = NewType(p.Args[1])
-			return PrimSkip
-		case T_LIST:
-			if p.Args[0].OpCode != T_BIG_MAP {
-				return PrimSkip
-			}
-			name := p.GetVarAnnoAny()
-			if n := p.Args[0].GetVarAnnoAny(); n != "" {
-				name = n
-			}
-			named[uniqueName(name)] = NewType(p.Args[0])
 			return PrimSkip
 
-		case T_LAMBDA:
+		case T_OR, T_PAIR:
+			// OR candidates are defined in the arguments of the OR primitive
+			for _, arg := range p.Args {
+				for n, v := range DetectBigmapTypes(arg) {
+					named[uniqueName(n)] = v
+				}
+			}
 			return PrimSkip
 
 		default:
-			// return PrimSkip
-			return nil
+			return PrimSkip
 		}
 	})
-
 	return named
 }
 
