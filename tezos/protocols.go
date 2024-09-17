@@ -29,6 +29,7 @@ var (
 	ProtoV018      = MustParseProtocolHash("ProxfordYmVfjWnRcgjWH36fW6PArwqykTFzotUxRs6gmTcZDuH")
 	ProtoV019      = MustParseProtocolHash("PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ")
 	ProtoV020      = MustParseProtocolHash("PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi")
+	ProtoV021      = MustParseProtocolHash("PsquebeCaYyvBEESCaXL8B8Tn8BcEhps2Zke1xMVtyr7X4qMfxT")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -48,10 +49,10 @@ var (
 	Proxford  = ProtoV018
 	PtParisB  = ProtoV019
 	PsParisC  = ProtoV020
+	PsQuebec  = ProtoV021
 
 	Mainnet   = MustParseChainIdHash("NetXdQprcVkpaWU")
 	Ghostnet  = MustParseChainIdHash("NetXnHfVqm9iesp")
-	Parisnet  = MustParseChainIdHash("NetXR64bNAYkP4S")
 	ParisCnet = MustParseChainIdHash("NetXXWAHLEvre9b")
 
 	versionsMtx = sync.RWMutex{}
@@ -78,7 +79,8 @@ var (
 		ProtoV018:      18,
 		ProtoV019:      19,
 		ProtoV020:      20,
-		ProtoAlpha:     21,
+		ProtoV021:      21,
+		ProtoAlpha:     22,
 	}
 
 	Deployments = map[ChainIdHash]ProtocolHistory{
@@ -104,7 +106,8 @@ var (
 			{PtNairobi, 0, 3760129, 5070848, 623, 5, 16384, 1024}, // v17
 			{Proxford, 0, 5070849, 5726208, 703, 5, 16384, 1024},  // v18
 			{PtParisB, 0, 5726209, 5898240, 743, 2, 24576, 24576}, // v19
-			{PsParisC, 0, 5898241, -1, 750, 2, 24576, 24576},      // v19
+			{PsParisC, 0, 5898241, -1, 750, 2, 24576, 24576},      // v20
+			{PsQuebec, 0, 5898241, -1, 750, 2, 30720, 30720},      // v21
 		},
 		Ghostnet: {
 			{ProtoGenesis, 0, 0, 0, 0, 3, 4096, 256},               // 0
@@ -118,13 +121,8 @@ var (
 			{PtNairobi, 0, 2957313, 5316608, 625, 3, 8192, 512},    // v17
 			{Proxford, 0, 5316609, 6422528, 913, 3, 8192, 512},     // v18
 			{PtParisB, 0, 6422529, 6729728, 1048, 2, 12288, 12288}, // v19
-			{PsParisC, 0, 6729729, -1, 1073, 2, 12288, 12288},      // v19
-		},
-		Parisnet: {
-			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},    // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 3, 8192, 512},  // 0
-			{Proxford, 2, 2, 8192, 0, 3, 8192, 512},     // v18
-			{PtParisB, 0, 8193, -1, 1, 2, 12288, 12288}, // v19
+			{PsParisC, 0, 6729729, -1, 1073, 2, 12288, 12288},      // v20
+			{PsQuebec, 0, 5898241, -1, 750, 2, 30720, 30720},       // v21
 		},
 		ParisCnet: {
 			{ProtoGenesis, 0, 0, 0, 0, 3, 8192, 512},   // 0
