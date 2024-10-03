@@ -43,7 +43,16 @@ type FrozenDeposit struct {
 
 // GetUnstakedFrozenDeposits returns a delegate's unstaked frozen deposits
 func (c *Client) GetUnstakedFrozenDeposits(ctx context.Context, addr tezos.Address, id BlockID) ([]FrozenDeposit, error) {
-	u := fmt.Sprintf("chains/main/blocks/%s/context/delegates/%s/unstaked_frozen_deposits", id, addr)
+	p, err := c.GetParams(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	resource := "unstaked_frozen_deposits"
+	if p.Version >= 21 {
+		resource = "total_unstaked_per_cycle"
+	}
+
+	u := fmt.Sprintf("chains/main/blocks/%s/context/delegates/%s/%s", id, addr, resource)
 	list := make([]FrozenDeposit, 0, 7)
 	if err := c.Get(ctx, u, &list); err != nil {
 		return nil, err
