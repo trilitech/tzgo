@@ -13,47 +13,32 @@ var (
 	// either overwrite this default or set custom params per operation using
 	// op.WithParams().
 	DefaultParams = (&Params{
-		MinimalBlockDelay:            10 * time.Second,
-		CostPerByte:                  250,
-		OriginationSize:              257,
-		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1733333,
-		HardStorageLimitPerOperation: 60000,
-		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             360,
-	}).
-		WithChainId(Mainnet).
-		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV019))
-
-	// GhostnetParams defines the blockchain configuration for Ghostnet testnet.
-	// To produce compliant transactions, use these defaults in op.WithParams().
-	GhostnetParams = (&Params{
 		MinimalBlockDelay:            8 * time.Second,
 		CostPerByte:                  250,
 		OriginationSize:              257,
 		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1733333,
+		HardGasLimitPerBlock:         1386666,
 		HardStorageLimitPerOperation: 60000,
 		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             360,
+		MaxOperationsTTL:             450,
 	}).
-		WithChainId(Ghostnet).
-		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV019))
+		WithChainId(Mainnet).
+		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV021))
 
-	// ParisnetParams defines the blockchain configuration for Paris testnet.
+	// GhostnetParams defines the blockchain configuration for Ghostnet testnet.
 	// To produce compliant transactions, use these defaults in op.WithParams().
-	ParisnetParams = (&Params{
+	GhostnetParams = (&Params{
 		MinimalBlockDelay:            5 * time.Second,
 		CostPerByte:                  250,
 		OriginationSize:              257,
 		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1733333,
+		HardGasLimitPerBlock:         1386666,
 		HardStorageLimitPerOperation: 60000,
 		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             360,
+		MaxOperationsTTL:             450,
 	}).
-		WithChainId(Parisnet).
-		WithDeployment(Deployments[Parisnet].AtProtocol(ProtoV019))
+		WithChainId(Ghostnet).
+		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV021))
 )
 
 // Params contains a subset of protocol configuration settings that are relevant
@@ -111,10 +96,6 @@ func (p *Params) WithChainId(id ChainIdHash) *Params {
 			p.Network = "Mainnet"
 		case Ghostnet:
 			p.Network = "Ghostnet"
-		case Parisnet:
-			p.Network = "Parisnet"
-		case ParisCnet:
-			p.Network = "ParisCnet"
 		}
 	}
 	return p
