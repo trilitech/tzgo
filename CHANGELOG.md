@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.21.0
+* BREAKING CHANGE: Delegate information is remapped due to RPC changes. The full schema can be found at [link]()
+
 ## v1.19.2
 * Update Parisnet hash
 * Update protocol history of ghostnet
