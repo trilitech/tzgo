@@ -112,7 +112,7 @@ func main() {
 			panic(err)
 		}
 	}()
-
+	var total float64
 	fi.WriteString("baker,start_time,start_block,end_time,end_block,total_income,total_loss\n")
 	for _, baker := range params.BakerAddresses {
 		startBalance, err := c.GetDelegate(ctx, tezos.MustParseAddress(baker), startBlock.Hash)
@@ -133,8 +133,10 @@ func main() {
 			loss = v
 		}
 		s := fmt.Sprintf("%s,%s,%d,%s,%d,%f,%f\n", baker, startBlock.Header.Timestamp.UTC().Format("2006-01-02T15:04:05Z"), startBlock.GetLevel(), endBlock.Header.Timestamp.UTC().Format("2006-01-02T15:04:05Z"), endBlock.GetLevel(), income, loss)
+		total += income
 		fi.WriteString(s)
 	}
+	fmt.Printf("total income for %d baker(s): %.6f tez\n", len(params.BakerAddresses), total)
 }
 
 func findBlock(c *rpc.Client, ctx context.Context, ts time.Time) (*rpc.Block, error) {
