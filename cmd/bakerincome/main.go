@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/trilitech/tzgo/rpc"
 	"github.com/trilitech/tzgo/tezos"
@@ -14,8 +15,8 @@ import (
 type Params struct {
 	BakerAddresses []string
 	OutputPath     string
-	StartCycle     int64
-	EndCycle       int64
+	StartDate      time.Time
+	EndDate        time.Time
 	RpcUrl         string
 }
 
@@ -24,8 +25,8 @@ func parseParams() *Params {
 	outputPath := flag.String("output", "", "output file path")
 	rpcUrl := flag.String("rpc", "", "RPC URL")
 
-	startCycle := flag.Int64("start", -1, "start cycle")
-	endCycle := flag.Int64("end", -1, "end cycle")
+	startDate := flag.String("start", "", "start date")
+	endDate := flag.String("end", "", "end date")
 
 	flag.Parse()
 
@@ -45,11 +46,33 @@ func parseParams() *Params {
 		return nil
 	}
 
+	start := time.Unix(0, 0)
+	if *startDate != "" {
+		s, err := time.Parse("2006-01-02", *startDate)
+		if err != nil {
+			fmt.Println("Failed to parse start date")
+			return nil
+		}
+		start = s
+	}
+
+	end := time.Now()
+	if *endDate != "" {
+		e, err := time.Parse("2006-01-02", *endDate)
+		if err != nil {
+			fmt.Println("Failed to parse end date")
+			return nil
+		}
+		// to cover the full last day
+		e = e.Add(time.Hour * 24)
+		end = e
+	}
+
 	return &Params{
 		BakerAddresses: bakers,
 		OutputPath:     *outputPath,
-		StartCycle:     *startCycle,
-		EndCycle:       *endCycle,
+		StartDate:      start,
+		EndDate:        end,
 		RpcUrl:         *rpcUrl,
 	}
 }
@@ -66,19 +89,15 @@ func main() {
 	// all SDK functions take a context, here we just use a dummy
 	ctx := context.TODO()
 
-	head, err := c.GetHeadBlock(ctx)
+	startBlock, err := findBlock(c, ctx, params.StartDate)
 	if err != nil {
+		fmt.Println("Failed to read start block")
 		return
-	} else {
-		if params.StartCycle == -1 {
-			params.StartCycle = head.GetCycle() - 1
-		}
-		if params.EndCycle == -1 {
-			params.EndCycle = head.GetCycle() - 1
-		}
-		if params.EndCycle < params.StartCycle {
-			params.EndCycle = params.StartCycle
-		}
+	}
+	endBlock, err := findBlock(c, ctx, params.EndDate)
+	if err != nil {
+		fmt.Println("Failed to read end block")
+		return
 	}
 
 	fi, err := os.Create(params.OutputPath)
@@ -94,52 +113,46 @@ func main() {
 		}
 	}()
 
-	fi.WriteString("cycle,start_time,end_time" + strings.Repeat(",total_income,total_loss", len(params.BakerAddresses)) + "\n")
-	s := ""
-	for cycle := params.StartCycle; cycle <= params.EndCycle; cycle++ {
-		startHeight, endHeight := getHeights(head.ChainId, cycle)
-		startBlock, err := c.GetBlockHeight(ctx, startHeight)
+	fi.WriteString("baker,start_time,start_block,end_time,end_block,total_income,total_loss\n")
+	for _, baker := range params.BakerAddresses {
+		startBalance, err := c.GetDelegate(ctx, tezos.MustParseAddress(baker), startBlock.Hash)
 		if err != nil {
-			fmt.Printf("Failed to read start block at level %v: %+v\n", startHeight, err)
+			fmt.Printf("Failed to fetch baker %v at level %v: %+v\n", baker, startBlock.GetLevel(), err)
 			return
 		}
-		endBlock, err := c.GetBlockHeight(ctx, endHeight)
+		endBalance, err := c.GetDelegate(ctx, tezos.MustParseAddress(baker), endBlock.Hash)
 		if err != nil {
-			fmt.Printf("Failed to read end block at level %v: %+v\n", endHeight, err)
+			fmt.Printf("Failed to fetch baker %v at level %v: %+v\n", baker, endBlock.GetLevel(), err)
 			return
 		}
-		s = fmt.Sprintf("%d,%s,%s", cycle, startBlock.Header.Timestamp.UTC().Format("2006-01-02T15:04:05Z"), endBlock.Header.Timestamp.UTC().Format("2006-01-02T15:04:05Z"))
-		for _, baker := range params.BakerAddresses {
-			startBalance, err := c.GetDelegate(ctx, tezos.MustParseAddress(baker), startBlock.Hash)
-			if err != nil {
-				fmt.Printf("Failed to fetch baker %v at level %v: %+v\n", baker, startHeight, err)
-				return
-			}
-			endBalance, err := c.GetDelegate(ctx, tezos.MustParseAddress(baker), endBlock.Hash)
-			if err != nil {
-				fmt.Printf("Failed to fetch baker %v at level %v: %+v\n", baker, endHeight, err)
-				return
-			}
-			v := float64(endBalance.FullBalance-startBalance.FullBalance) / 1e6
-			income := v
-			loss := float64(0)
-			if v < 0 {
-				income = 0
-				loss = v
-			}
-			s += fmt.Sprintf(",%f,%f", income, loss)
+		v := float64(endBalance.FullBalance-startBalance.FullBalance) / 1e6
+		income := v
+		loss := float64(0)
+		if v < 0 {
+			income = 0
+			loss = v
 		}
-
-		fi.WriteString(s + "\n")
-		s = ""
+		s := fmt.Sprintf("%s,%s,%d,%s,%d,%f,%f\n", baker, startBlock.Header.Timestamp.UTC().Format("2006-01-02T15:04:05Z"), startBlock.GetLevel(), endBlock.Header.Timestamp.UTC().Format("2006-01-02T15:04:05Z"), endBlock.GetLevel(), income, loss)
+		fi.WriteString(s)
 	}
 }
 
-func getHeights(chainId tezos.ChainIdHash, cycle int64) (int64, int64) {
-	d := tezos.Deployments[chainId].AtCycle(cycle)
-	// balance at the end of the last cycle should be the same as that
-	// at the very beginning of the current cycle
-	startHeight := d.StartHeight + (cycle-d.StartCycle)*d.BlocksPerCycle - 1
-	endHeight := startHeight + d.BlocksPerCycle
-	return startHeight, endHeight
+func findBlock(c *rpc.Client, ctx context.Context, ts time.Time) (*rpc.Block, error) {
+	left := int64(1)
+	d, _ := c.GetHeadBlock(ctx)
+	right := d.Header.Level
+
+	for {
+		if left >= right {
+			break
+		}
+		mid := (left + right) / 2
+		block, _ := c.GetBlockHeight(ctx, mid)
+		if ts.After(block.GetTimestamp()) {
+			left = mid + 1
+		} else {
+			right = mid
+		}
+	}
+	return c.GetBlockHeight(ctx, left)
 }
