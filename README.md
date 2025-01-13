@@ -6,7 +6,7 @@ TzGo's main focus is on **correctness**, **stability**, and **compliance** with 
 
 Current Tezos protocol support in TzGo
 
-- Qena v021
+- Quebec v021
 - ParisC v020
 - Paris v019
 - Oxford v018
