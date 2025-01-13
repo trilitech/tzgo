@@ -91,7 +91,7 @@ type Delegate struct {
 	OwnDelegated          uint64 `json:"own_delegated,string"`
 	ExternalStaked        uint64 `json:"external_staked,string"`
 	ExternalDelegated     uint64 `json:"external_delegated,string"`
-	TotalUnstakedPerCycle struct {
+	TotalUnstakedPerCycle []struct {
 		Cycle   int64  `json:"cycle"`
 		Deposit uint64 `json:"deposit,string"`
 	} `json:"total_unstaked_per_cycle"`
@@ -107,7 +107,7 @@ type Delegate struct {
 	EstimatedSharedPendingSlashedAmount uint64 `json:"estimated_shared_pending_slashed_amount,string"`
 	CurrentVotingPower                  uint64 `json:"current_voting_power,string"`
 	VotingInfo                          struct {
-		VotingPower        int64                `json:"voting_power"`
+		VotingPower        int64                `json:"voting_power,string"`
 		CurrentBallot      Vote                 `json:"current_ballot"`
 		CurrentProposals   []tezos.ProtocolHash `json:"current_proposals"`
 		RemainingProposals int64                `json:"remaining_proposals"`
