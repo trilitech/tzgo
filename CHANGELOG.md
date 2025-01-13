@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.21.0
+* Quebec protocol support
+
 ## v1.19.2
 * Update Parisnet hash
 * Update protocol history of ghostnet
