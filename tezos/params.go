@@ -28,7 +28,7 @@ var (
 	// GhostnetParams defines the blockchain configuration for Ghostnet testnet.
 	// To produce compliant transactions, use these defaults in op.WithParams().
 	GhostnetParams = (&Params{
-		MinimalBlockDelay:            5 * time.Second,
+		MinimalBlockDelay:            4 * time.Second,
 		CostPerByte:                  250,
 		OriginationSize:              257,
 		HardGasLimitPerOperation:     1040000,
