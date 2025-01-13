@@ -2,6 +2,7 @@
 
 ## v1.21.0
 * Quebec protocol support
+* BREAKING CHANGE: Delegate information is remapped due to RPC changes. The full schema can be found at [link](https://gitlab.com/tezos/tezos/-/blob/882112a1978d5774f34a1700c6f5584e650a086b/docs/api/quebec-openapi.json)
 
 ## v1.19.2
 * Update Parisnet hash
