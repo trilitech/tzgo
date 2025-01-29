@@ -87,6 +87,22 @@ func TestParamsStatic(t *testing.T) {
 	}
 }
 
+func TestQuebecCycleEnd(t *testing.T) {
+	var cycleEndResults = map[int64]int64{
+		821: 7667712,
+		822: 7692288,
+		823: 7723008,
+		824: 7753728,
+		825: 7784448,
+	}
+	for cycle, height := range cycleEndResults {
+		p := NewParams().WithChainId(Mainnet).AtBlock(height - 500)
+		if p.CycleEndHeight(cycle) != height {
+			t.Errorf("CycleEndHeight(%d) mismatch: have=%d want=%d", cycle, p.CycleEndHeight(cycle), height)
+		}
+	}
+}
+
 func TestDefaultParams(t *testing.T) {
 	for n, p := range map[string]*tezos.Params{
 		"main":  tezos.DefaultParams,
