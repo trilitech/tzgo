@@ -88,17 +88,30 @@ func TestParamsStatic(t *testing.T) {
 }
 
 func TestQuebecCycleEnd(t *testing.T) {
-	var cycleEndResults = map[int64]int64{
-		821: 7667712,
-		822: 7692288,
-		823: 7723008,
-		824: 7753728,
-		825: 7784448,
+	for cycle, v := range cycleBlocks {
+		startHeight := v[0]
+		endHeight := v[1]
+		p := NewParams().WithChainId(Mainnet).AtBlock(startHeight)
+		if p.CycleEndHeight(cycle) != endHeight {
+			t.Errorf("CycleEndHeight(%d) mismatch: have=%d want=%d", cycle, p.CycleEndHeight(cycle), endHeight)
+		}
 	}
-	for cycle, height := range cycleEndResults {
-		p := NewParams().WithChainId(Mainnet).AtBlock(height - 500)
-		if p.CycleEndHeight(cycle) != height {
-			t.Errorf("CycleEndHeight(%d) mismatch: have=%d want=%d", cycle, p.CycleEndHeight(cycle), height)
+}
+
+func TestSnapshotBlock(t *testing.T) {
+	for cycle, v := range cycleBlocks {
+		startCycle := v[0]
+		snapCycle := v[2]
+		p := NewParams().WithChainId(Mainnet).AtBlock(startCycle)
+
+		if have, want := p.SnapshotBlock(cycle, 0), snapCycle; have != want {
+			t.Errorf("SnapshotBlock(%d, %d) mismatch: have=%d want=%d", 15, cycle, have, want)
+		}
+		if have, want := p.SnapshotBlock(cycle, 15), snapCycle; have != want {
+			t.Errorf("SnapshotBlock(%d, %d) mismatch: have=%d want=%d", 15, cycle, have, want)
+		}
+		if have, want := p.SnapshotBlock(cycle, 11), snapCycle; have != want {
+			t.Errorf("SnapshotBlock(%d, %d) mismatch: have=%d want=%d", 11, cycle, have, want)
 		}
 	}
 }
@@ -242,6 +255,16 @@ func (p paramResult) IsVoteStart() bool {
 
 func (p paramResult) IsVoteEnd() bool {
 	return p.Flags&0x1 > 0
+}
+
+var cycleBlocks = map[int64][]int64{
+	826: {7784449, 7815168, 7723008},
+	825: {7753729, 7784448, 7692288},
+	824: {7723009, 7753728, 7667712},
+	823: {7692289, 7723008, 7643136}, // first quebec cycle
+	822: {7667713, 7692288, 7618560},
+	821: {7643137, 7667712, 7593984},
+	820: {7618561, 7643136, 7569408},
 }
 
 var paramResults = map[int64]paramResult{
