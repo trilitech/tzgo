@@ -30,6 +30,7 @@ var (
 	ProtoV019      = MustParseProtocolHash("PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ")
 	ProtoV020      = MustParseProtocolHash("PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi")
 	ProtoV021      = MustParseProtocolHash("PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg")
+	ProtoV022      = MustParseProtocolHash("PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -50,6 +51,7 @@ var (
 	PtParisB  = ProtoV019
 	PsParisC  = ProtoV020
 	PsQuebec  = ProtoV021
+	PsRiotum  = ProtoV022
 
 	Mainnet  = MustParseChainIdHash("NetXdQprcVkpaWU")
 	Ghostnet = MustParseChainIdHash("NetXnHfVqm9iesp")
@@ -79,7 +81,8 @@ var (
 		ProtoV019:      19,
 		ProtoV020:      20,
 		ProtoV021:      21,
-		ProtoAlpha:     22,
+		ProtoV022:      22,
+		ProtoAlpha:     23,
 	}
 
 	Deployments = map[ChainIdHash]ProtocolHistory{
@@ -107,6 +110,7 @@ var (
 			{PtParisB, 0, 5726209, 5898240, 743, 2, 24576, 24576}, // v19
 			{PsParisC, 0, 5898241, 7692288, 750, 2, 24576, 24576}, // v20
 			{PsQuebec, 0, 7692289, -1, 823, 2, 30720, 30720},      // v21
+			{PsRiotum, 0, 7692289, -1, 823, 2, 10800, 10800},      // v22
 		},
 		Ghostnet: {
 			{ProtoGenesis, 0, 0, 0, 0, 3, 4096, 256},                // 0
@@ -122,6 +126,7 @@ var (
 			{PtParisB, 0, 6422529, 6729728, 1048, 2, 12288, 12288},  // v19
 			{PsParisC, 0, 6729729, 10047488, 1073, 2, 12288, 12288}, // v20
 			{PsQuebec, 0, 10047489, -1, 1343, 2, 15360, 15360},      // v21
+			{PsRiotum, 0, 7692289, -1, 823, 2, 10800, 10800},        // v22
 		},
 	}
 )
