@@ -273,7 +273,8 @@ err := val.Unmarshal(&transfer)
 
 ```go
 import (
-	"github.com/trilitech/tzgo/micheline"
+	"context"
+
 	"github.com/trilitech/tzgo/rpc"
 	"github.com/trilitech/tzgo/tezos"
 )
@@ -282,17 +283,22 @@ import (
 addr := tezos.MustParseAddress("KT1Hkg5qeNhfwpKW4fXvq7HGZB9z2EnmCCA9")
 
 // init RPC client
-c, _ := rpc.NewClient("https://rpc.tzstats.com", nil)
+c, _ := rpc.NewClient("https://rpc.tzpro.io", nil)
+ctx := context.TODO()
 
 // fetch the contract's script and most recent storage
 script, _ := c.GetContractScript(ctx, addr)
 
-// bigmap pointers as []int64
-ids := script.BigmapsById()
-
 // bigmap pointers as named map[string]int64 (names from type annotations)
-named := script.BigmapsByName()
+// Note that if a bigmap is anonymous, e.g. in a list, a temporary name will
+// be returned here
+named := script.Bigmaps()
 
+// bigmap pointers as []int64
+ids := []int64{}
+for _, v := range named {
+	ids = append(ids, v)
+}
 ```
 
 #### Fetch and decode bigmap values

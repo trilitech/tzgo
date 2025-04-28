@@ -157,11 +157,47 @@ func (s Script) Bigmaps() map[string]int64 {
 	return DetectBigmaps(s.Code.Storage, s.Storage)
 }
 
+// Flattens pair primitives. Basically the same as the UNPAIR michelson operation.
+// For instance, `pair (pair (pair 1 2) 3) 4` becomes `pair 1 2 3 4`. Other container
+// primitives like map and list remain untouched.
+func flatten(p Prim) []Prim {
+	res := []Prim{}
+	if p.IsPair() {
+		for _, v := range p.Args {
+			res = append(res, flatten(v)...)
+		}
+	} else {
+		res = append(res, p)
+	}
+	return res
+}
+
 // Returns a map of named bigmap ids obtained from a storage type and a storage value.
 // In the edge case where a T_OR branch hides an exsting bigmap behind a None value,
 // the hidden bigmap is not detected.
-func DetectBigmaps(typ, storage Prim) map[string]int64 {
-	named := make(map[string]int64)
+func DetectBigmaps(typ Prim, storage Prim) map[string]int64 {
+	values := flatten(storage)
+	m := linkStorageTypeAndValue(typ, &values)
+	res := map[string]int64{}
+	for k, v := range m {
+		if v.Type == T_BIG_MAP {
+			res[k] = v.Value.Int.Int64()
+		}
+	}
+	return res
+}
+
+type storageItem struct {
+	// The code of the type definition in storage code.
+	Type OpCode
+	// The type's corresponding value in contract storage.
+	Value Prim
+}
+
+// Links storage values in a contract with type definitions in the contract's storage code.
+// Returns a mapping between value aliases and storage values.
+func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
+	named := make(map[string]storageItem)
 	uniqueName := func(n string) string {
 		if _, ok := named[n]; !ok && n != "" {
 			return n
@@ -177,60 +213,19 @@ func DetectBigmaps(typ, storage Prim) map[string]int64 {
 			return name
 		}
 	}
-	stack := NewStack(storage)
+	// `values` is a queue of storage values collected from the storage value primitive tree.
+	// Here assumes `Walk` traverses the storage code primitive tree in the same ordering.
+	// The head of the queue should correspond to each primitive encountered here.
 	_ = typ.Walk(func(p Prim) error {
-		val := stack.Pop()
 		switch p.OpCode {
-		case T_BIG_MAP:
-			if val.IsValid() && val.Type == PrimInt {
-				named[uniqueName(p.GetVarAnnoAny())] = val.Int.Int64()
-			}
-			return PrimSkip
-
 		case K_STORAGE:
-			stack.Push(val)
+			// The root node of the storage primitive; do nothing and continue
 			return nil
 
-		case T_LAMBDA:
-			// unsupported
-			return PrimSkip
-
-		case T_LIST, T_SET:
-			for i, p := range val.Args {
-				for n, v := range DetectBigmaps(typ.Args[0], p) {
-					n = n + "_" + strconv.Itoa(i)
-					named[uniqueName(n)] = v
-				}
-			}
-			return PrimSkip
-
-		case T_OR:
-			branch := p.Args[0]
-			if val.OpCode == D_RIGHT {
-				branch = p.Args[1]
-			}
-			if len(val.Args) > 0 {
-				for n, v := range DetectBigmaps(branch, val.Args[0]) {
-					named[uniqueName(n)] = v
-				}
-			}
-			return PrimSkip
-
-		case T_OPTION:
-			if val.OpCode == D_SOME {
-				stack.Push(val.Args...)
-				return nil
-			}
-			return PrimSkip
-
 		case T_MAP:
-			if p.Args[1].OpCode != T_BIG_MAP {
-				return PrimSkip
-			}
+			val := (*values)[0]
+			// val.Args is a list of key-value pairs
 			for i, v := range val.Args {
-				if v.OpCode != D_ELT || v.Args[1].Type != PrimInt {
-					break
-				}
 				var name string
 				switch v.Args[0].Type {
 				case PrimString:
@@ -248,20 +243,94 @@ func DetectBigmaps(typ, storage Prim) map[string]int64 {
 				if name == "" {
 					name = p.GetVarAnnoAny() + "_" + strconv.Itoa(i)
 				}
-				named[uniqueName(name)] = v.Args[1].Int.Int64()
+				value := v.Args[1]
+				nestedValues := flatten(value)
+				// Map's value type definition is in the primitive's second argument
+				for _, v := range linkStorageTypeAndValue(p.Args[1], &nestedValues) {
+					named[uniqueName(name)] = v
+				}
 			}
+			*values = (*values)[1:]
+			return PrimSkip
+
+		case T_BIG_MAP:
+			val := (*values)[0]
+			if val.IsValid() && val.Type == PrimInt {
+				named[uniqueName(p.GetVarAnnoAny())] = storageItem{
+					Type:  p.OpCode,
+					Value: val,
+				}
+			}
+			*values = (*values)[1:]
+			return PrimSkip
+
+		case T_OPTION:
+			val := (*values)[0]
+			// option always has only one argument
+			// val is Some or None
+			if val.OpCode == D_SOME {
+				nestedValues := flatten(val.Args[0])
+				for n, v := range linkStorageTypeAndValue(p.Args[0], &nestedValues) {
+					named[uniqueName(n)] = v
+				}
+			} else {
+				named[uniqueName(p.GetVarAnnoAny())] = storageItem{
+					Type:  p.OpCode,
+					Value: val,
+				}
+			}
+			*values = (*values)[1:]
 			return PrimSkip
 
 		case T_PAIR:
-			switch {
-			case val.IsScalar() || val.LooksLikeContainer():
-				stack.Push(val)
-			default:
-				stack.Push(val.Args...)
+			for _, arg := range p.Args {
+				for n, v := range linkStorageTypeAndValue(arg, values) {
+					named[uniqueName(n)] = v
+				}
 			}
-			return nil
+			return PrimSkip
+
+		case T_LIST:
+			val := (*values)[0]
+			for _, arg := range val.Args {
+				// List items are not flattened in previous operations and remain individual
+				// entities until now. Here the primitive is unpacked and processed against
+				// the list item type definition.
+				nestedValues := flatten(arg)
+				// The list item's type definition is in the first argument of the list type.
+				for n, v := range linkStorageTypeAndValue(p.Args[0], &nestedValues) {
+					named[uniqueName(n)] = v
+				}
+			}
+			*values = (*values)[1:]
+			return PrimSkip
+
+		case T_OR:
+			val := (*values)[0]
+			nestedValues := flatten(val.Args[0])
+			if val.OpCode == D_LEFT {
+				// Left branch in OR type's first argument
+				for n, v := range linkStorageTypeAndValue(p.Args[0], &nestedValues) {
+					named[uniqueName(n)] = v
+				}
+			} else {
+				// OpCode == D_RIGHT
+				// Right branch in OR type's second argument
+				for n, v := range linkStorageTypeAndValue(p.Args[1], &nestedValues) {
+					named[uniqueName(n)] = v
+				}
+			}
+			*values = (*values)[1:]
+			return PrimSkip
 
 		default:
+			if len(*values) > 0 {
+				named[uniqueName(p.GetVarAnnoAny())] = storageItem{
+					Type:  p.OpCode,
+					Value: (*values)[0],
+				}
+				*values = (*values)[1:]
+			}
 			return PrimSkip
 		}
 	})
@@ -298,39 +367,46 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 	}
 	_ = typ.Walk(func(p Prim) error {
 		switch p.OpCode {
+		case K_STORAGE:
+			// The root node of the storage primitive; do nothing and continue
+			return nil
+
+		case T_MAP:
+			key := p.Args[0].String
+			if key == "" {
+				key = fmt.Sprint(p.Args[0].Hash64())
+			}
+			// Map's value type definition is in its second argument
+			for _, v := range DetectBigmapTypes(p.Args[1]) {
+				named[uniqueName(key)] = v
+			}
+			return PrimSkip
+
 		case T_BIG_MAP:
 			named[uniqueName(p.GetVarAnnoAny())] = NewType(p)
 			return PrimSkip
-		case T_MAP:
-			if p.Args[1].OpCode != T_BIG_MAP {
-				return PrimSkip
+
+		case T_LIST, T_OPTION:
+			// Type definition of list items and option values is in the
+			// first (and the only) argument of the primitive
+			for n, v := range DetectBigmapTypes(p.Args[0]) {
+				named[uniqueName(n)] = v
 			}
-			name := p.GetVarAnnoAny()
-			if n := p.Args[1].GetVarAnnoAny(); n != "" {
-				name = n
-			}
-			named[uniqueName(name)] = NewType(p.Args[1])
-			return PrimSkip
-		case T_LIST:
-			if p.Args[0].OpCode != T_BIG_MAP {
-				return PrimSkip
-			}
-			name := p.GetVarAnnoAny()
-			if n := p.Args[0].GetVarAnnoAny(); n != "" {
-				name = n
-			}
-			named[uniqueName(name)] = NewType(p.Args[0])
 			return PrimSkip
 
-		case T_LAMBDA:
+		case T_OR, T_PAIR:
+			// OR candidates are defined in the arguments of the OR primitive
+			for _, arg := range p.Args {
+				for n, v := range DetectBigmapTypes(arg) {
+					named[uniqueName(n)] = v
+				}
+			}
 			return PrimSkip
 
 		default:
-			// return PrimSkip
-			return nil
+			return PrimSkip
 		}
 	})
-
 	return named
 }
 

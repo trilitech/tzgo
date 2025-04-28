@@ -37,6 +37,9 @@ var (
 	PtNairobi      = tezos.PtNairobi
 	Proxford       = tezos.Proxford
 	PtParisB       = tezos.PtParisB
+	PsParisC       = tezos.PsParisC
+	PsQuebec       = tezos.PsQuebec
+	PsRiotum       = tezos.PsRiotum
 
 	Mainnet     = tezos.Mainnet
 	NewParams   = tezos.NewParams
@@ -82,6 +85,35 @@ func TestParamsStatic(t *testing.T) {
 	for height, check := range paramResults {
 		p := NewParams().WithChainId(Mainnet).AtBlock(height)
 		checkParams(t, p, height, check.Cycle, check)
+	}
+}
+
+func TestQuebecCycleEnd(t *testing.T) {
+	for cycle, v := range cycleBlocks {
+		startHeight := v[0]
+		endHeight := v[1]
+		p := NewParams().WithChainId(Mainnet).AtBlock(startHeight)
+		if p.CycleEndHeight(cycle) != endHeight {
+			t.Errorf("CycleEndHeight(%d) mismatch: have=%d want=%d", cycle, p.CycleEndHeight(cycle), endHeight)
+		}
+	}
+}
+
+func TestSnapshotBlock(t *testing.T) {
+	for cycle, v := range cycleBlocks {
+		startCycle := v[0]
+		snapCycle := v[2]
+		p := NewParams().WithChainId(Mainnet).AtBlock(startCycle)
+
+		if have, want := p.SnapshotBlock(cycle, 0), snapCycle; have != want {
+			t.Errorf("SnapshotBlock(%d, %d) mismatch: have=%d want=%d", 15, cycle, have, want)
+		}
+		if have, want := p.SnapshotBlock(cycle, 15), snapCycle; have != want {
+			t.Errorf("SnapshotBlock(%d, %d) mismatch: have=%d want=%d", 15, cycle, have, want)
+		}
+		if have, want := p.SnapshotBlock(cycle, 11), snapCycle; have != want {
+			t.Errorf("SnapshotBlock(%d, %d) mismatch: have=%d want=%d", 11, cycle, have, want)
+		}
 	}
 }
 
@@ -226,6 +258,16 @@ func (p paramResult) IsVoteEnd() bool {
 	return p.Flags&0x1 > 0
 }
 
+var cycleBlocks = map[int64][]int64{
+	826: {7784449, 7815168, 7723008},
+	825: {7753729, 7784448, 7692288},
+	824: {7723009, 7753728, 7667712},
+	823: {7692289, 7723008, 7643136}, // first quebec cycle
+	822: {7667713, 7692288, 7618560},
+	821: {7643137, 7667712, 7593984},
+	820: {7618561, 7643136, 7569408},
+}
+
 var paramResults = map[int64]paramResult{
 	0:       {0, -1, 0},            // genesis
 	1:       {0, -1, 8},            // bootstrap
@@ -268,6 +310,12 @@ var paramResults = map[int64]paramResult{
 	5070849: {703, -1, 8 + 2},      // v018 start
 	5726208: {742, 15, 16 + 4 + 1}, // --> end
 	5726209: {743, 15, 8 + 2},      // v019 start
+	5898240: {749, 15, 16 + 4 + 1}, // --> end
+	5898241: {750, 15, 8 + 2},      // v020 start
+	7692288: {822, 15, 16 + 4 + 1}, // --> end
+	7692289: {823, 15, 8 + 2},      // v021 start
+	8767488: {857, 15, 16 + 4 + 1}, // --> end
+	8767489: {858, 15, 8 + 2},      // v022 start
 }
 
 var paramBlocks = []BlockMetadata{
@@ -824,6 +872,90 @@ var paramBlocks = []BlockMetadata{
 		LevelInfo: &LevelInfo{
 			Level:              5726209,
 			Cycle:              743,
+			CyclePosition:      0,
+			ExpectedCommitment: false,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  0,
+			Remaining: 81912,
+		},
+	}, {
+		// v19 end
+		Protocol:     PtParisB,
+		NextProtocol: PsParisC,
+		LevelInfo: &LevelInfo{
+			Level:              5898240,
+			Cycle:              749,
+			CyclePosition:      24575,
+			ExpectedCommitment: true,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  81912,
+			Remaining: 0,
+		},
+	}, {
+		// v20 start
+		Protocol:     PsParisC,
+		NextProtocol: PsParisC,
+		LevelInfo: &LevelInfo{
+			Level:              5898241,
+			Cycle:              750,
+			CyclePosition:      0,
+			ExpectedCommitment: false,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  0,
+			Remaining: 81912,
+		},
+	}, {
+		// v20 end
+		Protocol:     PsParisC,
+		NextProtocol: PsQuebec,
+		LevelInfo: &LevelInfo{
+			Level:              7692288,
+			Cycle:              822,
+			CyclePosition:      24575,
+			ExpectedCommitment: true,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  81912,
+			Remaining: 0,
+		},
+	}, {
+		// v21 start
+		Protocol:     PsQuebec,
+		NextProtocol: PsQuebec,
+		LevelInfo: &LevelInfo{
+			Level:              7692289,
+			Cycle:              823,
+			CyclePosition:      0,
+			ExpectedCommitment: false,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  0,
+			Remaining: 81912,
+		},
+	}, {
+		// v21 end
+		Protocol:     PsQuebec,
+		NextProtocol: PsRiotum,
+		LevelInfo: &LevelInfo{
+			Level:              8767488,
+			Cycle:              857,
+			CyclePosition:      30719,
+			ExpectedCommitment: true,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  81912,
+			Remaining: 0,
+		},
+	}, {
+		// v22 start
+		Protocol:     PsRiotum,
+		NextProtocol: PsRiotum,
+		LevelInfo: &LevelInfo{
+			Level:              8767489,
+			Cycle:              858,
 			CyclePosition:      0,
 			ExpectedCommitment: false,
 		},

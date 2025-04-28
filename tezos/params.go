@@ -104,7 +104,9 @@ func (p *Params) WithChainId(id ChainIdHash) *Params {
 func (p *Params) WithProtocol(h ProtocolHash) *Params {
 	var ok bool
 	p.Protocol = h
+	versionsMtx.RLock()
 	p.Version, ok = Versions[h]
+	versionsMtx.RUnlock()
 	if !ok {
 		var max int
 		for _, v := range Versions {
@@ -114,6 +116,8 @@ func (p *Params) WithProtocol(h ProtocolHash) *Params {
 			max = v
 		}
 		p.Version = max + 1
+		versionsMtx.Lock()
+		defer versionsMtx.Unlock()
 		Versions[h] = p.Version
 	}
 	switch {
@@ -258,14 +262,18 @@ func (p *Params) IsSnapshotBlock(height int64) bool {
 
 func (p *Params) SnapshotBlock(cycle int64, index int) int64 {
 	// adjust to target cycle
+	if p.Version > 18 {
+		index = 15
+	}
 	at := p.AtCycle(cycle)
 	base := at.SnapshotBaseCycle(cycle)
+	baseBlocksPerSnapshot := p.AtCycle(base).BlocksPerSnapshot
 	if base < 0 {
 		return 0
 	}
-	offset := int64(index+1) * at.BlocksPerSnapshot
-	if offset > at.BlocksPerCycle {
-		offset = at.BlocksPerCycle
+	offset := int64(index+1) * baseBlocksPerSnapshot
+	if offset > baseBlocksPerSnapshot {
+		offset = baseBlocksPerSnapshot
 	}
 	return at.CycleStartHeight(base) + offset - 1
 }
