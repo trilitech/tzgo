@@ -40,6 +40,7 @@ var (
 	PsParisC       = tezos.PsParisC
 	PsQuebec       = tezos.PsQuebec
 	PsRiotum       = tezos.PsRiotum
+	PtSeouLo       = tezos.PtSeouLo
 
 	Mainnet     = tezos.Mainnet
 	NewParams   = tezos.NewParams
@@ -953,6 +954,34 @@ var paramBlocks = []BlockMetadata{
 		// v22 start
 		Protocol:     PsRiotum,
 		NextProtocol: PsRiotum,
+		LevelInfo: &LevelInfo{
+			Level:              8767489,
+			Cycle:              858,
+			CyclePosition:      0,
+			ExpectedCommitment: false,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  0,
+			Remaining: 81912,
+		},
+	}, {
+		// v22 end
+		Protocol:     PsRiotum,
+		NextProtocol: PtSeouLo,
+		LevelInfo: &LevelInfo{
+			Level:              8767489,
+			Cycle:              858,
+			CyclePosition:      0,
+			ExpectedCommitment: false,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  0,
+			Remaining: 81912,
+		},
+	}, {
+		// v23 start
+		Protocol:     PtSeouLo,
+		NextProtocol: PtSeouLo,
 		LevelInfo: &LevelInfo{
 			Level:              8767489,
 			Cycle:              858,
