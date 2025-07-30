@@ -29,5 +29,8 @@ func TestParseAttestationsAggregate(t *testing.T) {
 	c, _ := NewClient(server.URL, nil)
 	value, e := c.GetBlockOperations(context.TODO(), tezos.MustParseBlockHash("BMABzWp5Y3iSJRaCkWVwsPKXVZ1iCwB94dB7GfKsigahQ3v5Czc"))
 	assert.Nil(t, e)
+	assert.Len(t, value, 4)
+	assert.Len(t, value[0], 1)
+	assert.Equal(t, value[0][0].Contents.Len(), 1)
 	assert.Equal(t, tezos.OpTypeAttestationsAggregate, value[0][0].Contents.N(0).Kind())
 }
