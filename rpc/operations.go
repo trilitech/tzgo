@@ -356,7 +356,7 @@ func (e *OperationList) UnmarshalJSON(data []byte) error {
 			op = &VdfRevelation{}
 		case tezos.OpTypeTransferTicket:
 			op = &TransferTicket{}
-		case tezos.OpTypeUpdateConsensusKey:
+		case tezos.OpTypeUpdateConsensusKey, tezos.OpTypeUpdateCompanionKey:
 			op = &UpdateConsensusKey{}
 
 			// DEPRECATED: tx rollup operations, kept for testnet backward compatibility

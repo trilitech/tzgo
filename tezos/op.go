@@ -120,6 +120,7 @@ const (
 	OpTypeAttestationWithDal                     // 45 v019 ??
 	OpTypePreattestationsAggregate               // 46 v023
 	OpTypeAttestationsAggregate                  // 47 v023
+	OpTypeUpdateCompanionKey                     // 48 v023
 )
 
 var (
@@ -172,6 +173,7 @@ var (
 		OpTypeDoubleAttestationEvidence:       "double_attestation_evidence",
 		OpTypePreattestationsAggregate:        "preattestations_aggregate",
 		OpTypeAttestationsAggregate:           "attestations_aggregate",
+		OpTypeUpdateCompanionKey:              "update_companion_key",
 	}
 	opTypeReverseStrings = make(map[string]OpType)
 )
@@ -327,6 +329,7 @@ var (
 		OpTypeDalPublishCommitment:            230, // v019 FIXME: is this correct?
 		OpTypePreattestationsAggregate:        30,  // v023
 		OpTypeAttestationsAggregate:           31,  // v023
+		OpTypeUpdateCompanionKey:              115, // v023
 	}
 )
 
@@ -460,6 +463,7 @@ var (
 		230: 26 + 101,                 // OpTypeDalPublishCommitment // v019
 		30:  45,                       // OpTypePreattestationsAggregate // v023
 		31:  45,                       // OpTypeAttestationsAggregate // v023
+		115: 26 + 32,                  // OpTypeUpdateCompanionKey // v023
 	}
 )
 
@@ -513,6 +517,7 @@ func (t OpType) ListId() int {
 		OpTypeTxRollupDispatchTickets,
 		OpTypeTransferTicket,
 		OpTypeUpdateConsensusKey,
+		OpTypeUpdateCompanionKey,
 		OpTypeSmartRollupOriginate,
 		OpTypeSmartRollupAddMessages,
 		OpTypeSmartRollupCement,
@@ -580,6 +585,8 @@ func ParseOpTag(t byte) OpType {
 		return OpTypeIncreasePaidStorage
 	case 114:
 		return OpTypeUpdateConsensusKey
+	case 115:
+		return OpTypeUpdateCompanionKey
 	case 150:
 		return OpTypeTxRollupOrigination
 	case 151:
