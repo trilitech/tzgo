@@ -118,8 +118,8 @@ const (
 	OpTypeDoublePreattestationEvidence           // 43 v019
 	OpTypeDoubleAttestationEvidence              // 44 v019
 	OpTypeAttestationWithDal                     // 45 v019 ??
-	OpTypeAttestationsAggregate                  // 46 v023
-	OpTypePreattestationsAggregate               // 47 v023
+	OpTypePreattestationsAggregate               // 46 v023
+	OpTypeAttestationsAggregate                  // 47 v023
 )
 
 var (
@@ -483,7 +483,7 @@ func (t OpType) MinSize() int {
 func (t OpType) ListId() int {
 	switch t {
 	case OpTypeEndorsement, OpTypeEndorsementWithSlot, OpTypePreendorsement,
-		OpTypeAttestation, OpTypePreattestation, OpTypeAttestationWithDal, OpTypeAttestationsAggregate:
+		OpTypeAttestation, OpTypePreattestation, OpTypeAttestationWithDal, OpTypeAttestationsAggregate, OpTypePreattestationsAggregate:
 		return 0
 	case OpTypeProposals, OpTypeBallot:
 		return 1
@@ -560,6 +560,8 @@ func ParseOpTag(t byte) OpType {
 		return OpTypeEndorsement
 	case 23:
 		return OpTypeAttestationWithDal
+	case 30:
+		return OpTypePreattestationsAggregate
 	case 31:
 		return OpTypeAttestationsAggregate
 	case 107:
