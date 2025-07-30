@@ -118,7 +118,8 @@ const (
 	OpTypeDoublePreattestationEvidence           // 43 v019
 	OpTypeDoubleAttestationEvidence              // 44 v019
 	OpTypeAttestationWithDal                     // 45 v019 ??
-	OpTypeAttestationsAggregate                  // 47 v023
+	OpTypeAttestationsAggregate                  // 46 v023
+	OpTypePreattestationsAggregate               // 47 v023
 )
 
 var (
@@ -169,6 +170,7 @@ var (
 		OpTypePreattestation:                  "preattestation",
 		OpTypeDoublePreattestationEvidence:    "double_preattestation_evidence",
 		OpTypeDoubleAttestationEvidence:       "double_attestation_evidence",
+		OpTypePreattestationsAggregate:        "preattestations_aggregate",
 		OpTypeAttestationsAggregate:           "attestations_aggregate",
 	}
 	opTypeReverseStrings = make(map[string]OpType)
@@ -323,6 +325,7 @@ var (
 		OpTypeSmartRollupExecuteOutboxMessage: 206, // v016
 		OpTypeSmartRollupRecoverBond:          207, // v016
 		OpTypeDalPublishCommitment:            230, // v019 FIXME: is this correct?
+		OpTypePreattestationsAggregate:        30,  // v023
 		OpTypeAttestationsAggregate:           31,  // v023
 	}
 )
@@ -455,6 +458,7 @@ var (
 		206: 26 + 56,                  // OpTypeSmartRollupExecuteOutboxMessage // v016
 		207: 26 + 41,                  // OpTypeSmartRollupRecoverBond // v016
 		230: 26 + 101,                 // OpTypeDalPublishCommitment // v019
+		30:  45,                       // OpTypePreattestationsAggregate // v023
 		31:  45,                       // OpTypeAttestationsAggregate // v023
 	}
 )
