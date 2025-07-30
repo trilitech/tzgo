@@ -32,5 +32,8 @@ func TestParseAttestationsAggregate(t *testing.T) {
 	assert.Len(t, value, 4)
 	assert.Len(t, value[0], 1)
 	assert.Equal(t, value[0][0].Contents.Len(), 1)
-	assert.Equal(t, tezos.OpTypeAttestationsAggregate, value[0][0].Contents.N(0).Kind())
+	op := value[0][0].Contents.N(0).(*AttestationsAggregate)
+	assert.Equal(t, tezos.OpTypeAttestationsAggregate, op.Kind())
+	assert.Equal(t, 5, len(op.Committee))
+	assert.Equal(t, ConsensusContent{Level: 109771, Round: 0, PayloadHash: tezos.MustParsePayloadHash("vh3RiisbNp7QBvLkJ6HAyoYfMh4AoZLcJFVE5M34LLKnwAWTRv6J")}, op.ConsensusContent)
 }
