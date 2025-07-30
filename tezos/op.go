@@ -169,7 +169,7 @@ var (
 		OpTypePreattestation:                  "preattestation",
 		OpTypeDoublePreattestationEvidence:    "double_preattestation_evidence",
 		OpTypeDoubleAttestationEvidence:       "double_attestation_evidence",
-		OpTypeAttestationsAggregate:           "attestation_aggregate",
+		OpTypeAttestationsAggregate:           "attestations_aggregate",
 	}
 	opTypeReverseStrings = make(map[string]OpType)
 )
