@@ -969,9 +969,9 @@ var paramBlocks = []BlockMetadata{
 		Protocol:     PsRiotum,
 		NextProtocol: PtSeouLo,
 		LevelInfo: &LevelInfo{
-			Level:              8767489,
-			Cycle:              858,
-			CyclePosition:      0,
+			Level:              10279488,
+			Cycle:              997,
+			CyclePosition:      10799,
 			ExpectedCommitment: false,
 		},
 		VotingPeriodInfo: &VotingPeriodInfo{
@@ -983,8 +983,8 @@ var paramBlocks = []BlockMetadata{
 		Protocol:     PtSeouLo,
 		NextProtocol: PtSeouLo,
 		LevelInfo: &LevelInfo{
-			Level:              8767489,
-			Cycle:              858,
+			Level:              10279489,
+			Cycle:              998,
 			CyclePosition:      0,
 			ExpectedCommitment: false,
 		},
