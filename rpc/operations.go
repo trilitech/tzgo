@@ -317,6 +317,8 @@ func (e *OperationList) UnmarshalJSON(data []byte) error {
 			op = &SeedNonce{}
 		case tezos.OpTypeDrainDelegate:
 			op = &DrainDelegate{}
+		case tezos.OpTypeDoubleConsensusOperationEvidence:
+			op = &DoubleConsensusOperationEvidence{}
 
 		// consensus operations
 		case tezos.OpTypeEndorsement,
