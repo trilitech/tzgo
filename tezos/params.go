@@ -23,7 +23,7 @@ var (
 		MaxOperationsTTL:             450,
 	}).
 		WithChainId(Mainnet).
-		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV021))
+		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV023))
 
 	// GhostnetParams defines the blockchain configuration for Ghostnet testnet.
 	// To produce compliant transactions, use these defaults in op.WithParams().
@@ -38,7 +38,7 @@ var (
 		MaxOperationsTTL:             450,
 	}).
 		WithChainId(Ghostnet).
-		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV021))
+		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV023))
 )
 
 // Params contains a subset of protocol configuration settings that are relevant

@@ -29,6 +29,7 @@ var (
 	ProtoV020      = MustParseProtocolHash("PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi")
 	ProtoV021      = MustParseProtocolHash("PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg")
 	ProtoV022      = MustParseProtocolHash("PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7")
+	ProtoV023      = MustParseProtocolHash("PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -50,6 +51,7 @@ var (
 	PsParisC  = ProtoV020
 	PsQuebec  = ProtoV021
 	PsRiotum  = ProtoV022
+	PtSeouLo  = ProtoV023
 
 	Mainnet  = MustParseChainIdHash("NetXdQprcVkpaWU")
 	Ghostnet = MustParseChainIdHash("NetXnHfVqm9iesp")
@@ -79,35 +81,37 @@ var (
 		ProtoV020:      20,
 		ProtoV021:      21,
 		ProtoV022:      22,
-		ProtoAlpha:     23,
+		ProtoV023:      23,
+		ProtoAlpha:     24,
 	}
 
 	Deployments = map[ChainIdHash]ProtocolHistory{
 		Mainnet: {
-			{ProtoGenesis, 0, 0, 0, 0, 5, 4096, 256},              // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 5, 4096, 256},            // 0
-			{ProtoV001, 2, 2, 28082, 0, 5, 4096, 256},             // v1
-			{ProtoV002, 3507, 28083, 204761, 6, 5, 4096, 256},     // v2
-			{ProtoV003, 4057, 204762, 458752, 49, 5, 4096, 256},   // v3
-			{PtAthens, 0, 458753, 655360, 112, 5, 4096, 256},      // v4
-			{PsBabyM1, 0, 655361, 851968, 160, 5, 4096, 256},      // v5
-			{PsCARTHA, 0, 851969, 1212416, 208, 5, 4096, 256},     // v6
-			{PsDELPH1, 0, 1212417, 1343488, 296, 5, 4096, 256},    // v7
-			{PtEdo2Zk, 0, 1343489, 1466367, 328, 5, 4096, 256},    // v8
-			{PsFLoren, 4095, 1466368, 1589247, 357, 5, 4096, 256}, // v9
-			{PtGRANAD, -1, 1589248, 1916928, 388, 5, 8192, 512},   // v10
-			{PtHangz2, 0, 1916929, 2244608, 428, 5, 8192, 512},    // v11
-			{Psithaca, 0, 2244609, 2490368, 468, 5, 8192, 512},    // v12
-			{PtJakart, 0, 2490369, 2736128, 498, 5, 8192, 512},    // v13
-			{PtKathma, 0, 2736129, 2981888, 528, 5, 8192, 512},    // v14
-			{PtLimaPt, 0, 2981889, 3268608, 558, 5, 8192, 512},    // v15
-			{PtMumbai, 0, 3268609, 3760128, 593, 5, 16384, 1024},  // v16
-			{PtNairobi, 0, 3760129, 5070848, 623, 5, 16384, 1024}, // v17
-			{Proxford, 0, 5070849, 5726208, 703, 5, 16384, 1024},  // v18
-			{PtParisB, 0, 5726209, 5898240, 743, 2, 24576, 24576}, // v19
-			{PsParisC, 0, 5898241, 7692288, 750, 2, 24576, 24576}, // v20
-			{PsQuebec, 0, 7692289, 8767488, 823, 2, 30720, 30720}, // v21
-			{PsRiotum, 0, 8767489, -1, 858, 2, 10800, 10800},      // v22
+			{ProtoGenesis, 0, 0, 0, 0, 5, 4096, 256},               // 0
+			{ProtoBootstrap, 0, 1, 1, 0, 5, 4096, 256},             // 0
+			{ProtoV001, 2, 2, 28082, 0, 5, 4096, 256},              // v1
+			{ProtoV002, 3507, 28083, 204761, 6, 5, 4096, 256},      // v2
+			{ProtoV003, 4057, 204762, 458752, 49, 5, 4096, 256},    // v3
+			{PtAthens, 0, 458753, 655360, 112, 5, 4096, 256},       // v4
+			{PsBabyM1, 0, 655361, 851968, 160, 5, 4096, 256},       // v5
+			{PsCARTHA, 0, 851969, 1212416, 208, 5, 4096, 256},      // v6
+			{PsDELPH1, 0, 1212417, 1343488, 296, 5, 4096, 256},     // v7
+			{PtEdo2Zk, 0, 1343489, 1466367, 328, 5, 4096, 256},     // v8
+			{PsFLoren, 4095, 1466368, 1589247, 357, 5, 4096, 256},  // v9
+			{PtGRANAD, -1, 1589248, 1916928, 388, 5, 8192, 512},    // v10
+			{PtHangz2, 0, 1916929, 2244608, 428, 5, 8192, 512},     // v11
+			{Psithaca, 0, 2244609, 2490368, 468, 5, 8192, 512},     // v12
+			{PtJakart, 0, 2490369, 2736128, 498, 5, 8192, 512},     // v13
+			{PtKathma, 0, 2736129, 2981888, 528, 5, 8192, 512},     // v14
+			{PtLimaPt, 0, 2981889, 3268608, 558, 5, 8192, 512},     // v15
+			{PtMumbai, 0, 3268609, 3760128, 593, 5, 16384, 1024},   // v16
+			{PtNairobi, 0, 3760129, 5070848, 623, 5, 16384, 1024},  // v17
+			{Proxford, 0, 5070849, 5726208, 703, 5, 16384, 1024},   // v18
+			{PtParisB, 0, 5726209, 5898240, 743, 2, 24576, 24576},  // v19
+			{PsParisC, 0, 5898241, 7692288, 750, 2, 24576, 24576},  // v20
+			{PsQuebec, 0, 7692289, 8767488, 823, 2, 30720, 30720},  // v21
+			{PsRiotum, 0, 8767489, 10279488, 858, 2, 10800, 10800}, // v22
+			{PtSeouLo, 0, 10279489, -1, 998, 2, 10800, 10800},      // v23
 		},
 		Ghostnet: {
 			{ProtoGenesis, 0, 0, 0, 0, 3, 4096, 256},                 // 0
@@ -123,7 +127,8 @@ var (
 			{PtParisB, 0, 6422529, 6729728, 1048, 2, 12288, 12288},   // v19
 			{PsParisC, 0, 6729729, 10047488, 1073, 2, 12288, 12288},  // v20
 			{PsQuebec, 0, 10047489, 11982848, 1343, 2, 15360, 15360}, // v21
-			{PsRiotum, 0, 11982849, -1, 1469, 2, 10800, 10800},       // v22
+			{PsRiotum, 0, 11982849, 14898848, 1469, 2, 10800, 10800}, // v22
+			{PtSeouLo, 0, 14898849, -1, 1739, 2, 10800, 10800},       // v23
 		},
 	}
 )
