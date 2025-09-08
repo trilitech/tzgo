@@ -37,3 +37,28 @@ func TestParseAttestationsAggregate(t *testing.T) {
 	assert.Equal(t, 5, len(op.Committee))
 	assert.Equal(t, ConsensusContent{Level: 109771, Round: 0, PayloadHash: tezos.MustParsePayloadHash("vh3RiisbNp7QBvLkJ6HAyoYfMh4AoZLcJFVE5M34LLKnwAWTRv6J")}, op.ConsensusContent)
 }
+
+func TestParsePreattestationsAggregate(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/chains/main/blocks/BMABzWp5Y3iSJRaCkWVwsPKXVZ1iCwB94dB7GfKsigahQ3v5Czc/operations" {
+			t.Errorf("Expected to request '/chains/main/blocks/BMABzWp5Y3iSJRaCkWVwsPKXVZ1iCwB94dB7GfKsigahQ3v5Czc/operations', got: %s", r.URL.Path)
+		}
+		if r.Header.Get("Accept") != "application/json" {
+			t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`[[{"protocol":"PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh","chain_id":"NetXd56aBs1aeW3","hash":"op1BDoVeq9WxXcJeaammBZwBb7snpGCQ2WQAyU7kKRYgivtezPX","branch":"BLYpjw24Ad8Y1LmvhXPy4ac8171sqbHzKNiJ2xLdmktEt5RNuWN","contents":[{"kind":"preattestations_aggregate","consensus_content":{"level":109772,"round":0,"block_payload_hash":"vh1jC8jsjWdJVETCNHiUdk9oto8aE88zGSz8aJCcF7PGxWVv3TgH"},"committee":[0,3,4,10],"metadata":{"committee":[{"delegate":"tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF","consensus_pkh":"tz4X5GCfEHQCUnrBy9Qo1PSsmExYHXxiEkvp","consensus_power":1485},{"delegate":"tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m","consensus_pkh":"tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m","consensus_power":688},{"delegate":"tz1Zt8QQ9aBznYNk5LUBjtME9DuExomw9YRs","consensus_pkh":"tz4XbGtqxNZDq6CJNVbxktoqSTu9Db6aXQHL","consensus_power":1498},{"delegate":"tz3PgFHdYvEGEbUo1pUJmuNH8fgc8cwARKfC","consensus_pkh":"tz4EWkmNN93yE7HrjaRR6mGh22rUgSYJG1Sj","consensus_power":700}],"total_consensus_power":4371}}],"signature":"BLsigAFfUNms9mHTHxXkXH1YWGSjtuZQYtUfN2iW3bLUP6MnSZBQpxFL8CCzqi3K9DkejeDqbBpUAxnnWPQ96dd62jWfwUfUnQhuJ34wcDdG8ZJQiXmCiEuDyRDxWXQfnEBjpXbtdWpwuz"}],[],[],[]]`))
+	}))
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+	value, e := c.GetBlockOperations(context.TODO(), tezos.MustParseBlockHash("BMABzWp5Y3iSJRaCkWVwsPKXVZ1iCwB94dB7GfKsigahQ3v5Czc"))
+	assert.Nil(t, e)
+	assert.Len(t, value, 4)
+	assert.Len(t, value[0], 1)
+	assert.Equal(t, value[0][0].Contents.Len(), 1)
+	op := value[0][0].Contents.N(0).(*PreattestationsAggregate)
+	assert.Equal(t, tezos.OpTypePreattestationsAggregate, op.Kind())
+	assert.Equal(t, []int{0, 3, 4, 10}, op.Committee)
+	assert.Equal(t, ConsensusContent{Level: 109772, Round: 0, PayloadHash: tezos.MustParsePayloadHash("vh1jC8jsjWdJVETCNHiUdk9oto8aE88zGSz8aJCcF7PGxWVv3TgH")}, op.ConsensusContent)
+}

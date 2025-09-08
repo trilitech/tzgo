@@ -328,6 +328,8 @@ func (e *OperationList) UnmarshalJSON(data []byte) error {
 			op = &Endorsement{}
 		case tezos.OpTypeAttestationsAggregate:
 			op = &AttestationsAggregate{}
+		case tezos.OpTypePreattestationsAggregate:
+			op = &PreattestationsAggregate{}
 
 		// amendment operations
 		case tezos.OpTypeProposals:
