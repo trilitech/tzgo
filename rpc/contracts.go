@@ -61,6 +61,8 @@ type ContractInfo struct {
 		} `json:"requests"`
 	} `json:"unstake_requests"`
 	UnstakedFrozenDeposits []UnstakedDeposit `json:"unstaked_frozen_deposits"`
+	// Only for implicit accounts
+	Revealed *bool `json:"revealed,omitempty"` // v023+
 }
 
 type UnstakedDeposit struct {
