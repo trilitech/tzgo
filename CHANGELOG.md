@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.23.0
+* Seoul protocol support
+* Support a new test network [Shadownet](https://teztnets.com/shadownet-about)
+
+## v1.22.0
+* Rio protocol support
+
 ## v1.21.0
 * Quebec protocol support
 * BREAKING CHANGE: Delegate information is remapped due to RPC changes. The full schema can be found at [link](https://gitlab.com/tezos/tezos/-/blob/882112a1978d5774f34a1700c6f5584e650a086b/docs/api/quebec-openapi.json)
