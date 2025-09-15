@@ -53,8 +53,9 @@ var (
 	PsRiotum  = ProtoV022
 	PtSeouLo  = ProtoV023
 
-	Mainnet  = MustParseChainIdHash("NetXdQprcVkpaWU")
-	Ghostnet = MustParseChainIdHash("NetXnHfVqm9iesp")
+	Mainnet   = MustParseChainIdHash("NetXdQprcVkpaWU")
+	Ghostnet  = MustParseChainIdHash("NetXnHfVqm9iesp")
+	Shadownet = MustParseChainIdHash("NetXsqzbfFenSTS")
 
 	Versions = map[ProtocolHash]int{
 		ProtoGenesis:   0,
@@ -129,6 +130,12 @@ var (
 			{PsQuebec, 0, 10047489, 11982848, 1343, 2, 15360, 15360}, // v21
 			{PsRiotum, 0, 11982849, 14898848, 1469, 2, 10800, 10800}, // v22
 			{PtSeouLo, 0, 14898849, -1, 1739, 2, 10800, 10800},       // v23
+		},
+		Shadownet: {
+			{ProtoGenesis, 0, 0, 0, 0, 2, 4096, 256},       // 0
+			{ProtoBootstrap, 0, 1, 1, 0, 2, 10800, 10800},  // 0
+			{PsRiotum, 0, 2, 453600, 0, 2, 10800, 10800},   // v22
+			{PtSeouLo, 0, 453601, -1, 42, 2, 10800, 10800}, // v23
 		},
 	}
 )

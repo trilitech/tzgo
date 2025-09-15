@@ -120,8 +120,9 @@ func TestSnapshotBlock(t *testing.T) {
 
 func TestDefaultParams(t *testing.T) {
 	for n, p := range map[string]*tezos.Params{
-		"main":  tezos.DefaultParams,
-		"ghost": tezos.GhostnetParams,
+		"main":   tezos.DefaultParams,
+		"ghost":  tezos.GhostnetParams,
+		"shadow": tezos.ShadownetParams,
 	} {
 		if p.Network == "" {
 			t.Errorf("%s params: Empty network name", n)
