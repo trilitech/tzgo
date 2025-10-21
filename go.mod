@@ -1,6 +1,6 @@
 module github.com/trilitech/tzgo
 
-go 1.22
+go 1.18
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
