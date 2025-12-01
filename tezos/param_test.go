@@ -321,8 +321,8 @@ var paramResults = map[int64]paramResult{
 	8767489:  {858, 15, 8 + 2},      // v022 start
 	10279488: {997, 15, 16 + 4 + 1}, // --> end
 	10279489: {998, 15, 8 + 2},      // v023 start
-	10279490: {997, 15, 16 + 4 + 1}, // --> end
-	10279491: {998, 15, 8 + 2},      // v024 start
+	10290288: {998, 15, 16 + 4 + 1}, // --> end
+	10290289: {999, 15, 8 + 2},      // v024 start
 }
 
 var paramBlocks = []BlockMetadata{
@@ -1003,8 +1003,8 @@ var paramBlocks = []BlockMetadata{
 		Protocol:     PtSeouLo,
 		NextProtocol: PtTALLiN,
 		LevelInfo: &LevelInfo{
-			Level:              10279488,
-			Cycle:              997,
+			Level:              10290288,
+			Cycle:              998,
 			CyclePosition:      10799,
 			ExpectedCommitment: true,
 		},
@@ -1017,8 +1017,8 @@ var paramBlocks = []BlockMetadata{
 		Protocol:     PtTALLiN,
 		NextProtocol: PtTALLiN,
 		LevelInfo: &LevelInfo{
-			Level:              10279489,
-			Cycle:              998,
+			Level:              10290289,
+			Cycle:              999,
 			CyclePosition:      0,
 			ExpectedCommitment: false,
 		},
