@@ -68,6 +68,8 @@ type OperationError struct {
 	Raw      json.RawMessage `json:"-"`
 }
 
+// RawConsensusPower holds the content of the consensus_power field. This is because the data type of
+// that field completely changed in v024.
 type RawConsensusPower struct {
 	json.RawMessage
 }
@@ -79,6 +81,8 @@ type CommitteeMetadata struct {
 	ConsensusPower RawConsensusPower `json:"consensus_power"` // v023+
 }
 
+// AsV023Value converts the content of the consensus_power field into the protocol v023 format, i.e. int.
+// An error is returned when the conversion fails. Users are advised to always check the returned error.
 func (c RawConsensusPower) AsV023Value() (int, error) {
 	var value int
 	if c.RawMessage == nil {
@@ -88,6 +92,9 @@ func (c RawConsensusPower) AsV023Value() (int, error) {
 	return value, err
 }
 
+// AsV024Value converts the content of the consensus_power field into the protocol v024 format, i.e. a struct
+// with two fields. An error is returned when the conversion fails. Users are advised to always check
+// the returned error.
 func (c RawConsensusPower) AsV024Value() (ConsensusPowerV024, error) {
 	var value ConsensusPowerV024
 	if c.RawMessage == nil {
@@ -97,6 +104,7 @@ func (c RawConsensusPower) AsV024Value() (ConsensusPowerV024, error) {
 	return value, err
 }
 
+// ConsensusPowerV024 represents the content of the consensus_power field from protocol v024.
 type ConsensusPowerV024 struct {
 	Slots       int   `json:"slots"`               // v024+
 	BakingPower int64 `json:"baking_power,string"` // v024+
