@@ -80,26 +80,26 @@ type CommitteeMetadata struct {
 }
 
 func (c RawConsensusPower) AsV023Value() (int, error) {
-	if c.RawMessage == nil {
-		return 0, nil
-	}
 	var value int
+	if c.RawMessage == nil {
+		return value, nil
+	}
 	err := json.Unmarshal(c.RawMessage, &value)
 	return value, err
 }
 
-func (c RawConsensusPower) AsV024Value() (*ConsensusPowerV024, error) {
+func (c RawConsensusPower) AsV024Value() (ConsensusPowerV024, error) {
+	var value ConsensusPowerV024
 	if c.RawMessage == nil {
-		return nil, nil
+		return value, nil
 	}
-	var value *ConsensusPowerV024
-	err := json.Unmarshal(c.RawMessage, value)
+	err := json.Unmarshal(c.RawMessage, &value)
 	return value, err
 }
 
 type ConsensusPowerV024 struct {
-	Slot        int   `json:"slot"`         // v024+
-	BakingPower int64 `json:"baking_power"` // v024+
+	Slots       int   `json:"slots"`               // v024+
+	BakingPower int64 `json:"baking_power,string"` // v024+
 }
 
 // OperationMetadata contains execution receipts for successful and failed
