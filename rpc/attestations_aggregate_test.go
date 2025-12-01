@@ -40,22 +40,30 @@ func TestParseAttestationsAggregate(t *testing.T) {
 	// Verify committee metadata is parsed correctly
 	metadata := op.Meta()
 	assert.Len(t, metadata.CommitteeMetadata, 5, "should have 5 committee members in metadata")
-	assert.Equal(t, 4338, metadata.TotalConsensusPower, "total consensus power should be 4338")
+	v, err := metadata.TotalConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 4338, v, "total consensus power should be 4338")
 
 	// Verify first committee member
 	assert.Equal(t, tezos.MustParseAddress("tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"), metadata.CommitteeMetadata[0].Delegate)
 	assert.Equal(t, tezos.MustParseAddress("tz4X5GCfEHQCUnrBy9Qo1PSsmExYHXxiEkvp"), metadata.CommitteeMetadata[0].ConsensusPkh)
-	assert.Equal(t, 1435, metadata.CommitteeMetadata[0].ConsensusPower)
+	v, err = metadata.CommitteeMetadata[0].ConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 1435, v)
 
 	// Verify second committee member
 	assert.Equal(t, tezos.MustParseAddress("tz1Zt8QQ9aBznYNk5LUBjtME9DuExomw9YRs"), metadata.CommitteeMetadata[1].Delegate)
 	assert.Equal(t, tezos.MustParseAddress("tz4XbGtqxNZDq6CJNVbxktoqSTu9Db6aXQHL"), metadata.CommitteeMetadata[1].ConsensusPkh)
-	assert.Equal(t, 1465, metadata.CommitteeMetadata[1].ConsensusPower)
+	v, err = metadata.CommitteeMetadata[1].ConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 1465, v)
 
 	// Verify tz4 delegate (matching delegate and consensus_pkh)
 	assert.Equal(t, tezos.MustParseAddress("tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m"), metadata.CommitteeMetadata[2].Delegate)
 	assert.Equal(t, tezos.MustParseAddress("tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m"), metadata.CommitteeMetadata[2].ConsensusPkh)
-	assert.Equal(t, 707, metadata.CommitteeMetadata[2].ConsensusPower)
+	v, err = metadata.CommitteeMetadata[2].ConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 707, v)
 }
 
 func TestParsePreattestationsAggregate(t *testing.T) {
@@ -85,17 +93,23 @@ func TestParsePreattestationsAggregate(t *testing.T) {
 	// Verify committee metadata is parsed correctly
 	metadata := op.Meta()
 	assert.Len(t, metadata.CommitteeMetadata, 4, "should have 4 committee members in metadata")
-	assert.Equal(t, 4371, metadata.TotalConsensusPower, "total consensus power should be 4371")
+	v, err := metadata.TotalConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 4371, v, "total consensus power should be 4371")
 
 	// Verify first committee member
 	assert.Equal(t, tezos.MustParseAddress("tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"), metadata.CommitteeMetadata[0].Delegate)
 	assert.Equal(t, tezos.MustParseAddress("tz4X5GCfEHQCUnrBy9Qo1PSsmExYHXxiEkvp"), metadata.CommitteeMetadata[0].ConsensusPkh)
-	assert.Equal(t, 1485, metadata.CommitteeMetadata[0].ConsensusPower)
+	v, err = metadata.CommitteeMetadata[0].ConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 1485, v)
 
 	// Verify tz4 delegate (matching delegate and consensus_pkh)
 	assert.Equal(t, tezos.MustParseAddress("tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m"), metadata.CommitteeMetadata[1].Delegate)
 	assert.Equal(t, tezos.MustParseAddress("tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m"), metadata.CommitteeMetadata[1].ConsensusPkh)
-	assert.Equal(t, 688, metadata.CommitteeMetadata[1].ConsensusPower)
+	v, err = metadata.CommitteeMetadata[1].ConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 688, v)
 }
 
 // TestAttestationsAggregateEmptyMetadata tests parsing when metadata fields are absent
@@ -118,7 +132,9 @@ func TestAttestationsAggregateEmptyMetadata(t *testing.T) {
 
 	// Should have empty metadata fields when not provided
 	assert.Len(t, metadata.CommitteeMetadata, 0, "should have no committee metadata")
-	assert.Equal(t, 0, metadata.TotalConsensusPower, "total consensus power should be 0")
+	v, err := metadata.TotalConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, v, "total consensus power should be 0")
 }
 
 // TestAttestationsAggregateSingleCommitteeMember tests parsing with one committee member
@@ -137,10 +153,14 @@ func TestAttestationsAggregateSingleCommitteeMember(t *testing.T) {
 	metadata := op.Meta()
 
 	assert.Len(t, metadata.CommitteeMetadata, 1, "should have 1 committee member")
-	assert.Equal(t, 5000, metadata.TotalConsensusPower)
+	v, err := metadata.TotalConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 5000, v)
 	assert.Equal(t, tezos.MustParseAddress("tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m"), metadata.CommitteeMetadata[0].Delegate)
 	assert.Equal(t, tezos.MustParseAddress("tz4MvCEiLgK6vYRSkug9Nz64UNTbT4McNq8m"), metadata.CommitteeMetadata[0].ConsensusPkh)
-	assert.Equal(t, 5000, metadata.CommitteeMetadata[0].ConsensusPower)
+	v, err = metadata.CommitteeMetadata[0].ConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 5000, v)
 }
 
 // TestPreattestationsAggregateMetadataConsistency verifies metadata consistency between operations
@@ -161,14 +181,20 @@ func TestPreattestationsAggregateMetadataConsistency(t *testing.T) {
 	// Verify the sum of individual consensus powers equals total
 	sum := 0
 	for _, member := range metadata.CommitteeMetadata {
-		sum += member.ConsensusPower
+		v, err := member.ConsensusPower.AsV023Value()
+		assert.Nil(t, err, "should not get error while extracting consensus power")
+		sum += v
 	}
-	assert.Equal(t, metadata.TotalConsensusPower, sum, "sum of individual powers should equal total consensus power")
+	v, err := metadata.TotalConsensusPower.AsV023Value()
+	assert.Nil(t, err)
+	assert.Equal(t, v, sum, "sum of individual powers should equal total consensus power")
 
 	// Verify all addresses are valid Tezos addresses
 	for i, member := range metadata.CommitteeMetadata {
 		assert.True(t, member.Delegate.IsValid(), "delegate address at index %d should be valid", i)
 		assert.True(t, member.ConsensusPkh.IsValid(), "consensus_pkh at index %d should be valid", i)
-		assert.Greater(t, member.ConsensusPower, 0, "consensus power at index %d should be positive", i)
+		v, err := member.ConsensusPower.AsV023Value()
+		assert.Nil(t, err)
+		assert.Greater(t, v, 0, "consensus power at index %d should be positive", i)
 	}
 }

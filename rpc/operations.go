@@ -68,11 +68,38 @@ type OperationError struct {
 	Raw      json.RawMessage `json:"-"`
 }
 
+type RawConsensusPower struct {
+	json.RawMessage
+}
+
 // CommitteeMetadata represents committee member information for aggregate operations.
 type CommitteeMetadata struct {
-	Delegate       tezos.Address `json:"delegate"`        // v023+
-	ConsensusPkh   tezos.Address `json:"consensus_pkh"`   // v023+
-	ConsensusPower int           `json:"consensus_power"` // v023+
+	Delegate       tezos.Address     `json:"delegate"`        // v023+
+	ConsensusPkh   tezos.Address     `json:"consensus_pkh"`   // v023+
+	ConsensusPower RawConsensusPower `json:"consensus_power"` // v023+
+}
+
+func (c RawConsensusPower) AsV023Value() (int, error) {
+	if c.RawMessage == nil {
+		return 0, nil
+	}
+	var value int
+	err := json.Unmarshal(c.RawMessage, &value)
+	return value, err
+}
+
+func (c RawConsensusPower) AsV024Value() (*ConsensusPowerV024, error) {
+	if c.RawMessage == nil {
+		return nil, nil
+	}
+	var value *ConsensusPowerV024
+	err := json.Unmarshal(c.RawMessage, value)
+	return value, err
+}
+
+type ConsensusPowerV024 struct {
+	Slot        int   `json:"slot"`         // v024+
+	BakingPower int64 `json:"baking_power"` // v024+
 }
 
 // OperationMetadata contains execution receipts for successful and failed
@@ -92,7 +119,7 @@ type OperationMetadata struct {
 
 	// attestations/preattestations aggregate only (v023+)
 	CommitteeMetadata   []CommitteeMetadata `json:"committee,omitempty"`
-	TotalConsensusPower int                 `json:"total_consensus_power,omitempty"` // v023+
+	TotalConsensusPower RawConsensusPower   `json:"total_consensus_power,omitempty"` // v023+
 
 	// some rollup ops only, FIXME: is this correct here or is this field in result?
 	Level int64 `json:"level"`
