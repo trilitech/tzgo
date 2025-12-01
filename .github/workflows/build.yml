@@ -31,7 +31,7 @@ jobs:
         if: matrix.go-version >= '1.22'
         uses: golangci/golangci-lint-action@v6
         with:
-          version: ${{ matrix.go-version }}
+          version: v2.6.0
         env:
           CGO_ENABLED: ${{ matrix.go-version < '1.22' && '0' || '' }}
       - name: Build
