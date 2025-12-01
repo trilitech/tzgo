@@ -13,17 +13,17 @@ var (
 	// either overwrite this default or set custom params per operation using
 	// op.WithParams().
 	DefaultParams = (&Params{
-		MinimalBlockDelay:            8 * time.Second,
+		MinimalBlockDelay:            6 * time.Second,
 		CostPerByte:                  250,
 		OriginationSize:              257,
 		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1386666,
+		HardGasLimitPerBlock:         1040000,
 		HardStorageLimitPerOperation: 60000,
 		MaxOperationDataLength:       32768,
 		MaxOperationsTTL:             450,
 	}).
 		WithChainId(Mainnet).
-		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV023))
+		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV024))
 
 	// GhostnetParams defines the blockchain configuration for Ghostnet testnet.
 	// To produce compliant transactions, use these defaults in op.WithParams().
@@ -32,27 +32,27 @@ var (
 		CostPerByte:                  250,
 		OriginationSize:              257,
 		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1386666,
+		HardGasLimitPerBlock:         1040000,
 		HardStorageLimitPerOperation: 60000,
 		MaxOperationDataLength:       32768,
 		MaxOperationsTTL:             450,
 	}).
 		WithChainId(Ghostnet).
-		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV023))
+		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV024))
 
 	// ShadownetParams defines the blockchain configuration for Shadownet testnet.
 	ShadownetParams = (&Params{
-		MinimalBlockDelay:            8 * time.Second,
+		MinimalBlockDelay:            6 * time.Second,
 		CostPerByte:                  250,
 		OriginationSize:              257,
 		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1386666,
+		HardGasLimitPerBlock:         1040000,
 		HardStorageLimitPerOperation: 60000,
 		MaxOperationDataLength:       32768,
 		MaxOperationsTTL:             450,
 	}).
 		WithChainId(Shadownet).
-		WithDeployment(Deployments[Shadownet].AtProtocol(ProtoV023))
+		WithDeployment(Deployments[Shadownet].AtProtocol(ProtoV024))
 )
 
 // Params contains a subset of protocol configuration settings that are relevant

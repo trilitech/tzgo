@@ -41,6 +41,7 @@ var (
 	PsQuebec       = tezos.PsQuebec
 	PsRiotum       = tezos.PsRiotum
 	PtSeouLo       = tezos.PtSeouLo
+	PtTALLiN       = tezos.PtTALLiN
 
 	Mainnet     = tezos.Mainnet
 	NewParams   = tezos.NewParams
@@ -320,6 +321,8 @@ var paramResults = map[int64]paramResult{
 	8767489:  {858, 15, 8 + 2},      // v022 start
 	10279488: {997, 15, 16 + 4 + 1}, // --> end
 	10279489: {998, 15, 8 + 2},      // v023 start
+	10279490: {997, 15, 16 + 4 + 1}, // --> end
+	10279491: {998, 15, 8 + 2},      // v024 start
 }
 
 var paramBlocks = []BlockMetadata{
@@ -985,6 +988,34 @@ var paramBlocks = []BlockMetadata{
 		// v23 start
 		Protocol:     PtSeouLo,
 		NextProtocol: PtSeouLo,
+		LevelInfo: &LevelInfo{
+			Level:              10279489,
+			Cycle:              998,
+			CyclePosition:      0,
+			ExpectedCommitment: false,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  0,
+			Remaining: 81912,
+		},
+	}, {
+		// v23 end
+		Protocol:     PtSeouLo,
+		NextProtocol: PtTALLiN,
+		LevelInfo: &LevelInfo{
+			Level:              10279488,
+			Cycle:              997,
+			CyclePosition:      10799,
+			ExpectedCommitment: true,
+		},
+		VotingPeriodInfo: &VotingPeriodInfo{
+			Position:  0,
+			Remaining: 81912,
+		},
+	}, {
+		// v24 start
+		Protocol:     PtTALLiN,
+		NextProtocol: PtTALLiN,
 		LevelInfo: &LevelInfo{
 			Level:              10279489,
 			Cycle:              998,

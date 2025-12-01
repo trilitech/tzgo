@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.24.0
+* Tallinn protocol support
+
+## v1.23.1
+* Expose committee metadata for attestations_aggregate operations
+
 ## v1.23.0
 * Seoul protocol support
 * Support a new test network [Shadownet](https://teztnets.com/shadownet-about)

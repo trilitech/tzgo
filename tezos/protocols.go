@@ -32,6 +32,7 @@ var (
 	ProtoV021      = MustParseProtocolHash("PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg")
 	ProtoV022      = MustParseProtocolHash("PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7")
 	ProtoV023      = MustParseProtocolHash("PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh")
+	ProtoV024      = MustParseProtocolHash("PtTALLiNtPec7mE7yY4m3k26J8Qukef3E3ehzhfXgFZKGtDdAXu")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -54,6 +55,7 @@ var (
 	PsQuebec  = ProtoV021
 	PsRiotum  = ProtoV022
 	PtSeouLo  = ProtoV023
+	PtTALLiN  = ProtoV024
 
 	Mainnet   = MustParseChainIdHash("NetXdQprcVkpaWU")
 	Ghostnet  = MustParseChainIdHash("NetXnHfVqm9iesp")
@@ -86,7 +88,8 @@ var (
 		ProtoV021:      21,
 		ProtoV022:      22,
 		ProtoV023:      23,
-		ProtoAlpha:     24,
+		ProtoV024:      24,
+		ProtoAlpha:     25,
 	}
 
 	Deployments = map[ChainIdHash]ProtocolHistory{
@@ -116,6 +119,7 @@ var (
 			{PsQuebec, 0, 7692289, 8767488, 823, 2, 30720, 30720},  // v21
 			{PsRiotum, 0, 8767489, 10279488, 858, 2, 10800, 10800}, // v22
 			{PtSeouLo, 0, 10279489, -1, 998, 2, 10800, 10800},      // v23
+			{PtTALLiN, 0, 10279489, -1, 998, 2, 14400, 14400},      // v24
 		},
 		Ghostnet: {
 			{ProtoGenesis, 0, 0, 0, 0, 3, 4096, 256},                 // 0
@@ -133,12 +137,14 @@ var (
 			{PsQuebec, 0, 10047489, 11982848, 1343, 2, 15360, 15360}, // v21
 			{PsRiotum, 0, 11982849, 14898848, 1469, 2, 10800, 10800}, // v22
 			{PtSeouLo, 0, 14898849, -1, 1739, 2, 10800, 10800},       // v23
+			{PtTALLiN, 0, 14898849, -1, 998, 2, 14400, 14400},        // v24
 		},
 		Shadownet: {
-			{ProtoGenesis, 0, 0, 0, 0, 2, 4096, 256},       // 0
-			{ProtoBootstrap, 0, 1, 1, 0, 2, 10800, 10800},  // 0
-			{PsRiotum, 0, 2, 453600, 0, 2, 10800, 10800},   // v22
-			{PtSeouLo, 0, 453601, -1, 42, 2, 10800, 10800}, // v23
+			{ProtoGenesis, 0, 0, 0, 0, 2, 4096, 256},          // 0
+			{ProtoBootstrap, 0, 1, 1, 0, 2, 10800, 10800},     // 0
+			{PsRiotum, 0, 2, 453600, 0, 2, 10800, 10800},      // v22
+			{PtSeouLo, 0, 453601, -1, 42, 2, 10800, 10800},    // v23
+			{PtTALLiN, 0, 10279489, -1, 998, 2, 14400, 14400}, // v24
 		},
 	}
 )

@@ -6,6 +6,7 @@ TzGo's main focus is on **correctness**, **stability**, and **compliance** with 
 
 Current Tezos protocol support in TzGo
 
+= Tallinn v024
 - Seoul v023
 - Rio v022
 - Quebec v021
