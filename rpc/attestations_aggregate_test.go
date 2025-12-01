@@ -43,6 +43,8 @@ func TestParseAttestationsAggregate(t *testing.T) {
 	v, err := metadata.TotalConsensusPower.AsV023Value()
 	assert.Nil(t, err)
 	assert.Equal(t, 4338, v, "total consensus power should be 4338")
+	_, err = metadata.TotalConsensusPower.AsV024Value()
+	assert.NotNil(t, err)
 
 	// Verify first committee member
 	assert.Equal(t, tezos.MustParseAddress("tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"), metadata.CommitteeMetadata[0].Delegate)
@@ -50,6 +52,8 @@ func TestParseAttestationsAggregate(t *testing.T) {
 	v, err = metadata.CommitteeMetadata[0].ConsensusPower.AsV023Value()
 	assert.Nil(t, err)
 	assert.Equal(t, 1435, v)
+	_, err = metadata.CommitteeMetadata[0].ConsensusPower.AsV024Value()
+	assert.NotNil(t, err)
 
 	// Verify second committee member
 	assert.Equal(t, tezos.MustParseAddress("tz1Zt8QQ9aBznYNk5LUBjtME9DuExomw9YRs"), metadata.CommitteeMetadata[1].Delegate)
@@ -97,6 +101,8 @@ func TestParseAttestationsAggregateV024(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 2079, v.Slots)
 	assert.Equal(t, int64(80808136929539), v.BakingPower)
+	_, err = metadata.TotalConsensusPower.AsV023Value()
+	assert.NotNil(t, err)
 
 	// Verify first committee member
 	assert.Equal(t, tezos.MustParseAddress("tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"), metadata.CommitteeMetadata[0].Delegate)
@@ -105,6 +111,8 @@ func TestParseAttestationsAggregateV024(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1575, v.Slots)
 	assert.Equal(t, int64(60261130120715), v.BakingPower)
+	_, err = metadata.CommitteeMetadata[0].ConsensusPower.AsV023Value()
+	assert.NotNil(t, err)
 
 	// Verify second committee member
 	assert.Equal(t, tezos.MustParseAddress("tz1Zt8QQ9aBznYNk5LUBjtME9DuExomw9YRs"), metadata.CommitteeMetadata[1].Delegate)
