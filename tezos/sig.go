@@ -213,6 +213,13 @@ func (s Signature) Generic() string {
 	if !s.IsValid() {
 		return ""
 	}
+
+	if s.Type == SignatureTypeBls12_381 {
+		// BLS signature does not have a special generic signature form.
+		// https://gitlab.com/tezos/tezos/-/blob/aa0f78d17f0c59bb538a90f0bc8a151c64fdd54d/sdk/rust/crypto/src/signature.rs#L198
+		return s.String()
+	}
+
 	return base58.CheckEncode(s.Data, GENERIC_SIGNATURE_ID)
 }
 

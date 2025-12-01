@@ -18,6 +18,8 @@ import (
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"golang.org/x/crypto/blake2b"
+
+	"github.com/cloudflare/circl/sign/bls"
 )
 
 var (
@@ -338,7 +340,23 @@ func (k Key) Verify(hash []byte, sig Signature) error {
 			return ErrSignature
 		}
 	case KeyTypeBls12_381:
-		// TODO
+		pk := bls.PublicKey[bls.G1]{}
+		if e := pk.UnmarshalBinary(k.Data); e != nil {
+			return e
+		}
+		if !pk.Validate() {
+			return ErrUnknownKeyType
+		}
+		/*
+			bytes, e := pk.MarshalBinary()
+			if e != nil {
+				return e
+			}
+			//v := append(bytes, hash[:]...)
+		*/
+		if !bls.Verify(&pk, hash, sig.Data) {
+			return ErrSignature
+		}
 	}
 	return nil
 }
@@ -589,7 +607,23 @@ func (k PrivateKey) Public() Key {
 		}
 		pk.Data = elliptic.MarshalCompressed(curve, ecKey.PublicKey.X, ecKey.PublicKey.Y)
 	case KeyTypeBls12_381:
-		// TODO
+		sk := bls.PrivateKey[bls.G1]{}
+		cp := make([]byte, len(k.Data))
+		for i := 0; i < len(k.Data); i++ {
+			cp[i] = k.Data[len(k.Data)-1-i]
+		}
+		if e := sk.UnmarshalBinary(cp); e != nil {
+			pk.Type = KeyTypeInvalid
+			return pk
+		}
+		v, e := sk.PublicKey().MarshalBinary()
+		if e != nil {
+			pk.Type = KeyTypeInvalid
+			return pk
+		} else {
+			pk.Data = v
+		}
+		fmt.Printf("public key bytes: %+v\n", v)
 	}
 	return pk
 }
@@ -614,6 +648,7 @@ func (k PrivateKey) Encrypt(fn PassphraseFunc) (string, error) {
 
 // Sign signs the digest (hash) of a message with the private key.
 func (k PrivateKey) Sign(hash []byte) (Signature, error) {
+	fmt.Printf("hash: %+v\n", hash)
 	switch k.Type {
 	case KeyTypeEd25519:
 		return Signature{
@@ -628,6 +663,7 @@ func (k PrivateKey) Sign(hash []byte) (Signature, error) {
 		if k.Type == KeyTypeP256 {
 			sig.Type = SignatureTypeP256
 		}
+		fmt.Printf("type: %+v, bytes: %+v\n", k.Type, k.Data)
 		ecKey, err := ecPrivateKeyFromBytes(k.Data, curve)
 		if err != nil {
 			return sig, err
@@ -635,8 +671,22 @@ func (k PrivateKey) Sign(hash []byte) (Signature, error) {
 		sig.Data, err = ecSign(ecKey, hash)
 		return sig, err
 	case KeyTypeBls12_381:
-		// TODO
-		return Signature{}, ErrUnknownKeyType
+		sk := bls.PrivateKey[bls.G1]{}
+		cp := make([]byte, len(k.Data))
+		for i := 0; i < len(k.Data); i++ {
+			cp[i] = k.Data[len(k.Data)-1-i]
+		}
+		if e := sk.UnmarshalBinary(cp); e != nil {
+			return Signature{}, e
+		}
+		//pk, e := sk.PublicKey().MarshalBinary()
+		//if e != nil {
+		//	return Signature{}, e
+		//}
+		//msg := append(pk, hash...)
+		s := bls.Sign(&sk, hash)
+		a, e := bls.Aggregate(bls.G1{}, []bls.Signature{s})
+		return Signature{Type: SignatureTypeBls12_381, Data: a}, e
 	default:
 		return Signature{}, ErrUnknownKeyType
 	}
@@ -709,6 +759,7 @@ func ParseEncryptedPrivateKey(s string, fn PassphraseFunc) (k PrivateKey, err er
 		return k, fmt.Errorf("tezos: invalid length %d for %s private key data", l, k.Type.SkPrefix())
 	}
 	k.Data = decoded
+	fmt.Printf("private key bytes: %+v\n", decoded)
 	return
 }
 

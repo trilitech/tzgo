@@ -1,6 +1,8 @@
 module github.com/trilitech/tzgo
 
-go 1.18
+go 1.22.0
+
+toolchain go1.22.3
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
@@ -21,6 +23,7 @@ require (
 require (
 	github.com/FactomProject/basen v0.0.0-20150613233007-fe3947df716e // indirect
 	github.com/FactomProject/btcutilecc v0.0.0-20130527213604-d3a63a5752ec // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
