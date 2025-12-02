@@ -204,10 +204,13 @@ const (
 
 	// v23 additions (Seoul)
 	I_IS_IMPLICIT_ACCOUNT // 9E
+
+	// v24 additions
+	I_INDEX_ADDRESS // 9F
 )
 
 func (op OpCode) IsValid() bool {
-	return op <= I_IS_IMPLICIT_ACCOUNT
+	return op <= I_INDEX_ADDRESS
 }
 
 var (
@@ -371,6 +374,7 @@ var (
 		I_NAT:                   "NAT",
 		D_TICKET:                "Ticket",
 		I_IS_IMPLICIT_ACCOUNT:   "IS_IMPLICIT_ACCOUNT",
+		I_INDEX_ADDRESS:         "INDEX_ADDRESS",
 	}
 	stringToOp map[string]OpCode
 )
