@@ -1,5 +1,5 @@
-// Copyright (c) 2020-2024 Blockwatch Data Inc.
-// Author: alex@blockwatch.cc
+// Copyright (c) 2025 TriliTech Ltd.
+// Author: tzstats@trili.tech
 
 package micheline
 

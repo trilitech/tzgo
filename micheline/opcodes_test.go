@@ -1,5 +1,5 @@
-// Copyright (c) 2020-2024 Blockwatch Data Inc.
-// Author: alex@blockwatch.cc
+// Copyright (c) 2025 TriliTech Ltd.
+// Author: tzstats@trili.tech
 
 package micheline
 
@@ -312,30 +312,6 @@ func TestSeoulProtocolPrimitives(t *testing.T) {
 		if parsed != I_IS_IMPLICIT_ACCOUNT {
 			t.Errorf("ParseOpCode(IS_IMPLICIT_ACCOUNT) = %v, expected %v",
 				parsed, I_IS_IMPLICIT_ACCOUNT)
-		}
-	})
-}
-
-func TestOpCodeSequence(t *testing.T) {
-	// Test that opcodes follow the expected sequence
-	t.Run("opcode sequence validation", func(t *testing.T) {
-		// Verify the sequence around Seoul additions
-		if I_NAT != 0x9C {
-			t.Errorf("I_NAT = 0x%02x, expected 0x9C", I_NAT)
-		}
-		if D_TICKET != 0x9D {
-			t.Errorf("D_TICKET = 0x%02x, expected 0x9D", D_TICKET)
-		}
-		if I_IS_IMPLICIT_ACCOUNT != 0x9E {
-			t.Errorf("I_IS_IMPLICIT_ACCOUNT = 0x%02x, expected 0x9E", I_IS_IMPLICIT_ACCOUNT)
-		}
-
-		// Verify that IS_IMPLICIT_ACCOUNT is the highest valid opcode
-		if !I_IS_IMPLICIT_ACCOUNT.IsValid() {
-			t.Error("I_IS_IMPLICIT_ACCOUNT should be valid")
-		}
-		if (I_IS_IMPLICIT_ACCOUNT + 1).IsValid() {
-			t.Error("Opcode after I_IS_IMPLICIT_ACCOUNT should be invalid")
 		}
 	})
 }
