@@ -399,6 +399,8 @@ func (e *OperationList) UnmarshalJSON(data []byte) error {
 			op = &SmartRollupRecoverBond{}
 		case tezos.OpTypeDalPublishCommitment:
 			op = &DalPublishCommitment{}
+		case tezos.OpTypeDalEntrapmentEvidence:
+			op = &DalEntrapmentEvidence{}
 
 		default:
 			return fmt.Errorf("rpc: unsupported op %q", string(data[start:end]))

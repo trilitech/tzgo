@@ -121,6 +121,7 @@ const (
 	OpTypePreattestationsAggregate               // 46 v023
 	OpTypeAttestationsAggregate                  // 47 v023
 	OpTypeUpdateCompanionKey                     // 48 v023
+	OpTypeDalEntrapmentEvidence                  // 49 v022
 )
 
 var (
@@ -174,6 +175,7 @@ var (
 		OpTypePreattestationsAggregate:        "preattestations_aggregate",
 		OpTypeAttestationsAggregate:           "attestations_aggregate",
 		OpTypeUpdateCompanionKey:              "update_companion_key",
+		OpTypeDalEntrapmentEvidence:           "dal_entrapment_evidence",
 	}
 	opTypeReverseStrings = make(map[string]OpType)
 )
@@ -327,6 +329,7 @@ var (
 		OpTypeSmartRollupExecuteOutboxMessage: 206, // v016
 		OpTypeSmartRollupRecoverBond:          207, // v016
 		OpTypeDalPublishCommitment:            230, // v019 FIXME: is this correct?
+		OpTypeDalEntrapmentEvidence:           24,  // v022
 		OpTypePreattestationsAggregate:        30,  // v023
 		OpTypeAttestationsAggregate:           31,  // v023
 		OpTypeUpdateCompanionKey:              115, // v023
@@ -461,6 +464,7 @@ var (
 		206: 26 + 56,                  // OpTypeSmartRollupExecuteOutboxMessage // v016
 		207: 26 + 41,                  // OpTypeSmartRollupRecoverBond // v016
 		230: 26 + 101,                 // OpTypeDalPublishCommitment // v019
+		24:  8 + 43 + 48 + 4 + 4,      // OpTypeDalEntrapmentEvidence // v022
 		30:  45,                       // OpTypePreattestationsAggregate // v023
 		31:  45,                       // OpTypeAttestationsAggregate // v023
 		115: 26 + 32,                  // OpTypeUpdateCompanionKey // v023
@@ -499,7 +503,8 @@ func (t OpType) ListId() int {
 		OpTypeVdfRevelation,
 		OpTypeDrainDelegate,
 		OpTypeDoubleAttestationEvidence,
-		OpTypeDoublePreattestationEvidence:
+		OpTypeDoublePreattestationEvidence,
+		OpTypeDalEntrapmentEvidence:
 		return 2
 	case OpTypeTransaction, // generic user operations
 		OpTypeOrigination,
@@ -565,6 +570,8 @@ func ParseOpTag(t byte) OpType {
 		return OpTypeEndorsement
 	case 23:
 		return OpTypeAttestationWithDal
+	case 24:
+		return OpTypeDalEntrapmentEvidence
 	case 30:
 		return OpTypePreattestationsAggregate
 	case 31:
