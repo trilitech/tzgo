@@ -464,7 +464,7 @@ var (
 		206: 26 + 56,                  // OpTypeSmartRollupExecuteOutboxMessage // v016
 		207: 26 + 41,                  // OpTypeSmartRollupRecoverBond // v016
 		230: 26 + 101,                 // OpTypeDalPublishCommitment // v019
-		24:  8 + 43 + 48 + 4 + 4,      // OpTypeDalEntrapmentEvidence // v022
+		24:  8 + 48 + 4 + 4,           // OpTypeDalEntrapmentEvidence // v022
 		30:  45,                       // OpTypePreattestationsAggregate // v023
 		31:  45,                       // OpTypeAttestationsAggregate // v023
 		115: 26 + 32,                  // OpTypeUpdateCompanionKey // v023
