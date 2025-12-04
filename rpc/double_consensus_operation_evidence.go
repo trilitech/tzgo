@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Trilitech Ltd.
+// Copyright (c) 2025 TriliTech Ltd.
 // Author: tzstats@trili.tech
 
 package rpc
@@ -10,6 +10,6 @@ var _ TypedOperation = (*DoubleConsensusOperationEvidence)(nil)
 type DoubleConsensusOperationEvidence struct {
 	Generic
 	Slot int64              `json:"slot"`
-	OP1  InlinedEndorsement `json:"op1"`
-	OP2  InlinedEndorsement `json:"op2"`
+	Op1  InlinedEndorsement `json:"op1"`
+	Op2  InlinedEndorsement `json:"op2"`
 }

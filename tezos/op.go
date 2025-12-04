@@ -330,7 +330,7 @@ var (
 		OpTypeSmartRollupRecoverBond:          207, // v016
 		OpTypeDalPublishCommitment:            230, // v019 FIXME: is this correct?
 
-		// FIXME: move these to tag v4
+		// FIXME: move these to tag v4 and remove OpTypeDoublePreattestationEvidence
 		OpTypePreattestationsAggregate:         30,  // v023
 		OpTypeAttestationsAggregate:            31,  // v023
 		OpTypeUpdateCompanionKey:               115, // v023
@@ -467,7 +467,8 @@ var (
 		207: 26 + 41,                  // OpTypeSmartRollupRecoverBond // v016
 		230: 26 + 101,                 // OpTypeDalPublishCommitment // v019
 
-		// FIXME: move these to v4
+		// FIXME: move these to v4, update tag 2 (OpTypeDoubleConsensusOperationEvidence),
+		// and remove tag 7 (OpTypeDoublePreattestationEvidence)
 		30:  45,      // OpTypePreattestationsAggregate // v023
 		31:  45,      // OpTypeAttestationsAggregate // v023
 		115: 26 + 32, // OpTypeUpdateCompanionKey // v023
@@ -506,7 +507,8 @@ func (t OpType) ListId() int {
 		OpTypeVdfRevelation,
 		OpTypeDrainDelegate,
 		OpTypeDoubleAttestationEvidence,
-		OpTypeDoublePreattestationEvidence:
+		OpTypeDoublePreattestationEvidence,
+		OpTypeDoubleConsensusOperationEvidence:
 		return 2
 	case OpTypeTransaction, // generic user operations
 		OpTypeOrigination,
