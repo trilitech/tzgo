@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -131,7 +130,7 @@ func TestParseDalEntrapmentEvidence(t *testing.T) {
 ]`)
 		buffer := new(bytes.Buffer)
 		if err := json.Compact(buffer, content); err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 		w.Write(buffer.Bytes())
 	}))
