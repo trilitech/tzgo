@@ -17,8 +17,8 @@ import (
 
 func TestParseDoubleConsensusOperationEvidence(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/chains/main/blocks/BMABzWp5Y3iSJRaCkWVwsPKXVZ1iCwB94dB7GfKsigahQ3v5Czc/operations" {
-			t.Errorf("Expected to request '/chains/main/blocks/BMABzWp5Y3iSJRaCkWVwsPKXVZ1iCwB94dB7GfKsigahQ3v5Czc/operations', got: %s", r.URL.Path)
+		if r.URL.Path != "/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/operations" {
+			t.Errorf("Expected to request '/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/operations', got: %s", r.URL.Path)
 		}
 		if r.Header.Get("Accept") != "application/json" {
 			t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
@@ -32,32 +32,33 @@ func TestParseDoubleConsensusOperationEvidence(t *testing.T) {
       "protocol": "PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7",
       "chain_id": "NetXd56aBs1aeW3",
       "hash": "ooqgVxC8XDYHXSnznWSdkXktgUaA2PZdUs4azRbco9i6fhiY1ui",
-      "branch": "BKpbfCvh777DQHnXjU2sqHvVUNZ7dBAdqEfKkdw8EGSkD9LSYXb",
+      "branch": "BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ",
       "contents": [
         {
           "kind": "double_consensus_operation_evidence",
           "slot": 0,
           "op1": {
-            "branch": "BKpbfCvh777DQHnXjU2sqHvVUNZ7dBAdqEfKkdw8EGSkD9LSYXb",
+            "branch": "BLkHSfhY7kff5Jzo9Nvj7hCu2hi2SeDaNmSTmUU7SDaGGhEWQo9",
             "operations": {
-              "kind": "attestation",
-              "level": 1331,
-              "block_payload_hash": "vh1g87ZG6scSYxKhspAUzprQVuLAyoa5qMBKcUfjgnQGnFb3dJcG",
+              "kind": "attestation_with_dal",
+              "slot": 0,
+              "level": 150562,
               "round": 0,
-              "slot": 0
+              "block_payload_hash": "vh2Sqiiseutbb13hthkf2usRi3rko4wTcq5yQKn6zubBDwoCHJoT",
+              "dal_attestation": "0"
             },
-            "signature": "sigbQ5ZNvkjvGssJgoAnUAfY4Wvvg3QZqawBYB1j1VDBNTMBAALnCzRHWzer34bnfmzgHg3EvwdzQKdxgSghB897cono6gbQ"
+            "signature": "BLsig9tpbsg9VSzGaeZxvRRR9HJ62AhQmtEX1RFUp6AvBsP62aN3jFEkdNq6u2imXAjPUEQ4Z3Lt4H9h7nHhXkpUXF6WKymJFRxB3aZbm4AydnT7hNnSEWGRQ3wpjMBvQ1giAX7UTodyZi"
           },
           "op2": {
-            "branch": "BKpbfCvh777DQHnXjU2sqHvVUNZ7dBAdqEfKkdw8EGSkD9LSYXb",
+            "branch": "BLkHSfhY7kff5Jzo9Nvj7hCu2hi2SeDaNmSTmUU7SDaGGhEWQo9",
             "operations": {
-              "kind": "preattestation",
-              "level": 1331,
-              "block_payload_hash": "vh1g87ZG6scSYxKhspAUzprQVuLAyoa5qMBKcUfjgnQGnFb3dJcG",
+              "kind": "attestation",
+              "slot": 0,
+              "level": 150562,
               "round": 0,
-              "slot": 0
+              "block_payload_hash": "vh1g87ZG6scSYxKhspAUzprQVuLAyoa5qMBKcUfjgnQGnFb3dJcG"
             },
-            "signature": "sigbQ5ZNvkjvGssJgoAnUAfY4Wvvg3QZqawBYB1j1VDBNTMBAALnCzRHWzer34bnfmzgHg3EvwdzQKdxgSghB897cono6gbQ"
+            "signature": "BLsig9yLWpztFBMJRd4bacFXnE4mgyTruWPWCVNA4vYFP9sgv4t9NVtgVs5Tx1umTiSzYWtmbAsrZhYLCwjhpXQAssTaNNtCHeZAbmXZRHJhqsTee8GWzWftoH36VvDEpg9NnahmMvwwE1"
           }
         }
       ]
@@ -74,14 +75,15 @@ func TestParseDoubleConsensusOperationEvidence(t *testing.T) {
 	defer server.Close()
 
 	c, _ := NewClient(server.URL, nil)
-	value, e := c.GetBlockOperations(context.TODO(), tezos.MustParseBlockHash("BMABzWp5Y3iSJRaCkWVwsPKXVZ1iCwB94dB7GfKsigahQ3v5Czc"))
+	value, e := c.GetBlockOperations(context.TODO(), tezos.MustParseBlockHash("BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ"))
 	assert.Nil(t, e)
 	assert.Len(t, value, 4)
 	assert.Len(t, value[2], 1)
 	assert.Equal(t, value[2][0].Contents.Len(), 1)
 	op := value[2][0].Contents.Select(tezos.OpTypeDoubleConsensusOperationEvidence, 0).(*DoubleConsensusOperationEvidence)
 	assert.Equal(t, tezos.OpTypeDoubleConsensusOperationEvidence, op.Kind())
-	assert.Equal(t, tezos.OpTypeAttestation, op.Op1.Operations.OpKind)
-	assert.Equal(t, "sigbQ5ZNvkjvGssJgoAnUAfY4Wvvg3QZqawBYB1j1VDBNTMBAALnCzRHWzer34bnfmzgHg3EvwdzQKdxgSghB897cono6gbQ", op.Op1.Signature.String())
-	assert.Equal(t, tezos.OpTypePreattestation, op.Op2.Operations.OpKind)
+	assert.Equal(t, tezos.OpTypeAttestationWithDal, op.Op1.Operations.OpKind)
+	assert.Equal(t, "BLsig9tpbsg9VSzGaeZxvRRR9HJ62AhQmtEX1RFUp6AvBsP62aN3jFEkdNq6u2imXAjPUEQ4Z3Lt4H9h7nHhXkpUXF6WKymJFRxB3aZbm4AydnT7hNnSEWGRQ3wpjMBvQ1giAX7UTodyZi", op.Op1.Signature.String())
+	assert.Equal(t, tezos.OpTypeAttestation, op.Op2.Operations.OpKind)
+	assert.Equal(t, "BLsig9yLWpztFBMJRd4bacFXnE4mgyTruWPWCVNA4vYFP9sgv4t9NVtgVs5Tx1umTiSzYWtmbAsrZhYLCwjhpXQAssTaNNtCHeZAbmXZRHJhqsTee8GWzWftoH36VvDEpg9NnahmMvwwE1", op.Op2.Signature.String())
 }
