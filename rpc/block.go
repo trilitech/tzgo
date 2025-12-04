@@ -125,7 +125,7 @@ type BlockHeader struct {
 	Content                   *BlockContent        `json:"content,omitempty"`
 	LiquidityBakingEscapeVote bool                 `json:"liquidity_baking_escape_vote"`
 	LiquidityBakingToggleVote tezos.FeatureVote    `json:"liquidity_baking_toggle_vote"`
-	AdaptiveIssuanceVote      tezos.FeatureVote    `json:"adaptive_issuance_vote"`
+	AdaptiveIssuanceVote      *tezos.FeatureVote   `json:"adaptive_issuance_vote"`
 
 	// only present when header is fetched explicitly
 	Hash     tezos.BlockHash    `json:"hash"`
@@ -144,7 +144,7 @@ func (h BlockHeader) LbVote() tezos.FeatureVote {
 	return tezos.FeatureVoteOn
 }
 
-func (h BlockHeader) AiVote() tezos.FeatureVote {
+func (h BlockHeader) AiVote() *tezos.FeatureVote {
 	return h.AdaptiveIssuanceVote
 }
 
