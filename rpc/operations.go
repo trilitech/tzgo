@@ -68,6 +68,13 @@ type OperationError struct {
 	Raw      json.RawMessage `json:"-"`
 }
 
+// CommitteeMetadata represents committee member information for aggregate operations.
+type CommitteeMetadata struct {
+	Delegate       tezos.Address `json:"delegate"`        // v023+
+	ConsensusPkh   tezos.Address `json:"consensus_pkh"`   // v023+
+	ConsensusPower int           `json:"consensus_power"` // v023+
+}
+
 // OperationMetadata contains execution receipts for successful and failed
 // operations.
 type OperationMetadata struct {
@@ -82,6 +89,10 @@ type OperationMetadata struct {
 	Slots               []int         `json:"slots,omitempty"`
 	EndorsementPower    int           `json:"endorsement_power,omitempty"`    // v12+
 	PreendorsementPower int           `json:"preendorsement_power,omitempty"` // v12+
+
+	// attestations/preattestations aggregate only (v023+)
+	CommitteeMetadata   []CommitteeMetadata `json:"committee,omitempty"`
+	TotalConsensusPower int                 `json:"total_consensus_power,omitempty"` // v023+
 
 	// some rollup ops only, FIXME: is this correct here or is this field in result?
 	Level int64 `json:"level"`
@@ -317,6 +328,8 @@ func (e *OperationList) UnmarshalJSON(data []byte) error {
 			op = &SeedNonce{}
 		case tezos.OpTypeDrainDelegate:
 			op = &DrainDelegate{}
+		case tezos.OpTypeDoubleConsensusOperationEvidence:
+			op = &DoubleConsensusOperationEvidence{}
 
 		// consensus operations
 		case tezos.OpTypeEndorsement,
@@ -388,6 +401,8 @@ func (e *OperationList) UnmarshalJSON(data []byte) error {
 			op = &SmartRollupRecoverBond{}
 		case tezos.OpTypeDalPublishCommitment:
 			op = &DalPublishCommitment{}
+		case tezos.OpTypeDalEntrapmentEvidence:
+			op = &DalEntrapmentEvidence{}
 
 		default:
 			return fmt.Errorf("rpc: unsupported op %q", string(data[start:end]))
