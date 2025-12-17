@@ -64,8 +64,8 @@ func TestAddress(t *testing.T) {
 			Address: "btz1LKs15uHQ4PgCoY3ZDq55CKJ5wDq9jQwfk",
 			Hash:    "000b80d92ce17aa6070fde1a99288a4213a5b650",
 			Type:    AddressTypeBlinded,
-			Bytes:   "03000b80d92ce17aa6070fde1a99288a4213a5b650",
-			Padded:  "0003000b80d92ce17aa6070fde1a99288a4213a5b650",
+			Bytes:   "04000b80d92ce17aa6070fde1a99288a4213a5b650",
+			Padded:  "0004000b80d92ce17aa6070fde1a99288a4213a5b650",
 		},
 		// TODO: AddressTypeSapling
 		// tz4
@@ -73,8 +73,8 @@ func TestAddress(t *testing.T) {
 			Address: "tz4HVR6aty9KwsQFHh81C1G7gBdhxT8kuytm",
 			Hash:    "5d1497f39b87599983fe8f29599b679564be822d",
 			Type:    AddressTypeBls12_381,
-			Bytes:   "045d1497f39b87599983fe8f29599b679564be822d",
-			Padded:  "00045d1497f39b87599983fe8f29599b679564be822d",
+			Bytes:   "035d1497f39b87599983fe8f29599b679564be822d",
+			Padded:  "00035d1497f39b87599983fe8f29599b679564be822d",
 		},
 		// txr1
 		{

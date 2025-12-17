@@ -5,6 +5,7 @@ package codec
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"strconv"
 
@@ -14,8 +15,8 @@ import (
 // Reveal represents "reveal" operation
 type Reveal struct {
 	Manager
-	PublicKey tezos.Key `json:"public_key"`
-	Proof     tezos.Signature
+	PublicKey tezos.Key       `json:"public_key"`
+	Proof     tezos.Signature `json:"proof"`
 }
 
 func (o Reveal) Kind() tezos.OpType {
@@ -46,8 +47,11 @@ func (o Reveal) EncodeBuffer(buf *bytes.Buffer, p *tezos.Params) error {
 
 	if p.Version >= tezos.Versions[tezos.PtSeouLo] {
 		if o.Proof.Type == tezos.SignatureTypeBls12_381 {
-			buf.WriteByte(0x01)
-			buf.Write(o.Proof.Bytes())
+			buf.WriteByte(0xff)
+			length := make([]byte, 4)
+			binary.BigEndian.PutUint32(length, uint32(len(o.Proof.Data)))
+			buf.Write(length)
+			buf.Write(o.Proof.Data)
 		} else {
 			buf.WriteByte(0x00)
 		}
@@ -68,16 +72,18 @@ func (o *Reveal) DecodeBuffer(buf *bytes.Buffer, p *tezos.Params) (err error) {
 	}
 
 	if p.Version >= tezos.Versions[tezos.PtSeouLo] {
+		// `proof` field from v023: (opt "proof" (dynamic_size Bls.encoding))
 		b, _ := buf.ReadByte()
 		if o.PublicKey.Type == tezos.KeyTypeBls12_381 {
-			if b != 0x01 {
+			if b == 0x00 {
 				err = fmt.Errorf("tz4 reveal requires proof flag | %d", b)
 				return
 			}
+
 			var sig tezos.Signature
-			if err := sig.DecodeBuffer(buf); err != nil {
-				return err
-			}
+			sig.Type = tezos.SignatureType(o.PublicKey.Type)
+			length := binary.BigEndian.Uint32(buf.Next(4))
+			sig.Data = buf.Next(int(length))
 			o.Proof = sig
 		} else if b != 0x00 {
 			err = fmt.Errorf("tz1/2/3 reveal must not contain proof | %d", b)
