@@ -291,6 +291,7 @@ func TestGetBlockMetadataV023(t *testing.T) {
 	assert.NoError(t, e)
 	assert.Nil(t, value.Attestations)
 	assert.Nil(t, value.Preattestations)
+	assert.Nil(t, value.AllBakersAttestActivationLevel)
 }
 
 func TestGetBlockMetadataV024(t *testing.T) {
@@ -462,4 +463,14 @@ func TestGetBlockMetadataV024(t *testing.T) {
 	assert.Equal(t, int64(469521635844122), value.Preattestations.TotalCommitteePower)
 	assert.Equal(t, int64(313036782067802), value.Preattestations.Threshold)
 	assert.Equal(t, int64(468739947472511), value.Preattestations.RecordedPower)
+
+	// v024; new field `all_bakers_attest_activation_level`
+	// The field is actually optional in v24 but here that case is skipped as it's rather trivial
+	assert.Equal(t, &LevelInfo{
+		Level:              15601,
+		LevelPosition:      15600,
+		Cycle:              52,
+		CyclePosition:      0,
+		ExpectedCommitment: false,
+	}, value.AllBakersAttestActivationLevel)
 }
