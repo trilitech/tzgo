@@ -72,7 +72,9 @@ func TestGetAllBakersAttestActivationLevel(t *testing.T) {
 func TestGetBakingPowerDistributionForCurrentCycle(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Accept") != "application/json" {
-			t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))))
+			return
 		}
 
 		var content []byte
