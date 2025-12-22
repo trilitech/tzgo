@@ -93,3 +93,20 @@ func (c *Client) GetBakingPowerDistributionForCurrentCycle(ctx context.Context, 
 
 	return d, nil
 }
+
+// GetTz4BakerNumberRatio returns the portion of active delegates that sign with a BLS key. RPC introduced in v024.
+func (c *Client) GetTz4BakerNumberRatio(ctx context.Context, id BlockID, cycle int64) (float64, error) {
+	var rawRes string
+	u := fmt.Sprintf("chains/main/blocks/%s/helpers/tz4_baker_number_ratio?cycle=%d", id, cycle)
+	if err := c.Get(ctx, u, &rawRes); err != nil {
+		return 0, err
+	}
+
+	// The response seems to be always in the format of "A.B%"
+	f, err := strconv.ParseFloat(rawRes[:len(rawRes)-1], 64)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse ratio: %v", err)
+	}
+
+	return f, nil
+}
