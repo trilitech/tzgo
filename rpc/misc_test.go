@@ -192,3 +192,31 @@ func TestUnmarshalBadBakingPowerDistribution(t *testing.T) {
 		assert.EqualError(t, e, test.errorMsg, "case %d error mismatch", i)
 	}
 }
+
+func TestGetTz4BakerNumberRatio(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Accept") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))))
+			return
+		}
+
+		var content []byte
+		switch r.URL.String() {
+		case "/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/helpers/tz4_baker_number_ratio?cycle=42":
+			content = []byte(`"12.34%"`)
+			w.WriteHeader(http.StatusOK)
+		default:
+			content = []byte(fmt.Sprintf("\"Unexpected URL: %s\"", r.URL.String()))
+			w.WriteHeader(http.StatusBadRequest)
+		}
+
+		w.Write(content)
+	}))
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+	value, e := c.GetTz4BakerNumberRatio(context.TODO(), tezos.MustParseBlockHash("BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ"), 42)
+	assert.NoError(t, e)
+	assert.Equal(t, float64(12.34), value)
+}
