@@ -270,8 +270,9 @@ type BlockMetadata struct {
 	DalAttestation tezos.Z `json:"dal_attestation"`
 
 	// v024+
-	Attestations    *BlockMetadataConsensus `json:"attestations"`
-	Preattestations *BlockMetadataConsensus `json:"preattestations"`
+	Attestations                   *BlockMetadataConsensus `json:"attestations"`
+	Preattestations                *BlockMetadataConsensus `json:"preattestations"`
+	AllBakersAttestActivationLevel *LevelInfo              `json:"all_bakers_attest_activation_level"`
 }
 
 func (m *BlockMetadata) GetLevel() int64 {
