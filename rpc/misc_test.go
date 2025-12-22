@@ -123,17 +123,17 @@ func TestGetBakingPowerDistributionForCurrentCycle(t *testing.T) {
 	assert.NoError(t, e)
 	assert.Equal(t, int64(299309813454073), value.TotalBakingPower)
 	assert.Equal(t, []BakingPowerDelegate{
-		BakingPowerDelegate{
+		{
 			Delegate:     tezos.MustParseAddress("tz1N29q5T3jJ2i1JEWHax7q1NRkDMADj6fof"),
 			ConsensusPkh: tezos.MustParseAddress("tz1N29q5T3jJ2i1JEWHax7q1NRkDMADj6fof"),
 			BakingPower:  47741065155535,
 		},
-		BakingPowerDelegate{
+		{
 			Delegate:     tezos.MustParseAddress("tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"),
 			ConsensusPkh: tezos.MustParseAddress("tz4UmdB1JufxWrapeLysYxK9J574oFgkaAYs"),
 			BakingPower:  199293741687329,
 		},
-		BakingPowerDelegate{
+		{
 			Delegate:     tezos.MustParseAddress("tz4HG14YMihpZxynRXu7tK72hoz3mnnXZGzm"),
 			ConsensusPkh: tezos.MustParseAddress("tz4HG14YMihpZxynRXu7tK72hoz3mnnXZGzm"),
 			BakingPower:  52275006611209,
@@ -149,39 +149,39 @@ func TestUnmarshalBadBakingPowerDistribution(t *testing.T) {
 
 	var dummy *BakingPowerDistribution
 	for i, test := range []testcase{
-		testcase{
+		{
 			input:    "[1, 2, 3]",
 			errorMsg: "unexpected input size; outer array should have length 2",
 		},
-		testcase{
+		{
 			input:    "[1, 2]",
 			errorMsg: "failed to parse total baking power: json: cannot unmarshal number into Go value of type string",
 		},
-		testcase{
+		{
 			input:    `["a", 2]`,
 			errorMsg: "failed to parse total baking power: strconv.ParseInt: parsing \"a\": invalid syntax",
 		},
-		testcase{
+		{
 			input:    `["1", ["a"]]`,
 			errorMsg: "failed to parse baking power delegates: json: cannot unmarshal string into Go value of type []json.RawMessage",
 		},
-		testcase{
+		{
 			input:    `["1", [["a"]]]`,
 			errorMsg: "failed to parse delegate info: unexpected input size; inner delegate array should have length 2",
 		},
-		testcase{
+		{
 			input:    `["1", [["a", "b"]]]`,
 			errorMsg: "failed to parse delegate info: json: cannot unmarshal string into Go value of type rpc.BakingPowerDelegate",
 		},
-		testcase{
+		{
 			input:    `["1", [[{"delegate": "tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"}, "b"]]]`,
 			errorMsg: "failed to parse delegate info: invalid or missing addresses",
 		},
-		testcase{
+		{
 			input:    `["1", [[{"delegate": "tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF", "consensus_pkh":"tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"}, 1]]]`,
 			errorMsg: "failed to parse delegate info: json: cannot unmarshal number into Go value of type string",
 		},
-		testcase{
+		{
 			input:    `["1", [[{"delegate": "tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF", "consensus_pkh":"tz1NNT9EERmcKekRq2vdv6e8TL3WQpY8AXSF"}, "b"]]]`,
 			errorMsg: "failed to parse delegate info: strconv.ParseInt: parsing \"b\": invalid syntax",
 		},
