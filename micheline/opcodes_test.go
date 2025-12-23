@@ -33,6 +33,12 @@ func TestParseOpCode(t *testing.T) {
 			expected: I_ADD,
 			wantErr:  false,
 		},
+		{
+			name:     "INDEX_ADDRESS",
+			input:    "INDEX_ADDRESS",
+			expected: I_INDEX_ADDRESS,
+			wantErr:  false,
+		},
 		// Positive case - new Seoul primitive
 		{
 			name:     "IS_IMPLICIT_ACCOUNT",
@@ -118,6 +124,11 @@ func TestOpCodeString(t *testing.T) {
 			opcode:   I_PACK,
 			expected: "PACK",
 		},
+		{
+			name:     "INDEX_ADDRESS string representation",
+			opcode:   I_INDEX_ADDRESS,
+			expected: "INDEX_ADDRESS",
+		},
 		// Negative case - invalid opcode
 		{
 			name:     "invalid opcode",
@@ -173,10 +184,15 @@ func TestOpCodeIsValid(t *testing.T) {
 			opcode:   I_NAT,
 			expected: true,
 		},
+		{
+			name:     "INDEX_ADDRESS is valid",
+			opcode:   I_INDEX_ADDRESS,
+			expected: true,
+		},
 		// Negative cases - invalid opcodes
 		{
-			name:     "opcode beyond IS_IMPLICIT_ACCOUNT is invalid",
-			opcode:   I_IS_IMPLICIT_ACCOUNT + 1,
+			name:     "opcode beyond INDEX_ADDRESS is invalid",
+			opcode:   I_INDEX_ADDRESS + 1,
 			expected: false,
 		},
 		{
@@ -227,6 +243,11 @@ func TestOpCodeByte(t *testing.T) {
 			opcode:   K_PARAMETER,
 			expected: 0x00, // 0 decimal
 		},
+		{
+			name:     "INDEX_ADDRESS byte value",
+			opcode:   I_INDEX_ADDRESS,
+			expected: 0x9F, // 159 decimal
+		},
 	}
 
 	for _, tt := range tests {
@@ -256,6 +277,12 @@ func TestOpCodeMarshalText(t *testing.T) {
 			name:     "IMPLICIT_ACCOUNT marshal text",
 			opcode:   I_IMPLICIT_ACCOUNT,
 			expected: "IMPLICIT_ACCOUNT",
+			wantErr:  false,
+		},
+		{
+			name:     "INDEX_ADDRESS marshal text",
+			opcode:   I_INDEX_ADDRESS,
+			expected: "INDEX_ADDRESS",
 			wantErr:  false,
 		},
 		{
