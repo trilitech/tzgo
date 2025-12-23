@@ -75,6 +75,12 @@ type CommitteeMetadata struct {
 	ConsensusPower int           `json:"consensus_power"` // v023+
 }
 
+// AddressRegistryDiff represents the addresses that have been newly indexed through the opcode INDEX_ADDRESS.
+type AddressRegistryDiff struct {
+	Address tezos.Address `json:"address"`
+	Index   int           `json:"index,string"`
+}
+
 // OperationMetadata contains execution receipts for successful and failed
 // operations.
 type OperationMetadata struct {
@@ -134,6 +140,9 @@ type OperationResult struct {
 
 	// v019 DAL
 	DalResult
+
+	// v024+; only when the operation involves opcode INDEX_ADDRESS
+	AddressRegistryDiff *[]AddressRegistryDiff `json:"address_registry_diff"`
 }
 
 // Always use this helper to retrieve Ticket updates. This is because due to
