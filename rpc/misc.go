@@ -110,3 +110,22 @@ func (c *Client) GetTz4BakerNumberRatio(ctx context.Context, id BlockID, cycle i
 
 	return f, nil
 }
+
+// GetDestinationIndex returns the index of the given destination (e.g. tz1, Smart Rollup addresses, etc.), or null if the destination has not been indexed by the opcode INDEX_ADDRESS yet. RPC introduced in v024.
+func (c *Client) GetDestinationIndex(ctx context.Context, id BlockID, destination tezos.Address) (*uint64, error) {
+	var rawRes *string
+	u := fmt.Sprintf("chains/main/blocks/%s/context/destination/%s/index", id, destination)
+	if err := c.Get(ctx, u, &rawRes); err != nil {
+		return nil, err
+	}
+
+	if rawRes != nil {
+		idx, err := strconv.ParseUint(*rawRes, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse index: %v", err)
+		}
+		return &idx, nil
+	}
+
+	return nil, nil
+}
