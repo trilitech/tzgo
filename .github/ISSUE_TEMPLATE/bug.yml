@@ -1,0 +1,25 @@
+---
+name: Bug Report
+about: Report an issue or a bug
+assignees: ""
+---
+
+## Description
+
+<!-- Describe the issue and provide context, e.g. use cases -->
+
+### Environment information
+
+* Go version:
+* Operating system:
+
+<!-- Please feel free to provide more information -->
+
+## How to reproduce
+
+<!-- Describe steps to reproduce the issue or provide code snippets -->
+
+### Observed result
+
+
+### Expected result
