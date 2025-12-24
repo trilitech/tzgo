@@ -220,3 +220,45 @@ func TestGetTz4BakerNumberRatio(t *testing.T) {
 	assert.NoError(t, e)
 	assert.Equal(t, float64(12.34), value)
 }
+
+func TestGetDestinationIndex(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Accept") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))))
+			return
+		}
+
+		var content []byte
+		status := http.StatusOK
+		switch r.URL.String() {
+		case "/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/context/destination/tz1ZvUkxJHPTy1tC7kF8Fg1Ko8jFvSumeENg/index":
+			content = []byte(`"42"`)
+		case "/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/context/destination/KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5/index":
+			content = []byte(`null`)
+		// this case shouldn't really exist normally; just to check the error message
+		case "/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/context/destination/tz1XiVu2qdyg2Lwpq3rc9a46rdgjH2txuUsz/index":
+			content = []byte(`"bad response"`)
+		default:
+			content = []byte(fmt.Sprintf("\"Unexpected URL: %s\"", r.URL.String()))
+			status = http.StatusBadRequest
+		}
+
+		w.WriteHeader(status)
+		w.Write(content)
+	}))
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+	value, e := c.GetDestinationIndex(context.TODO(), tezos.MustParseBlockHash("BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ"), tezos.MustParseAddress("tz1ZvUkxJHPTy1tC7kF8Fg1Ko8jFvSumeENg"))
+	assert.NoError(t, e)
+	assert.Equal(t, uint64(42), *value)
+
+	value, e = c.GetDestinationIndex(context.TODO(), tezos.MustParseBlockHash("BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ"), tezos.MustParseAddress("KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5"))
+	assert.NoError(t, e)
+	assert.Nil(t, value)
+
+	value, e = c.GetDestinationIndex(context.TODO(), tezos.MustParseBlockHash("BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ"), tezos.MustParseAddress("tz1XiVu2qdyg2Lwpq3rc9a46rdgjH2txuUsz"))
+	assert.EqualError(t, e, "failed to parse index: strconv.ParseUint: parsing \"bad response\": invalid syntax")
+	assert.Nil(t, value)
+}
