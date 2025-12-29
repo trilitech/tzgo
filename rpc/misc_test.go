@@ -262,3 +262,152 @@ func TestGetDestinationIndex(t *testing.T) {
 	assert.EqualError(t, e, "failed to parse index: strconv.ParseUint: parsing \"bad response\": invalid syntax")
 	assert.Nil(t, value)
 }
+
+func TestGetBlockValidatorsPreV024(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Accept") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))))
+			return
+		}
+
+		var content []byte
+		status := http.StatusOK
+		switch r.URL.String() {
+		case "/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/helpers/validators":
+			content = []byte(`[
+  {
+    "level": 17141799,
+    "delegate": "tz3cpZyzsqEMk5RGHYL7m7obnLFtq7LxvCLA",
+    "slots": [694, 813, 1050, 1271, 2093, 2580, 3669, 4042, 4396, 6078, 6611],
+    "consensus_key": "tz3aYdfwVMHSdXjRfFDNR9ZFS1rqpMPj9uCp"
+  },
+  {
+    "level": 17141799,
+    "delegate": "tz3btDQsDkqq2G7eBdrrLqetaAfLVw6BnPez",
+    "slots": [48, 55, 57, 185, 190, 248, 450, 456, 460, 517, 585, 649, 830, 849, 1065, 1074, 1079, 1101, 1170, 1223, 1317],
+    "consensus_key": "tz3btDQsDkqq2G7eBdrrLqetaAfLVw6BnPez",
+	"companion_key": "tz4Lc6qm8t6cS4UNdse9pAXm7pxiUmMruuvw"
+  }
+]`)
+		default:
+			content = []byte(fmt.Sprintf("\"Unexpected URL: %s\"", r.URL.String()))
+			status = http.StatusBadRequest
+		}
+
+		w.WriteHeader(status)
+		w.Write(content)
+	}))
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+	value, e := c.GetBlockValidators(context.TODO(), tezos.MustParseBlockHash("BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ"), nil)
+	assert.NoError(t, e)
+
+	companionKey := tezos.MustParseAddress("tz4Lc6qm8t6cS4UNdse9pAXm7pxiUmMruuvw")
+	preV024Value, e := value.AsPreV024Value()
+	assert.NoError(t, e)
+	assert.Equal(t, []GetBlockValidatorsResponsePreV024{{
+		Level:        17141799,
+		Delegate:     tezos.MustParseAddress("tz3cpZyzsqEMk5RGHYL7m7obnLFtq7LxvCLA"),
+		Slots:        []uint16{694, 813, 1050, 1271, 2093, 2580, 3669, 4042, 4396, 6078, 6611},
+		ConsensusKey: tezos.MustParseAddress("tz3aYdfwVMHSdXjRfFDNR9ZFS1rqpMPj9uCp"),
+	}, {
+		Level:        17141799,
+		Delegate:     tezos.MustParseAddress("tz3btDQsDkqq2G7eBdrrLqetaAfLVw6BnPez"),
+		Slots:        []uint16{48, 55, 57, 185, 190, 248, 450, 456, 460, 517, 585, 649, 830, 849, 1065, 1074, 1079, 1101, 1170, 1223, 1317},
+		ConsensusKey: tezos.MustParseAddress("tz3btDQsDkqq2G7eBdrrLqetaAfLVw6BnPez"),
+		CompanionKey: &companionKey,
+	}}, *preV024Value)
+
+	v024Value, e := value.AsV024Value()
+	assert.Error(t, e)
+	assert.Nil(t, v024Value)
+}
+
+func TestGetBlockValidatorsV024(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Accept") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))))
+			return
+		}
+
+		var content []byte
+		status := http.StatusOK
+		switch r.URL.String() {
+		case "/chains/main/blocks/BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ/helpers/validators":
+			content = []byte(`[
+  {
+    "level": 766274,
+    "consensus_threshold": "604936371385957",
+    "consensus_committee": "907339747101888",
+    "all_bakers_attest_activated": true,
+    "delegates": [
+      {
+        "delegate": "tz4HG14YMihpZxynRXu7tK72hoz3mnnXZGzm",
+        "rounds": [6938, 6980, 6984],
+        "consensus_key": "tz4HG14YMihpZxynRXu7tK72hoz3mnnXZGzm",
+        "companion_key": "tz4Lc6qm8t6cS4UNdse9pAXm7pxiUmMruuvw",
+        "attesting_power": "55831337496322",
+        "attestation_slot": 11
+      },
+      {
+        "delegate": "tz3Q1fwk1vh3zm5LqyUV9e2wZBdaEXcovh2r",
+        "rounds": [1, 71],
+        "consensus_key": "tz3Q1fwk1vh3zm5LqyUV9e2wZBdaEXcovh2r",
+        "attesting_power": "38734749288786",
+        "attestation_slot": 10
+      }
+    ]
+  }
+]`)
+		default:
+			content = []byte(fmt.Sprintf("\"Unexpected URL: %s\"", r.URL.String()))
+			status = http.StatusBadRequest
+		}
+
+		w.WriteHeader(status)
+		w.Write(content)
+	}))
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+	value, e := c.GetBlockValidators(context.TODO(), tezos.MustParseBlockHash("BL2xnxQ6YPmySpE9CZgDUFPKD146Hku36aojiGGF1gWfbijeihZ"), nil)
+	assert.NoError(t, e)
+
+	preV024Value, e := value.AsPreV024Value()
+	assert.Error(t, e)
+	assert.Nil(t, preV024Value)
+
+	companionKey := tezos.MustParseAddress("tz4Lc6qm8t6cS4UNdse9pAXm7pxiUmMruuvw")
+	v024Value, e := value.AsV024Value()
+	assert.NoError(t, e)
+	assert.Equal(t, []GetBlockValidatorsResponseV024{{
+		Level:                    766274,
+		ConsensusThreshold:       uint64(604936371385957),
+		ConsensusCommittee:       uint64(907339747101888),
+		AllBakersAttestActivated: true,
+		Delegates: []struct {
+			Delegate        tezos.Address  `json:"delegate"`
+			Rounds          []int32        `json:"rounds"`
+			ConsensusKey    tezos.Address  `json:"consensus_key"`
+			CompanionKey    *tezos.Address `json:"companion_key"`
+			AttestingPower  int64          `json:"attesting_power,string"`
+			AttestationSlot uint16         `json:"attestation_slot"`
+		}{{
+			Delegate:        tezos.MustParseAddress("tz4HG14YMihpZxynRXu7tK72hoz3mnnXZGzm"),
+			Rounds:          []int32{6938, 6980, 6984},
+			ConsensusKey:    tezos.MustParseAddress("tz4HG14YMihpZxynRXu7tK72hoz3mnnXZGzm"),
+			CompanionKey:    &companionKey,
+			AttestingPower:  int64(55831337496322),
+			AttestationSlot: uint16(11),
+		}, {
+			Delegate:        tezos.MustParseAddress("tz3Q1fwk1vh3zm5LqyUV9e2wZBdaEXcovh2r"),
+			Rounds:          []int32{1, 71},
+			ConsensusKey:    tezos.MustParseAddress("tz3Q1fwk1vh3zm5LqyUV9e2wZBdaEXcovh2r"),
+			AttestingPower:  int64(38734749288786),
+			AttestationSlot: uint16(10),
+		}},
+	}}, *v024Value)
+}
