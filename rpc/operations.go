@@ -127,7 +127,7 @@ type OperationMetadata struct {
 
 	// attestations/preattestations aggregate only (v023+)
 	CommitteeMetadata   []CommitteeMetadata `json:"committee,omitempty"`
-	TotalConsensusPower RawConsensusPower   `json:"total_consensus_power,omitempty"` // v023+
+	TotalConsensusPower RawConsensusPower   `json:"consensus_power,omitempty"` // v024+
 
 	// some rollup ops only, FIXME: is this correct here or is this field in result?
 	Level int64 `json:"level"`
