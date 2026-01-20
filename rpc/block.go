@@ -228,6 +228,13 @@ type VotingPeriodInfo struct {
 	VotingPeriod VotingPeriod `json:"voting_period"`
 }
 
+// BlockMetadataConsensus represents consensus data attached to block metadata.
+type BlockMetadataConsensus struct {
+	TotalCommitteePower int64 `json:"total_committee_power,string"`
+	Threshold           int64 `json:"threshold,string"`
+	RecordedPower       int64 `json:"recorded_power,string"`
+}
+
 // BlockMetadata is a part of the Tezos block data
 type BlockMetadata struct {
 	Protocol               tezos.ProtocolHash     `json:"protocol"`
@@ -261,6 +268,11 @@ type BlockMetadata struct {
 
 	// v019+
 	DalAttestation tezos.Z `json:"dal_attestation"`
+
+	// v024+
+	Attestations                   *BlockMetadataConsensus `json:"attestations"`
+	Preattestations                *BlockMetadataConsensus `json:"preattestations"`
+	AllBakersAttestActivationLevel *LevelInfo              `json:"all_bakers_attest_activation_level"`
 }
 
 func (m *BlockMetadata) GetLevel() int64 {

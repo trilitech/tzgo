@@ -68,11 +68,46 @@ type OperationError struct {
 	Raw      json.RawMessage `json:"-"`
 }
 
+// RawConsensusPower holds the content of the consensus_power field. This is because the data type of
+// that field completely changed in v024.
+type RawConsensusPower struct {
+	json.RawMessage
+}
+
 // CommitteeMetadata represents committee member information for aggregate operations.
 type CommitteeMetadata struct {
-	Delegate       tezos.Address `json:"delegate"`        // v023+
-	ConsensusPkh   tezos.Address `json:"consensus_pkh"`   // v023+
-	ConsensusPower int           `json:"consensus_power"` // v023+
+	Delegate       tezos.Address     `json:"delegate"`        // v023+
+	ConsensusPkh   tezos.Address     `json:"consensus_pkh"`   // v023+
+	ConsensusPower RawConsensusPower `json:"consensus_power"` // v023+
+}
+
+// AsV023Value converts the content of the consensus_power field into the protocol v023 format, i.e. int.
+// An error is returned when the conversion fails. Users are advised to always check the returned error.
+func (c RawConsensusPower) AsV023Value() (int, error) {
+	var value int
+	if c.RawMessage == nil {
+		return value, nil
+	}
+	err := json.Unmarshal(c.RawMessage, &value)
+	return value, err
+}
+
+// AsV024Value converts the content of the consensus_power field into the protocol v024 format, i.e. a struct
+// with two fields. An error is returned when the conversion fails. Users are advised to always check
+// the returned error.
+func (c RawConsensusPower) AsV024Value() (ConsensusPowerV024, error) {
+	var value ConsensusPowerV024
+	if c.RawMessage == nil {
+		return value, nil
+	}
+	err := json.Unmarshal(c.RawMessage, &value)
+	return value, err
+}
+
+// ConsensusPowerV024 represents the content of the consensus_power field from protocol v024.
+type ConsensusPowerV024 struct {
+	Slots       int   `json:"slots"`               // v024+
+	BakingPower int64 `json:"baking_power,string"` // v024+
 }
 
 // OperationMetadata contains execution receipts for successful and failed
@@ -92,7 +127,7 @@ type OperationMetadata struct {
 
 	// attestations/preattestations aggregate only (v023+)
 	CommitteeMetadata   []CommitteeMetadata `json:"committee,omitempty"`
-	TotalConsensusPower int                 `json:"total_consensus_power,omitempty"` // v023+
+	TotalConsensusPower RawConsensusPower   `json:"consensus_power,omitempty"` // v024+
 
 	// some rollup ops only, FIXME: is this correct here or is this field in result?
 	Level int64 `json:"level"`
