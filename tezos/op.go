@@ -122,6 +122,7 @@ const (
 	OpTypeAttestationsAggregate                   // 47 v023
 	OpTypeUpdateCompanionKey                      // 48 v023
 	OpTypeDoubleConsensusOperationEvidence        // 49 v023
+	OpTypeDalEntrapmentEvidence                   // 50 v022
 )
 
 var (
@@ -176,6 +177,7 @@ var (
 		OpTypeAttestationsAggregate:            "attestations_aggregate",
 		OpTypeUpdateCompanionKey:               "update_companion_key",
 		OpTypeDoubleConsensusOperationEvidence: "double_consensus_operation_evidence",
+		OpTypeDalEntrapmentEvidence:            "dal_entrapment_evidence",
 	}
 	opTypeReverseStrings = make(map[string]OpType)
 )
@@ -329,6 +331,7 @@ var (
 		OpTypeSmartRollupExecuteOutboxMessage: 206, // v016
 		OpTypeSmartRollupRecoverBond:          207, // v016
 		OpTypeDalPublishCommitment:            230, // v019 FIXME: is this correct?
+		OpTypeDalEntrapmentEvidence:           24,  // v022
 
 		// FIXME: move these to tag v4 and remove OpTypeDoublePreattestationEvidence
 		OpTypePreattestationsAggregate:         30,  // v023
@@ -466,6 +469,7 @@ var (
 		206: 26 + 56,                  // OpTypeSmartRollupExecuteOutboxMessage // v016
 		207: 26 + 41,                  // OpTypeSmartRollupRecoverBond // v016
 		230: 26 + 101,                 // OpTypeDalPublishCommitment // v019
+		24:  8 + 48 + 4 + 4,           // OpTypeDalEntrapmentEvidence // v022
 
 		// FIXME: move these to v4, update tag 2 (OpTypeDoubleConsensusOperationEvidence),
 		// and remove tag 7 (OpTypeDoublePreattestationEvidence)
@@ -508,7 +512,8 @@ func (t OpType) ListId() int {
 		OpTypeDrainDelegate,
 		OpTypeDoubleAttestationEvidence,
 		OpTypeDoublePreattestationEvidence,
-		OpTypeDoubleConsensusOperationEvidence:
+		OpTypeDoubleConsensusOperationEvidence,
+		OpTypeDalEntrapmentEvidence:
 		return 2
 	case OpTypeTransaction, // generic user operations
 		OpTypeOrigination,
@@ -574,6 +579,8 @@ func ParseOpTag(t byte) OpType {
 		return OpTypeEndorsement
 	case 23:
 		return OpTypeAttestationWithDal
+	case 24:
+		return OpTypeDalEntrapmentEvidence
 	case 30:
 		return OpTypePreattestationsAggregate
 	case 31:

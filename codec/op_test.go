@@ -268,10 +268,27 @@ func TestOp(t *testing.T) {
 				},
 			},
 		},
+
 		// reveal
+		/*
+			octez-codec encode "023-PtSeouLo.operation.unsigned" from '{
+				"branch": "BKnYk1T5a49bb8me4WfQeugyFnMEH9h8cm6jqvL3BxRwE23EVBJ",
+				"contents": [
+					{
+						"kind": "reveal",
+						"source": "tz1U4yF2Bkd7hV2JHW2styAWPif12TUCyS2S",
+						"fee": "1000",
+						"counter": "2886593",
+						"gas_limit": "1000",
+						"storage_limit": "0",
+						"public_key": "edpkuQqN9HB3jY1FvDzt15WQDVSHR4vQGd1wv6iqJ73wkrKecRtnXh"
+					}
+				]
+			}'
+		*/
 		{
 			name: "reveal",
-			data: asHex("09af86395fee09cfbede6b11339cd53216aeee93c38b9bf5cee4c791b814df8c6b005c7886828ec2a24f1814484de7dd53e559831c3fe807c197b001e8070000654b5b22880736d33865b4f30367e90feb81b17cc0ceb7ac951a0066142d5847"),
+			data: asHex("09af86395fee09cfbede6b11339cd53216aeee93c38b9bf5cee4c791b814df8c6b005c7886828ec2a24f1814484de7dd53e559831c3fe807c197b001e8070000654b5b22880736d33865b4f30367e90feb81b17cc0ceb7ac951a0066142d584700"),
 			op: Op{
 				Branch: tezos.MustParseBlockHash("BKnYk1T5a49bb8me4WfQeugyFnMEH9h8cm6jqvL3BxRwE23EVBJ"),
 				Contents: []Operation{
@@ -284,6 +301,45 @@ func TestOp(t *testing.T) {
 							StorageLimit: 0,
 						},
 						PublicKey: tezos.MustParseKey("edpkuQqN9HB3jY1FvDzt15WQDVSHR4vQGd1wv6iqJ73wkrKecRtnXh"),
+					},
+				},
+			},
+		},
+
+		// reveal BLS with proof
+		/*
+			octez-codec encode "023-PtSeouLo.operation.unsigned" from '{
+				"branch": "BLrUnqEery8Ztby4jUg8P71y5vwEAjdBWGFML7fGrkH3dypzmfe",
+				"contents": [
+					{
+						"kind": "reveal",
+						"source": "tz4K9xBdTEXhL6fazA5y268kWrzsfZzSt3GH",
+						"fee": "733",
+						"counter": "47",
+						"gas_limit": "3250",
+						"storage_limit": "0",
+						"public_key": "BLpk1wJizey3gz1ZXcMtcWHLEejJdUaxyzQrwLkK8G4XszM3XVUnQmaUE55moTPDhccueaAQNiDk",
+						"proof": "BLsig9YWySP6Z66PU96XRuSU9MXPxBUehMraoaxyzPgUwajCRL5ahoX2TJyuakXSBbrmrsLgUoUT2WhCGWjZgRjzLYLjDvBNxDwe9FUge1ZgbGcYDmQXvUfALiUxoJA3RQLe3WAcjbazqi"
+					}
+				]
+			}'
+		*/
+		{
+			name: "reveal BLS with proof",
+			data: asHex("964f3de073892db7e956b9b9de6468f7d61f799916ef76393eee7435b84b46316b036f5679da3336d8aeee9a1f90987bb8d9201ced42dd052fb2190003ac6b68a60a3a783c1596dfcee474281f1d858741bbb8260e6977962ca4225728dbeb0d4ccb480b0a7b5d9feb167dd454ff0000006080fa9b05589aa484e59f5910e626b09432ddb9050701261037c39c6f8b935f3a6c74553c001d494f73aafc88ebe6e7da13b9d2a80376d89c098c568393a498c2f76124cc77a326348dde72ac06ceb214f49d11d22561d516a67cc837ae420037"),
+			op: Op{
+				Branch: tezos.MustParseBlockHash("BLrUnqEery8Ztby4jUg8P71y5vwEAjdBWGFML7fGrkH3dypzmfe"),
+				Contents: []Operation{
+					&Reveal{
+						Manager: Manager{
+							Source:       tezos.MustParseAddress("tz4K9xBdTEXhL6fazA5y268kWrzsfZzSt3GH"),
+							Fee:          733,
+							Counter:      47,
+							GasLimit:     3250,
+							StorageLimit: 0,
+						},
+						PublicKey: tezos.MustParseKey("BLpk1wJizey3gz1ZXcMtcWHLEejJdUaxyzQrwLkK8G4XszM3XVUnQmaUE55moTPDhccueaAQNiDk"),
+						Proof:     tezos.MustParseSignature("BLsig9YWySP6Z66PU96XRuSU9MXPxBUehMraoaxyzPgUwajCRL5ahoX2TJyuakXSBbrmrsLgUoUT2WhCGWjZgRjzLYLjDvBNxDwe9FUge1ZgbGcYDmQXvUfALiUxoJA3RQLe3WAcjbazqi"),
 					},
 				},
 			},
