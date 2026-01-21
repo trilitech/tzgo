@@ -33,6 +33,18 @@ func TestParseOpCode(t *testing.T) {
 			expected: I_ADD,
 			wantErr:  false,
 		},
+		{
+			name:     "INDEX_ADDRESS",
+			input:    "INDEX_ADDRESS",
+			expected: I_INDEX_ADDRESS,
+			wantErr:  false,
+		},
+		{
+			name:     "GET_ADDRESS_INDEX",
+			input:    "GET_ADDRESS_INDEX",
+			expected: I_GET_ADDRESS_INDEX,
+			wantErr:  false,
+		},
 		// Positive case - new Seoul primitive
 		{
 			name:     "IS_IMPLICIT_ACCOUNT",
@@ -118,6 +130,16 @@ func TestOpCodeString(t *testing.T) {
 			opcode:   I_PACK,
 			expected: "PACK",
 		},
+		{
+			name:     "INDEX_ADDRESS string representation",
+			opcode:   I_INDEX_ADDRESS,
+			expected: "INDEX_ADDRESS",
+		},
+		{
+			name:     "GET_ADDRESS_INDEX string representation",
+			opcode:   I_GET_ADDRESS_INDEX,
+			expected: "GET_ADDRESS_INDEX",
+		},
 		// Negative case - invalid opcode
 		{
 			name:     "invalid opcode",
@@ -173,10 +195,20 @@ func TestOpCodeIsValid(t *testing.T) {
 			opcode:   I_NAT,
 			expected: true,
 		},
+		{
+			name:     "INDEX_ADDRESS is valid",
+			opcode:   I_INDEX_ADDRESS,
+			expected: true,
+		},
+		{
+			name:     "GET_ADDRESS_INDEX is valid",
+			opcode:   I_GET_ADDRESS_INDEX,
+			expected: true,
+		},
 		// Negative cases - invalid opcodes
 		{
-			name:     "opcode beyond IS_IMPLICIT_ACCOUNT is invalid",
-			opcode:   I_IS_IMPLICIT_ACCOUNT + 1,
+			name:     "opcode beyond GET_ADDRESS_INDEX is invalid",
+			opcode:   I_GET_ADDRESS_INDEX + 1,
 			expected: false,
 		},
 		{
@@ -227,6 +259,16 @@ func TestOpCodeByte(t *testing.T) {
 			opcode:   K_PARAMETER,
 			expected: 0x00, // 0 decimal
 		},
+		{
+			name:     "INDEX_ADDRESS byte value",
+			opcode:   I_INDEX_ADDRESS,
+			expected: 0x9F, // 159 decimal
+		},
+		{
+			name:     "GET_ADDRESS_INDEX byte value",
+			opcode:   I_GET_ADDRESS_INDEX,
+			expected: 0xA0, // 160 decimal
+		},
 	}
 
 	for _, tt := range tests {
@@ -256,6 +298,18 @@ func TestOpCodeMarshalText(t *testing.T) {
 			name:     "IMPLICIT_ACCOUNT marshal text",
 			opcode:   I_IMPLICIT_ACCOUNT,
 			expected: "IMPLICIT_ACCOUNT",
+			wantErr:  false,
+		},
+		{
+			name:     "INDEX_ADDRESS marshal text",
+			opcode:   I_INDEX_ADDRESS,
+			expected: "INDEX_ADDRESS",
+			wantErr:  false,
+		},
+		{
+			name:     "GET_ADDRESS_INDEX marshal text",
+			opcode:   I_GET_ADDRESS_INDEX,
+			expected: "GET_ADDRESS_INDEX",
 			wantErr:  false,
 		},
 		{

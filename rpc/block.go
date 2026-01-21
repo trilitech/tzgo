@@ -125,7 +125,7 @@ type BlockHeader struct {
 	Content                   *BlockContent        `json:"content,omitempty"`
 	LiquidityBakingEscapeVote bool                 `json:"liquidity_baking_escape_vote"`
 	LiquidityBakingToggleVote tezos.FeatureVote    `json:"liquidity_baking_toggle_vote"`
-	AdaptiveIssuanceVote      tezos.FeatureVote    `json:"adaptive_issuance_vote"`
+	AdaptiveIssuanceVote      *tezos.FeatureVote   `json:"adaptive_issuance_vote"`
 
 	// only present when header is fetched explicitly
 	Hash     tezos.BlockHash    `json:"hash"`
@@ -144,7 +144,7 @@ func (h BlockHeader) LbVote() tezos.FeatureVote {
 	return tezos.FeatureVoteOn
 }
 
-func (h BlockHeader) AiVote() tezos.FeatureVote {
+func (h BlockHeader) AiVote() *tezos.FeatureVote {
 	return h.AdaptiveIssuanceVote
 }
 
@@ -228,6 +228,13 @@ type VotingPeriodInfo struct {
 	VotingPeriod VotingPeriod `json:"voting_period"`
 }
 
+// BlockMetadataConsensus represents consensus data attached to block metadata.
+type BlockMetadataConsensus struct {
+	TotalCommitteePower int64 `json:"total_committee_power,string"`
+	Threshold           int64 `json:"threshold,string"`
+	RecordedPower       int64 `json:"recorded_power,string"`
+}
+
 // BlockMetadata is a part of the Tezos block data
 type BlockMetadata struct {
 	Protocol               tezos.ProtocolHash     `json:"protocol"`
@@ -261,6 +268,11 @@ type BlockMetadata struct {
 
 	// v019+
 	DalAttestation tezos.Z `json:"dal_attestation"`
+
+	// v024+
+	Attestations                   *BlockMetadataConsensus `json:"attestations"`
+	Preattestations                *BlockMetadataConsensus `json:"preattestations"`
+	AllBakersAttestActivationLevel *LevelInfo              `json:"all_bakers_attest_activation_level"`
 }
 
 func (m *BlockMetadata) GetLevel() int64 {
