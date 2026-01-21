@@ -4,10 +4,13 @@
 package rpc
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/trilitech/tzgo/tezos"
 )
@@ -128,4 +131,105 @@ func (c *Client) GetDestinationIndex(ctx context.Context, id BlockID, destinatio
 	}
 
 	return nil, nil
+}
+
+// GetBlockValidatorsResponse contains the raw response of GetBlockValidators.
+type GetBlockValidatorsResponse struct {
+	json.RawMessage
+}
+
+// AsV024Value converts GetBlockValidatorsResponse into the format prior to v024. An error is returned
+// when the conversion fails. Users are advised to always check the returned error.
+func (r GetBlockValidatorsResponse) AsPreV024Value() (*[]GetBlockValidatorsResponsePreV024, error) {
+	var value []GetBlockValidatorsResponsePreV024
+	if r.RawMessage == nil {
+		return nil, nil
+	}
+	decoder := json.NewDecoder(bytes.NewReader(r.RawMessage))
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&value)
+	if err != nil {
+		return nil, err
+	}
+	if decoder.More() {
+		return nil, errors.New("JSON value has unexpected extra data")
+	}
+	return &value, nil
+}
+
+// AsV024Value converts GetBlockValidatorsResponse into the protocol v024 format, i.e. delegates grouped
+// by level. An error is returned when the conversion fails. Users are advised to always check
+// the returned error.
+func (r GetBlockValidatorsResponse) AsV024Value() (*[]GetBlockValidatorsResponseV024, error) {
+	var value []GetBlockValidatorsResponseV024
+	if r.RawMessage == nil {
+		return nil, nil
+	}
+	decoder := json.NewDecoder(bytes.NewReader(r.RawMessage))
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&value)
+	if err != nil {
+		return nil, err
+	}
+	if decoder.More() {
+		return nil, errors.New("JSON value has unexpected extra data")
+	}
+	return &value, nil
+}
+
+// GetBlockValidatorsResponsePreV024 represents the response of GetBlockValidators when the queried block
+// is created prior to protocol v024.
+type GetBlockValidatorsResponsePreV024 struct {
+	Level        uint32         `json:"level"`
+	Delegate     tezos.Address  `json:"delegate"`
+	Slots        []uint16       `json:"slots"`
+	ConsensusKey tezos.Address  `json:"consensus_key"`
+	CompanionKey *tezos.Address `json:"companion_key"`
+}
+
+// GetBlockValidatorsResponsePreV024 represents the response of GetBlockValidators when the queried block
+// is created with protocol v024.
+type GetBlockValidatorsResponseV024 struct {
+	Level                    uint32 `json:"level"`
+	ConsensusThreshold       uint64 `json:"consensus_threshold,string"`
+	ConsensusCommittee       uint64 `json:"consensus_committee,string"`
+	AllBakersAttestActivated bool   `json:"all_bakers_attest_activated"`
+	Delegates                []struct {
+		Delegate        tezos.Address  `json:"delegate"`
+		Rounds          []int32        `json:"rounds"`
+		ConsensusKey    tezos.Address  `json:"consensus_key"`
+		CompanionKey    *tezos.Address `json:"companion_key"`
+		AttestingPower  int64          `json:"attesting_power,string"`
+		AttestationSlot uint16         `json:"attestation_slot"`
+	}
+}
+
+// GetBlockValidators returns the level, the attestation slots and the public key hash of each delegate allowed to attest a block.
+func (c *Client) GetBlockValidators(ctx context.Context, id BlockID, params *struct {
+	Level        *uint64
+	Delegate     *tezos.Address
+	ConsensusKey *tezos.Address
+}) (*GetBlockValidatorsResponse, error) {
+	var res *GetBlockValidatorsResponse
+	u := fmt.Sprintf("chains/main/blocks/%s/helpers/validators", id)
+	if params != nil {
+		queries := []string{}
+		if params.Level != nil {
+			queries = append(queries, fmt.Sprintf("level=%d", *params.Level))
+		}
+		if params.Delegate != nil {
+			queries = append(queries, "delegate="+params.Delegate.String())
+		}
+		if params.ConsensusKey != nil {
+			queries = append(queries, "consensus_key="+params.ConsensusKey.String())
+		}
+		if len(queries) > 0 {
+			u += "?" + strings.Join(queries, "&")
+		}
+	}
+	if err := c.Get(ctx, u, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
