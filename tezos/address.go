@@ -68,8 +68,8 @@ var (
 		{2, 1, "secp256k1", HashTypePkhSecp256k1, KeyTypeSecp256k1},
 		{3, 2, "p256", HashTypePkhP256, KeyTypeP256},
 		{4, 255, "contract", HashTypePkhNocurve, KeyTypeInvalid},
-		{5, 3, "blinded", HashTypePkhBlinded, KeyTypeInvalid},
-		{6, 4, "bls12_381", HashTypePkhBls12_381, KeyTypeBls12_381},
+		{5, 4, "blinded", HashTypePkhBlinded, KeyTypeInvalid},
+		{6, 3, "bls12_381", HashTypePkhBls12_381, KeyTypeBls12_381},
 		{7, 255, "tx_rollup", HashTypeTxRollupAddress, KeyTypeInvalid},
 		{8, 255, "smart_rollup", HashTypeSmartRollupAddress, KeyTypeInvalid},
 	}
@@ -78,8 +78,8 @@ var (
 		AddressTypeEd25519,   // 0
 		AddressTypeSecp256k1, // 1
 		AddressTypeP256,      // 2
-		AddressTypeBlinded,   // 3
-		AddressTypeBls12_381, // 4
+		AddressTypeBls12_381, // 3
+		AddressTypeBlinded,   // 4, can be anything actually as it is never supposed to have a tag
 	}
 )
 
