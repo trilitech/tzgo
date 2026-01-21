@@ -83,7 +83,7 @@ type Params struct {
 	MaxOperationsTTL             int64 `json:"max_operations_ttl"`
 
 	// extra features to follow protocol upgrades
-	OperationTagsVersion int   `json:"operation_tags_version,omitempty"` // 1: v5..v11, 2: v12..v18, 3:v19+
+	OperationTagsVersion int   `json:"operation_tags_version,omitempty"` // 1: v5..v11, 2: v12..v18, 3:v19-v22, 4: v23+
 	StartHeight          int64 `json:"start_height"`                     // protocol start (may be != cycle start!!)
 	EndHeight            int64 `json:"end_height"`                       // protocol end (may be != cycle end!!)
 	StartOffset          int64 `json:"start_offset"`                     // correction for cycle start
@@ -137,6 +137,7 @@ func (p *Params) WithProtocol(h ProtocolHash) *Params {
 		Versions[h] = p.Version
 	}
 	switch {
+	// FIXME: tagv4 from v023
 	case p.Version > 18:
 		p.OperationTagsVersion = 3
 	case p.Version > 11:
