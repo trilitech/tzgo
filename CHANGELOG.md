@@ -1,7 +1,25 @@
 # Changelog
 
 ## v1.24.0
-* Tallinn protocol support
+
+### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 
+
+#### Michelson
+* Added new Micheline instructions `I_GET_ADDRESS_INDEX` and `I_INDEX_ADDRESS` corresponding to new Michelson instructions `INDEX_ADDRESS` and `GET_ADDRESS_INDEX` (provide unique identifiers of type `nat` for address values stored in context)
+
+#### New RPC Handlers
+* `GetAllBakersAttestActivationLevel` - returns the first level at which All Bakers Attest feature activates
+* `GetDestinationIndex` - returns the index of a given destination or null if not yet indexed by `INDEX_ADDRESS`
+* `GetTz4BakerNumberRatio` - returns the portion of active delegates signing with BLS keys
+* `GetBakingPowerDistributionForCurrentCycle` - returns total baking power and distribution for active delegates
+* `GetBlockValidators` - groups delegates by level and returns one record per queried level
+
+#### Modified Structures
+* `IssuanceParameters` - now contains `BakingBonusPerSlot`/`AttestingRewardPerSlot` (pre-protocol T) and `BakingBonusPerBlock`/`AttestingRewardPerBlock` (post-protocol T)
+* `BlockMetadata` - added `AllBakersAttestActivationLevel` field (null if not activated); `Attestations` and `Preattestations` containing `TotalCommitteePower`, `Threshold`, and `RecordedPower` fields
+* `OperationMetadata` - added `AddressRegistryDiff` containing newly indexed addresses
+* `BlockHeader` - removed `AdaptiveIssuanceVote` for post-protocol T blocks
+* `CommitteeMetadata.ConsensusPower` - changed to raw JSON string (parse with `AsV024Value()` or `AsV023Value()`)
 
 ## v1.23.0
 * Seoul protocol support
