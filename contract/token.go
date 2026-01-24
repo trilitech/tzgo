@@ -187,7 +187,7 @@ func (t *TokenMetadata) UnmarshalPrim(prim micheline.Prim) error {
 		default:
 			log.Errorf("token metadata: unsupported field %q\n", field)
 		}
-		return micheline.PrimSkip
+		return micheline.ErrPrimSkip
 	})
 	return err
 }
