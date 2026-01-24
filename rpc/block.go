@@ -181,8 +181,13 @@ func (h BlockHeader) ProtocolData() []byte {
 	} else {
 		buf.WriteByte(0x0)
 	}
-	// broken, how to merge multiple flags is undocumented
-	buf.WriteByte(h.LbVote().Tag() | (h.AiVote().Tag() << 2))
+
+	aiVote := h.AiVote()
+	aiTag := byte(0)
+	if aiVote != nil {
+		aiTag = aiVote.Tag()
+	}
+	buf.WriteByte(h.LbVote().Tag() | (aiTag << 2))
 	if h.Signature.IsValid() {
 		buf.Write(h.Signature.Data) // raw, no tag!
 	}
