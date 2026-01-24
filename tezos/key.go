@@ -647,7 +647,7 @@ func (k PrivateKey) Sign(hash []byte) (Signature, error) {
 // and expected to return the decoding passphrase.
 func ParseEncryptedPrivateKey(s string, fn PassphraseFunc) (k PrivateKey, err error) {
 	var (
-		prefixLen     int = 4
+		prefixLen     = 4
 		shouldDecrypt bool
 	)
 	if IsEncryptedKey(s) {

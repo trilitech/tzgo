@@ -274,7 +274,7 @@ func (c *Contract) resolveStorageUri(ctx context.Context, uri string, result int
 		return err
 	}
 	if !prim.IsValid() || prim.Type != micheline.PrimBytes {
-		return fmt.Errorf("Unexpected storage value type %s %q", prim.Type, prim.Dump())
+		return fmt.Errorf("unexpected storage value type %s %q", prim.Type, prim.Dump())
 	}
 
 	// unpack JSON data

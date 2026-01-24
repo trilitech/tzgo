@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	Canceled    = errors.New("operation confirm canceled")
-	TTLExceeded = errors.New("operation ttl exceeded")
+	ErrCanceled    = errors.New("operation confirm canceled")
+	ErrTTLExceeded = errors.New("operation ttl exceeded")
 )
 
 type Receipt struct {
@@ -144,7 +144,7 @@ func (r *Result) Cancel() {
 	r.once.Do(func() {
 		if r.subId > 0 {
 			r.obs.Unsubscribe(r.subId)
-			r.err = Canceled
+			r.err = ErrCanceled
 			r.subId = 0
 		}
 		close(r.done)
@@ -224,7 +224,7 @@ func (r *Result) callback(block *BlockHeaderLogEntry, height int64, list, pos in
 	r.blocks++
 	if r.ttl > 0 && r.blocks >= r.ttl {
 		r.once.Do(func() {
-			r.err = TTLExceeded
+			r.err = ErrTTLExceeded
 			r.subId = 0
 			close(r.done)
 		})

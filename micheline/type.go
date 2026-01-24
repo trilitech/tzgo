@@ -378,27 +378,27 @@ func (p Prim) ImplementsType(t Typedef) bool {
 						return ErrTypeMismatch
 					}
 				}
-				return PrimSkip
+				return ErrPrimSkip
 			}
 		case D_SOME, D_NONE:
 			if t.Optional {
 				// fmt.Println("> OK optional")
-				return PrimSkip
+				return ErrPrimSkip
 			}
 		case D_TRUE, D_FALSE:
 			if t.Type == T_BOOL.String() {
 				// fmt.Println("> OK bool")
-				return PrimSkip
+				return ErrPrimSkip
 			}
 		case D_UNIT:
 			if t.Type == T_UNIT.String() {
 				// fmt.Println("> OK unit")
-				return PrimSkip
+				return ErrPrimSkip
 			}
 		case D_ELT:
 			if len(t.Args) == 2 && p.Args[0].ImplementsType(t.Args[0]) && p.Args[1].ImplementsType(t.Args[1]) {
 				// fmt.Println("> OK map")
-				return PrimSkip
+				return ErrPrimSkip
 			}
 		case D_LEFT:
 			// walk left tree by clipping off right handled types
@@ -411,13 +411,13 @@ func (p Prim) ImplementsType(t Typedef) bool {
 				}
 				if p.Args[0].ImplementsType(t) {
 					// fmt.Println("> OK union left")
-					return PrimSkip
+					return ErrPrimSkip
 				}
 			}
 		case D_RIGHT:
 			if t.Type == TypeUnion && p.Args[0].ImplementsType(t.Args[len(t.Args)-1]) {
 				// fmt.Println("> OK union right")
-				return PrimSkip
+				return ErrPrimSkip
 			}
 		default:
 			oc, err := ParseOpCode(t.Type)
@@ -435,7 +435,7 @@ func (p Prim) ImplementsType(t Typedef) bool {
 							return ErrTypeMismatch
 						}
 					}
-					return PrimSkip
+					return ErrPrimSkip
 				case T_SET:
 					for _, v := range p.Args {
 						if !v.ImplementsType(t) {
@@ -443,7 +443,7 @@ func (p Prim) ImplementsType(t Typedef) bool {
 							return ErrTypeMismatch
 						}
 					}
-					return PrimSkip
+					return ErrPrimSkip
 				case T_LIST:
 					for _, v := range p.Args {
 						if !v.ImplementsType(t.Args[0]) {
@@ -451,11 +451,11 @@ func (p Prim) ImplementsType(t Typedef) bool {
 							return ErrTypeMismatch
 						}
 					}
-					return PrimSkip
+					return ErrPrimSkip
 				case T_LAMBDA:
 					if len(p.Args) > 0 && p.Args[0].IsInstruction() {
 						// fmt.Println("> OK lambda")
-						return PrimSkip
+						return ErrPrimSkip
 					}
 				}
 
@@ -463,7 +463,7 @@ func (p Prim) ImplementsType(t Typedef) bool {
 				switch oc {
 				case T_INT, T_NAT, T_MUTEZ, T_TIMESTAMP, T_BIG_MAP:
 					// fmt.Println("> OK int")
-					return PrimSkip
+					return ErrPrimSkip
 				}
 
 			case PrimString:
@@ -472,7 +472,7 @@ func (p Prim) ImplementsType(t Typedef) bool {
 				case T_STRING, T_ADDRESS, T_CONTRACT, T_KEY_HASH, T_KEY,
 					T_SIGNATURE, T_TIMESTAMP, T_CHAIN_ID, T_TX_ROLLUP_L2_ADDRESS:
 					// fmt.Println("> OK string")
-					return PrimSkip
+					return ErrPrimSkip
 				}
 
 			case PrimBytes:
@@ -483,13 +483,13 @@ func (p Prim) ImplementsType(t Typedef) bool {
 					T_CHEST, T_CHEST_KEY,
 					T_TX_ROLLUP_L2_ADDRESS:
 					// fmt.Println("> OK bytes")
-					return PrimSkip
+					return ErrPrimSkip
 				}
 			default:
 				// FIXME
 				// T_SAPLING_STATE, T_SAPLING_TRANSACTION,
 				// T_TICKET
-				return PrimSkip
+				return ErrPrimSkip
 
 			}
 		}
