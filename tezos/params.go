@@ -13,32 +13,46 @@ var (
 	// either overwrite this default or set custom params per operation using
 	// op.WithParams().
 	DefaultParams = (&Params{
-		MinimalBlockDelay:            8 * time.Second,
-		CostPerByte:                  250,
-		OriginationSize:              257,
-		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1386666,
-		HardStorageLimitPerOperation: 60000,
-		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             450,
+		MinimalBlockDelay:                   6 * time.Second,
+		CostPerByte:                         250,
+		OriginationSize:                     257,
+		HardGasLimitPerOperation:            1040000,
+		HardGasLimitPerBlock:                1040000,
+		BlocksPerCommitment:                 112,
+		NonceRevelationThreshold:            400,
+		SmartRollupChallengeWindowInBlocks:  201600,
+		SmartRollupCommitmentPeriodInBlocks: 150,
+		SmartRollupMaxLookaheadInBlocks:     432000,
+		SmartRollupTimeoutPeriodInBlocks:    100800,
+		AllBakersAttestActivationThreshold: Ratio{Num: 1, Den: 2},
+		HardStorageLimitPerOperation:        60000,
+		MaxOperationDataLength:              32768,
+		MaxOperationsTTL:                    600,
 	}).
 		WithChainId(Mainnet).
-		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV023))
+		WithDeployment(Deployments[Mainnet].AtProtocol(ProtoV024))
 
 	// GhostnetParams defines the blockchain configuration for Ghostnet testnet.
 	// To produce compliant transactions, use these defaults in op.WithParams().
 	GhostnetParams = (&Params{
-		MinimalBlockDelay:            4 * time.Second,
-		CostPerByte:                  250,
-		OriginationSize:              257,
-		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1386666,
-		HardStorageLimitPerOperation: 60000,
-		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             450,
+		MinimalBlockDelay:                   4 * time.Second,
+		CostPerByte:                         250,
+		OriginationSize:                     257,
+		HardGasLimitPerOperation:            1040000,
+		HardGasLimitPerBlock:                1040000,
+		BlocksPerCommitment:                 112,
+		NonceRevelationThreshold:            400,
+		SmartRollupChallengeWindowInBlocks:  201600,
+		SmartRollupCommitmentPeriodInBlocks: 150,
+		SmartRollupMaxLookaheadInBlocks:     432000,
+		SmartRollupTimeoutPeriodInBlocks:    100800,
+		AllBakersAttestActivationThreshold: Ratio{Num: 1, Den: 2},
+		HardStorageLimitPerOperation:        60000,
+		MaxOperationDataLength:              32768,
+		MaxOperationsTTL:                    600,
 	}).
 		WithChainId(Ghostnet).
-		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV023))
+		WithDeployment(Deployments[Ghostnet].AtProtocol(ProtoV024))
 
 	// ShadownetParams defines the blockchain configuration for Shadownet testnet.
 	ShadownetParams = (&Params{
@@ -73,14 +87,26 @@ type Params struct {
 	OriginationSize int64 `json:"origination_size"`
 
 	// limits
-	BlocksPerCycle               int64 `json:"blocks_per_cycle"`
-	ConsensusRightsDelay         int64 `json:"consensus_rights_delay"`
-	BlocksPerSnapshot            int64 `json:"blocks_per_snapshot"`
+	BlocksPerCycle           int64 `json:"blocks_per_cycle"`
+	ConsensusRightsDelay     int64 `json:"consensus_rights_delay"`
+	BlocksPerSnapshot        int64 `json:"blocks_per_snapshot"`
+	BlocksPerCommitment      int64 `json:"blocks_per_commitment"`
+	NonceRevelationThreshold int64 `json:"nonce_revelation_threshold"`
+
 	HardGasLimitPerOperation     int64 `json:"hard_gas_limit_per_operation"`
 	HardGasLimitPerBlock         int64 `json:"hard_gas_limit_per_block"`
 	HardStorageLimitPerOperation int64 `json:"hard_storage_limit_per_operation"`
 	MaxOperationDataLength       int   `json:"max_operation_data_length"`
 	MaxOperationsTTL             int64 `json:"max_operations_ttl"`
+
+	// smart rollup timing (v024)
+	SmartRollupChallengeWindowInBlocks  int64 `json:"smart_rollup_challenge_window_in_blocks"`
+	SmartRollupCommitmentPeriodInBlocks int64 `json:"smart_rollup_commitment_period_in_blocks"`
+	SmartRollupMaxLookaheadInBlocks     int64 `json:"smart_rollup_max_lookahead_in_blocks"`
+	SmartRollupTimeoutPeriodInBlocks    int64 `json:"smart_rollup_timeout_period_in_blocks"`
+
+	// feature flags
+	AllBakersAttestActivationThreshold Ratio `json:"all_bakers_attest_activation_threshold"`
 
 	// extra features to follow protocol upgrades
 	OperationTagsVersion int   `json:"operation_tags_version,omitempty"` // 1: v5..v11, 2: v12..v18, 3:v19-v22, 4: v23+
@@ -88,6 +114,16 @@ type Params struct {
 	EndHeight            int64 `json:"end_height"`                       // protocol end (may be != cycle end!!)
 	StartOffset          int64 `json:"start_offset"`                     // correction for cycle start
 	StartCycle           int64 `json:"start_cycle"`                      // correction cycle length
+}
+
+// ActivationThresholdFloat returns the activation threshold as float64.
+// If denominator is zero returns 0.0.
+func (p Params) ActivationThresholdFloat() float64 {
+	d := p.AllBakersAttestActivationThreshold.Den
+	if d == 0 {
+		return 0
+	}
+	return float64(p.AllBakersAttestActivationThreshold.Num) / float64(d)
 }
 
 func NewParams() *Params {
