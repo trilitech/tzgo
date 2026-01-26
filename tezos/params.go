@@ -24,7 +24,7 @@ var (
 		SmartRollupCommitmentPeriodInBlocks: 150,
 		SmartRollupMaxLookaheadInBlocks:     432000,
 		SmartRollupTimeoutPeriodInBlocks:    100800,
-		AllBakersAttestActivationThreshold: Ratio{Num: 1, Den: 2},
+		AllBakersAttestActivationThreshold:  Ratio{Num: 1, Den: 2},
 		HardStorageLimitPerOperation:        60000,
 		MaxOperationDataLength:              32768,
 		MaxOperationsTTL:                    600,
@@ -39,14 +39,14 @@ var (
 		CostPerByte:                         250,
 		OriginationSize:                     257,
 		HardGasLimitPerOperation:            1040000,
-		HardGasLimitPerBlock:                1040000,
+		HardGasLimitPerBlock:                1386666,
 		BlocksPerCommitment:                 112,
 		NonceRevelationThreshold:            400,
 		SmartRollupChallengeWindowInBlocks:  201600,
 		SmartRollupCommitmentPeriodInBlocks: 150,
 		SmartRollupMaxLookaheadInBlocks:     432000,
 		SmartRollupTimeoutPeriodInBlocks:    100800,
-		AllBakersAttestActivationThreshold: Ratio{Num: 1, Den: 2},
+		AllBakersAttestActivationThreshold:  Ratio{Num: 1, Den: 2},
 		HardStorageLimitPerOperation:        60000,
 		MaxOperationDataLength:              32768,
 		MaxOperationsTTL:                    600,
@@ -56,17 +56,24 @@ var (
 
 	// ShadownetParams defines the blockchain configuration for Shadownet testnet.
 	ShadownetParams = (&Params{
-		MinimalBlockDelay:            8 * time.Second,
-		CostPerByte:                  250,
-		OriginationSize:              257,
-		HardGasLimitPerOperation:     1040000,
-		HardGasLimitPerBlock:         1386666,
-		HardStorageLimitPerOperation: 60000,
-		MaxOperationDataLength:       32768,
-		MaxOperationsTTL:             450,
+		MinimalBlockDelay:                   6 * time.Second,
+		CostPerByte:                         250,
+		OriginationSize:                     257,
+		HardGasLimitPerOperation:            1040000,
+		HardGasLimitPerBlock:                1040000,
+		BlocksPerCommitment:                 112,
+		NonceRevelationThreshold:            400,
+		SmartRollupChallengeWindowInBlocks:  201600,
+		SmartRollupCommitmentPeriodInBlocks: 150,
+		SmartRollupMaxLookaheadInBlocks:     432000,
+		SmartRollupTimeoutPeriodInBlocks:    100800,
+		AllBakersAttestActivationThreshold:  Ratio{Num: 1, Den: 2},
+		HardStorageLimitPerOperation:        60000,
+		MaxOperationDataLength:              32768,
+		MaxOperationsTTL:                    600,
 	}).
 		WithChainId(Shadownet).
-		WithDeployment(Deployments[Shadownet].AtProtocol(ProtoV023))
+		WithDeployment(Deployments[Shadownet].AtProtocol(ProtoV024))
 )
 
 // Params contains a subset of protocol configuration settings that are relevant

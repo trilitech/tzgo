@@ -21,6 +21,9 @@
 * `BlockHeader` - removed `AdaptiveIssuanceVote` for post-protocol T blocks
 * `CommitteeMetadata.ConsensusPower` - changed to raw JSON string (parse with `AsV024Value()` or `AsV023Value()`)
 
+#### Updated Protocol Parameters
+* Updated protocol.go and params.go files to match protocol T parameters
+
 ## v1.23.0
 * Seoul protocol support
 * Support a new test network [Shadownet](https://teztnets.com/shadownet-about)

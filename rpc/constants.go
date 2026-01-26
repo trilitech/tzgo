@@ -39,12 +39,12 @@ type Constants struct {
 	// New in v19
 	ConsensusRightsDelay int64 `json:"consensus_rights_delay"`
 	// Tallinn additions
-	BlocksPerCommitment                 int64   `json:"blocks_per_commitment"`
-	NonceRevelationThreshold            int64   `json:"nonce_revelation_threshold"`
-	SmartRollupChallengeWindowInBlocks  int64   `json:"smart_rollup_challenge_window_in_blocks"`
-	SmartRollupCommitmentPeriodInBlocks int64   `json:"smart_rollup_commitment_period_in_blocks"`
-	SmartRollupMaxLookaheadInBlocks     int64   `json:"smart_rollup_max_lookahead_in_blocks"`
-	SmartRollupTimeoutPeriodInBlocks    int64 `json:"smart_rollup_timeout_period_in_blocks"`
+	BlocksPerCommitment                 int64       `json:"blocks_per_commitment"`
+	NonceRevelationThreshold            int64       `json:"nonce_revelation_threshold"`
+	SmartRollupChallengeWindowInBlocks  int64       `json:"smart_rollup_challenge_window_in_blocks"`
+	SmartRollupCommitmentPeriodInBlocks int64       `json:"smart_rollup_commitment_period_in_blocks"`
+	SmartRollupMaxLookaheadInBlocks     int64       `json:"smart_rollup_max_lookahead_in_blocks"`
+	SmartRollupTimeoutPeriodInBlocks    int64       `json:"smart_rollup_timeout_period_in_blocks"`
 	AllBakersAttestActivationThreshold  tezos.Ratio `json:"all_bakers_attest_activation_threshold"`
 }
 
