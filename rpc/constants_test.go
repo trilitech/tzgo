@@ -8,7 +8,7 @@ import (
 
 func TestMapToChainParams_AllBakersAttestActivationThreshold(t *testing.T) {
 	c := Constants{
-		BlocksPerCycle: 100,
+		BlocksPerCycle:                     100,
 		AllBakersAttestActivationThreshold: tezos.Ratio{Num: 1, Den: 2},
 	}
 	p := c.MapToChainParams()

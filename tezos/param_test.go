@@ -187,6 +187,113 @@ func TestDefaultParams(t *testing.T) {
 	}
 }
 
+func TestDefaultParamsMatchLatestDeployment(t *testing.T) {
+	type netCase struct {
+		name   string
+		params *tezos.Params
+		chain  tezos.ChainIdHash
+	}
+	for _, tc := range []netCase{
+		{name: "main", params: tezos.DefaultParams, chain: tezos.Mainnet},
+		{name: "ghost", params: tezos.GhostnetParams, chain: tezos.Ghostnet},
+		{name: "shadow", params: tezos.ShadownetParams, chain: tezos.Shadownet},
+	} {
+		h := tezos.Deployments[tc.chain]
+		if len(h) == 0 {
+			t.Fatalf("%s: empty deployment history", tc.name)
+		}
+
+		last := h.Last()
+		if have, want := tc.params.Protocol, last.Protocol; have != want {
+			t.Fatalf("%s: DefaultParams protocol mismatch: have=%s want=%s", tc.name, have, want)
+		}
+
+		// Ensure "protocol record exists in deployments" and interval metadata matches.
+		d := h.AtProtocol(tc.params.Protocol)
+		if d.Protocol != tc.params.Protocol {
+			t.Fatalf("%s: protocol %s not found in deployments", tc.name, tc.params.Protocol)
+		}
+		if have, want := tc.params.StartHeight, d.StartHeight; have != want {
+			t.Fatalf("%s: StartHeight mismatch: have=%d want=%d", tc.name, have, want)
+		}
+		if have, want := tc.params.EndHeight, d.EndHeight; have != want {
+			t.Fatalf("%s: EndHeight mismatch: have=%d want=%d", tc.name, have, want)
+		}
+		if have, want := tc.params.StartCycle, d.StartCycle; have != want {
+			t.Fatalf("%s: StartCycle mismatch: have=%d want=%d", tc.name, have, want)
+		}
+		if have, want := tc.params.BlocksPerCycle, d.BlocksPerCycle; have != want {
+			t.Fatalf("%s: BlocksPerCycle mismatch: have=%d want=%d", tc.name, have, want)
+		}
+		if have, want := tc.params.BlocksPerSnapshot, d.BlocksPerSnapshot; have != want {
+			t.Fatalf("%s: BlocksPerSnapshot mismatch: have=%d want=%d", tc.name, have, want)
+		}
+		if have, want := tc.params.ConsensusRightsDelay, d.ConsensusRightsDelay; have != want {
+			t.Fatalf("%s: ConsensusRightsDelay mismatch: have=%d want=%d", tc.name, have, want)
+		}
+	}
+}
+
+func TestParamsAfterLatestProtocolStartHeight(t *testing.T) {
+	// Regression test: ensure `Params.AtBlock(height)` returns the latest protocol params
+	// for a height after the latest protocol's StartHeight. This catches incidents where
+	// `protocols.go` was updated with a new protocol, but `params.go` or selection logic
+	// was not updated accordingly.
+	type netCase struct {
+		name  string
+		chain tezos.ChainIdHash
+	}
+	for _, tc := range []netCase{
+		{name: "main", chain: tezos.Mainnet},
+		{name: "ghost", chain: tezos.Ghostnet},
+		{name: "shadow", chain: tezos.Shadownet},
+	} {
+		h := tezos.Deployments[tc.chain]
+		if len(h) == 0 {
+			t.Fatalf("%s: empty deployment history", tc.name)
+		}
+		last := h.Last()
+
+		// pick a height strictly after start height (still within interval)
+		height := last.StartHeight + 1
+		if last.EndHeight >= 0 && height > last.EndHeight {
+			// if interval is only 1 block long, fall back to StartHeight
+			height = last.StartHeight
+		}
+
+		p := tezos.NewParams().WithChainId(tc.chain).AtBlock(height)
+		if !p.Protocol.IsValid() {
+			t.Fatalf("%s: invalid protocol at height %d", tc.name, height)
+		}
+		if have, want := p.Protocol, last.Protocol; have != want {
+			t.Fatalf("%s: protocol mismatch at height %d: have=%s want=%s", tc.name, height, have, want)
+		}
+
+		// Spot-check the most important derived constants that commonly break on upgrades.
+		if have, want := p.StartHeight, last.StartHeight; have != want {
+			t.Fatalf("%s: StartHeight mismatch at height %d: have=%d want=%d", tc.name, height, have, want)
+		}
+		if have, want := p.EndHeight, last.EndHeight; have != want {
+			t.Fatalf("%s: EndHeight mismatch at height %d: have=%d want=%d", tc.name, height, have, want)
+		}
+		if have, want := p.StartCycle, last.StartCycle; have != want {
+			t.Fatalf("%s: StartCycle mismatch at height %d: have=%d want=%d", tc.name, height, have, want)
+		}
+		if have, want := p.BlocksPerCycle, last.BlocksPerCycle; have != want {
+			t.Fatalf("%s: BlocksPerCycle mismatch at height %d: have=%d want=%d", tc.name, height, have, want)
+		}
+		if have, want := p.BlocksPerSnapshot, last.BlocksPerSnapshot; have != want {
+			t.Fatalf("%s: BlocksPerSnapshot mismatch at height %d: have=%d want=%d", tc.name, height, have, want)
+		}
+		if have, want := p.ConsensusRightsDelay, last.ConsensusRightsDelay; have != want {
+			t.Fatalf("%s: ConsensusRightsDelay mismatch at height %d: have=%d want=%d", tc.name, height, have, want)
+		}
+		if !p.ContainsHeight(height) {
+			t.Fatalf("%s: params do not contain height %d (start=%d end=%d)", tc.name, height, p.StartHeight, p.EndHeight)
+		}
+	}
+}
+
 func checkParams(t *testing.T, p *tezos.Params, height, cycle int64, check paramResult) {
 	// test param functions
 	if !p.ContainsHeight(height) {
