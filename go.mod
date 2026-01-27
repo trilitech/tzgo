@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/stretchr/testify v1.8.4
-	github.com/tidwall/gjson v1.17.0
+	github.com/tidwall/gjson v1.18.0
 	github.com/tyler-smith/go-bip32 v1.0.0
 	golang.org/x/crypto v0.18.0
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
