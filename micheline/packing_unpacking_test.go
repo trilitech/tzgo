@@ -35,7 +35,6 @@ func TestMainnetPackedBytes_UnpackKeyAndValue(t *testing.T) {
 		next int
 		err  error
 	)
-	found := false
 	for {
 		var tests []testcase
 		next, err = loadNextTestFile(cat, next, &tests)
@@ -58,7 +57,6 @@ func TestMainnetPackedBytes_UnpackKeyAndValue(t *testing.T) {
 				continue
 			}
 
-			found = true
 			typ := checkTypeEncoding(t, tc)
 			key := checkKeyEncoding(t, tc)
 			val := checkValueEncoding(t, tc)
@@ -106,9 +104,7 @@ func TestMainnetPackedBytes_UnpackKeyAndValue(t *testing.T) {
 			return
 		}
 	}
-	if !found {
-		t.Fatalf("did not find packed-bytes fixture testcase in %s corpus", cat)
-	}
+	t.Fatalf("did not find packed-bytes fixture testcase in %s corpus", cat)
 }
 
 func TestPrim_UnpackAllAsciiStrings(t *testing.T) {
