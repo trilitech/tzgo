@@ -394,3 +394,27 @@ func TestTypeMarshaling(t *testing.T) {
 		})
 	}
 }
+
+func TestDiffAction_Parse_Marshal_Unmarshal(t *testing.T) {
+	for _, s := range []string{"update", "remove", "copy", "alloc"} {
+		a, err := ParseDiffAction(s)
+		if err != nil {
+			t.Fatalf("ParseDiffAction(%q) err=%v", s, err)
+		}
+		b, err := a.MarshalText()
+		if err != nil || string(b) != s {
+			t.Fatalf("MarshalText %q got=%q err=%v", s, string(b), err)
+		}
+		var a2 DiffAction
+		if err := a2.UnmarshalText([]byte(s)); err != nil || a2 != a {
+			t.Fatalf("UnmarshalText %q got=%v err=%v", s, a2, err)
+		}
+	}
+	if _, err := ParseDiffAction("nope"); err == nil {
+		t.Fatalf("ParseDiffAction(nope) expected error")
+	}
+	var a DiffAction
+	if err := a.UnmarshalText([]byte("")); err != nil {
+		t.Fatalf("UnmarshalText(empty) unexpected err=%v", err)
+	}
+}

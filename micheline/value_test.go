@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/pmezard/go-difflib/difflib"
+	"github.com/trilitech/tzgo/tezos"
 )
 
 const testDataRootPathPrefix = "testdata"
@@ -401,5 +402,47 @@ func TestParamsValues(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func TestValue_FixType_And_UnpackAllAsciiStrings(t *testing.T) {
+	// FixType should rebuild type from value while keeping existing labels.
+	v := NewValue(Type{Prim{Type: PrimNullary, OpCode: T_BYTES, Anno: []string{"%x"}}}, Prim{Type: PrimBytes, Bytes: []byte("test")})
+	v.FixType()
+	if !v.Type.WasPacked {
+		t.Fatalf("FixType did not set WasPacked")
+	}
+	if len(v.Type.Anno) != 1 || v.Type.Anno[0] != "%x" {
+		t.Fatalf("FixType did not preserve type annots: %#v", v.Type.Anno)
+	}
+
+	// UnpackAllAsciiStrings should be a pure transform (no error).
+	v2 := v.UnpackAllAsciiStrings()
+	if !v2.Type.IsValid() || !v2.Value.IsValid() {
+		t.Fatalf("UnpackAllAsciiStrings produced invalid value")
+	}
+}
+
+func TestValue_MarshalJSON_RenderModes(t *testing.T) {
+	// Force Map() to fail by creating a type/value mismatch (pair type, int value).
+	bad := NewValue(Type{Prim{Type: PrimBinary, OpCode: T_PAIR, Args: []Prim{
+		{Type: PrimNullary, OpCode: T_INT},
+		{Type: PrimNullary, OpCode: T_INT},
+	}}}, Prim{Type: PrimInt, Int: tezos.NewZ(1).Big()})
+
+	// PRIM: should fall back to marshaling the primitive value, no error.
+	bad.Render = RENDER_TYPE_PRIM
+	if _, err := bad.MarshalJSON(); err != nil {
+		t.Fatalf("Render=PRIM unexpected error: %v", err)
+	}
+
+	// DEBUG: wraps the error and includes type/value.
+	bad.Render = RENDER_TYPE_DEBUG
+	buf, err := bad.MarshalJSON()
+	if err != nil {
+		t.Fatalf("Render=DEBUG unexpected error: %v", err)
+	}
+	if len(buf) == 0 || string(buf) == "{}" {
+		t.Fatalf("Render=DEBUG unexpected empty json: %q", string(buf))
 	}
 }

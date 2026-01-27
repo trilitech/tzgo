@@ -157,3 +157,32 @@ func BenchmarkDecodeBuffer(b *testing.B) {
 		})
 	}
 }
+
+func TestN_StringDecimalsParseSet(t *testing.T) {
+	var n N = 12345
+	if n.String() != "12345" {
+		t.Fatalf("String=%q", n.String())
+	}
+	if n.Decimals(0) != "12345" {
+		t.Fatalf("Decimals(0)=%q", n.Decimals(0))
+	}
+	if n.Decimals(2) != "123.45" {
+		t.Fatalf("Decimals(2)=%q", n.Decimals(2))
+	}
+	if N(5).Decimals(8) != "0.00000005" {
+		t.Fatalf("Decimals pad=%q", N(5).Decimals(8))
+	}
+
+	parsed, err := ParseN("42")
+	if err != nil || parsed != 42 {
+		t.Fatalf("ParseN got=%v err=%v", parsed, err)
+	}
+	if _, err := ParseN("nope"); err == nil {
+		t.Fatalf("ParseN(nope) expected error")
+	}
+
+	var n2 N
+	if err := n2.Set("7"); err != nil || n2 != 7 {
+		t.Fatalf("Set got=%v err=%v", n2, err)
+	}
+}
