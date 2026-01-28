@@ -600,7 +600,7 @@ func validateEndorsement(t *testing.T, op *Endorsement, meta OperationMetadata) 
 	assert.NotNil(t, meta.TotalConsensusPower, "endorsement slots should not be nil")
 }
 
-func validateTransaction(t *testing.T, op *Transaction, meta OperationMetadata) {
+func validateTransaction(t *testing.T, op *Transaction, _ OperationMetadata) {
 	t.Helper()
 	assert.NotEmpty(t, op.Source, "transaction source should not be empty")
 	assert.NotEmpty(t, op.Destination, "transaction destination should not be empty")
@@ -610,19 +610,19 @@ func validateTransaction(t *testing.T, op *Transaction, meta OperationMetadata) 
 	assert.Greater(t, op.GasLimit, int64(0), "gas limit should be positive")
 }
 
-func validateDelegation(t *testing.T, op *Delegation, meta OperationMetadata) {
+func validateDelegation(t *testing.T, op *Delegation, _ OperationMetadata) {
 	t.Helper()
 	assert.NotEmpty(t, op.Source, "delegation source should not be empty")
 	assert.GreaterOrEqual(t, op.Fee, int64(0), "delegation fee should be non-negative")
 }
 
-func validateOrigination(t *testing.T, op *Origination, meta OperationMetadata) {
+func validateOrigination(t *testing.T, op *Origination, _ OperationMetadata) {
 	t.Helper()
 	assert.NotEmpty(t, op.Source, "origination source should not be empty")
 	assert.GreaterOrEqual(t, op.Fee, int64(0), "origination fee should be non-negative")
 }
 
-func validateReveal(t *testing.T, op *Reveal, meta OperationMetadata) {
+func validateReveal(t *testing.T, op *Reveal, _ OperationMetadata) {
 	t.Helper()
 	assert.NotEmpty(t, op.Source, "reveal source should not be empty")
 	assert.NotEmpty(t, op.PublicKey, "reveal public key should not be empty")

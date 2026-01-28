@@ -30,9 +30,7 @@ func orRight(prims []micheline.Prim) micheline.Prim {
 func scriptForInterface(i micheline.Interface) *micheline.Script {
 	specs := micheline.InterfaceSpecs[i]
 	prims := make([]micheline.Prim, 0, len(specs))
-	for _, v := range specs {
-		prims = append(prims, v)
-	}
+	prims = append(prims, specs...)
 	paramType := orRight(prims)
 	return &micheline.Script{
 		Code: micheline.Code{
