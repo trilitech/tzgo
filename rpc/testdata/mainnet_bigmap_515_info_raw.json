@@ -1,0 +1,18 @@
+{
+  "contents": [],
+  "key_type": {
+    "args": [
+      {
+        "prim": "address"
+      },
+      {
+        "prim": "nat"
+      }
+    ],
+    "prim": "pair"
+  },
+  "total_bytes": "646140",
+  "value_type": {
+    "prim": "nat"
+  }
+}

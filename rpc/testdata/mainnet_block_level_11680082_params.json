@@ -1,0 +1,32 @@
+{
+  "network": "Mainnet",
+  "chain_id": "NetXdQprcVkpaWU",
+  "protocol": "PtTALLiNtPec7mE7yY4m3k26J8Qukef3E3ehzhfXgFZKGtDdAXu",
+  "version": 24,
+  "minimal_block_delay": 6000000000,
+  "cost_per_byte": 250,
+  "origination_size": 257,
+  "blocks_per_cycle": 14400,
+  "consensus_rights_delay": 2,
+  "blocks_per_snapshot": 14400,
+  "blocks_per_commitment": 112,
+  "nonce_revelation_threshold": 400,
+  "hard_gas_limit_per_operation": 1040000,
+  "hard_gas_limit_per_block": 1040000,
+  "hard_storage_limit_per_operation": 60000,
+  "max_operation_data_length": 32768,
+  "max_operations_ttl": 600,
+  "smart_rollup_challenge_window_in_blocks": 201600,
+  "smart_rollup_commitment_period_in_blocks": 150,
+  "smart_rollup_max_lookahead_in_blocks": 432000,
+  "smart_rollup_timeout_period_in_blocks": 100800,
+  "all_bakers_attest_activation_threshold": {
+    "numerator": 1,
+    "denominator": 2
+  },
+  "operation_tags_version": 3,
+  "start_height": 11640289,
+  "end_height": -1,
+  "start_offset": 0,
+  "start_cycle": 1124
+}
