@@ -6,6 +6,7 @@ package rpc
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,6 +16,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/trilitech/tzgo/tezos"
 )
+
+//go:embed testdata/mainnet_block_level_11680082_all_bakers_attest_activation_level.json
+var mainnetBlockLevel11680082AllBakersAttestActivationLevelJSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_baking_power_distribution_for_current_cycle.json
+var mainnetBlockLevel11680082BakingPowerDistributionForCurrentCycleJSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_tz4_baker_number_ratio_cycle_1126.json
+var mainnetBlockLevel11680082Tz4BakerNumberRatioCycle1126JSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_destination_index_tz3dKooaL9Av4UY15AUx9uRGL5H6YyqoGSPV.json
+var mainnetBlockLevel11680082DestinationIndexTz3dKooJSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_validators_level_11680081.json
+var mainnetBlockLevel11680082ValidatorsLevel11680081JSON []byte
 
 func TestGetAllBakersAttestActivationLevel(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -141,6 +157,86 @@ func TestGetBakingPowerDistributionForCurrentCycle(t *testing.T) {
 			BakingPower:  52275006611209,
 		},
 	}, value.Delegates)
+}
+
+func TestMiscAPI_FromTestdataFixtures(t *testing.T) {
+	var lastURL string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		lastURL = r.URL.String()
+		if r.Header.Get("Accept") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))))
+			return
+		}
+
+		switch r.URL.Path {
+		case "/chains/main/blocks/11680082/helpers/all_bakers_attest_activation_level":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082AllBakersAttestActivationLevelJSON)
+		case "/chains/main/blocks/11680082/helpers/baking_power_distribution_for_current_cycle":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082BakingPowerDistributionForCurrentCycleJSON)
+		case "/chains/main/blocks/11680082/helpers/tz4_baker_number_ratio":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082Tz4BakerNumberRatioCycle1126JSON)
+		case "/chains/main/blocks/11680082/context/destination/tz3dKooaL9Av4UY15AUx9uRGL5H6YyqoGSPV/index":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082DestinationIndexTz3dKooJSON)
+		case "/chains/main/blocks/11680082/helpers/validators":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082ValidatorsLevel11680081JSON)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(fmt.Sprintf("Unexpected URL: %s", r.URL.String())))
+		}
+	}))
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+
+	// all_bakers_attest_activation_level (null => nil)
+	level, err := c.GetAllBakersAttestActivationLevel(context.Background(), BlockLevel(11680082))
+	assert.NoError(t, err)
+	assert.Nil(t, level)
+
+	// baking_power_distribution_for_current_cycle
+	dist, err := c.GetBakingPowerDistributionForCurrentCycle(context.Background(), BlockLevel(11680082))
+	assert.NoError(t, err)
+	assert.NotNil(t, dist)
+	assert.Greater(t, dist.TotalBakingPower, int64(0))
+	assert.Greater(t, len(dist.Delegates), 0)
+	assert.True(t, dist.Delegates[0].Delegate.IsValid())
+	assert.True(t, dist.Delegates[0].ConsensusPkh.IsValid())
+	assert.Greater(t, dist.Delegates[0].BakingPower, int64(0))
+
+	// tz4_baker_number_ratio (string like "A.B%")
+	ratio, err := c.GetTz4BakerNumberRatio(context.Background(), BlockLevel(11680082), 1126)
+	assert.NoError(t, err)
+	assert.Equal(t, 17.37, ratio)
+	assert.Equal(t, "/chains/main/blocks/11680082/helpers/tz4_baker_number_ratio?cycle=1126", lastURL)
+
+	// destination index (null => nil)
+	idx, err := c.GetDestinationIndex(context.Background(), BlockLevel(11680082), tezos.MustParseAddress("tz3dKooaL9Av4UY15AUx9uRGL5H6YyqoGSPV"))
+	assert.NoError(t, err)
+	assert.Nil(t, idx)
+
+	// validators v024 (level query + strict conversion)
+	lvl := uint64(11680081)
+	resp, err := c.GetBlockValidators(context.Background(), BlockLevel(11680082), &struct {
+		Level        *uint64
+		Delegate     *tezos.Address
+		ConsensusKey *tezos.Address
+	}{Level: &lvl})
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	v024, err := resp.AsV024Value()
+	assert.NoError(t, err)
+	assert.NotNil(t, v024)
+	assert.Greater(t, len(*v024), 0)
+	assert.Equal(t, uint32(11680081), (*v024)[0].Level)
+	assert.Greater(t, len((*v024)[0].Delegates), 0)
+	assert.True(t, (*v024)[0].Delegates[0].Delegate.IsValid())
+	assert.True(t, (*v024)[0].Delegates[0].ConsensusKey.IsValid())
 }
 
 func TestUnmarshalBadBakingPowerDistribution(t *testing.T) {

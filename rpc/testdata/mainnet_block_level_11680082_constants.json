@@ -1,0 +1,28 @@
+{
+  "preserved_cycles": 0,
+  "blocks_per_cycle": 14400,
+  "blocks_per_roll_snapshot": 0,
+  "time_between_blocks": null,
+  "hard_gas_limit_per_operation": "1040000",
+  "hard_gas_limit_per_block": "1040000",
+  "michelson_maximum_type_size": 2001,
+  "origination_size": 257,
+  "origination_burn": "0",
+  "cost_per_byte": "250",
+  "hard_storage_limit_per_operation": "60000",
+  "max_operation_data_length": 32768,
+  "minimal_block_delay": "6",
+  "max_operations_time_to_live": 600,
+  "blocks_per_stake_snapshot": 0,
+  "consensus_rights_delay": 2,
+  "blocks_per_commitment": 112,
+  "nonce_revelation_threshold": 400,
+  "smart_rollup_challenge_window_in_blocks": 201600,
+  "smart_rollup_commitment_period_in_blocks": 150,
+  "smart_rollup_max_lookahead_in_blocks": 432000,
+  "smart_rollup_timeout_period_in_blocks": 100800,
+  "all_bakers_attest_activation_threshold": {
+    "numerator": 1,
+    "denominator": 2
+  }
+}

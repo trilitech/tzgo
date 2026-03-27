@@ -158,7 +158,8 @@ func unmarshalBytes(b []byte, v reflect.Value) error {
 		v.Set(reflect.ValueOf(b))
 	case tAddress:
 		var addr tezos.Address
-		if err := addr.UnmarshalBinary(b); err != nil {
+		// addresses may be encoded padded (22 bytes) or unpadded (21 bytes)
+		if err := addr.Decode(b); err != nil {
 			return errors.Wrapf(err, "failed to parse address: %v", b)
 		}
 		v.Set(reflect.ValueOf(addr))

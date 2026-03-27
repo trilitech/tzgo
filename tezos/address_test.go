@@ -5,6 +5,7 @@ package tezos
 
 import (
 	"bytes"
+	"encoding"
 	"encoding/hex"
 	"testing"
 )
@@ -231,5 +232,162 @@ func BenchmarkAddressEncode(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_ = a.String()
+	}
+}
+
+func TestAddressTypeHelpers(t *testing.T) {
+	// ParseAddressType accepts either prefix (tz1/KT1/...) or canonical name (ed25519/...)
+	if got := ParseAddressType("tz1"); got != AddressTypeEd25519 {
+		t.Fatalf("ParseAddressType(tz1)=%v", got)
+	}
+	if got := ParseAddressType("ed25519"); got != AddressTypeEd25519 {
+		t.Fatalf("ParseAddressType(ed25519)=%v", got)
+	}
+	if got := ParseAddressType("nope"); got != AddressTypeInvalid {
+		t.Fatalf("ParseAddressType(nope)=%v", got)
+	}
+
+	// String/Prefix/KeyType
+	if AddressTypeContract.String() == "" {
+		t.Fatalf("AddressType.String empty")
+	}
+	if AddressTypeEd25519.Prefix() != "tz1" {
+		t.Fatalf("AddressTypeEd25519.Prefix=%q", AddressTypeEd25519.Prefix())
+	}
+	if !AddressTypeEd25519.KeyType().IsValid() {
+		t.Fatalf("expected ed25519 KeyType to be valid")
+	}
+	if AddressTypeContract.KeyType().IsValid() {
+		t.Fatalf("expected contract KeyType to be invalid")
+	}
+
+	// Marshal/Unmarshal text for AddressType
+	var _ encoding.TextMarshaler = AddressTypeEd25519
+	var _ encoding.TextUnmarshaler = (*AddressType)(nil)
+	b, err := AddressTypeSecp256k1.MarshalText()
+	if err != nil || string(b) != AddressTypeSecp256k1.String() {
+		t.Fatalf("MarshalText got=%q err=%v", string(b), err)
+	}
+	var at AddressType
+	if err := at.UnmarshalText([]byte("tz3")); err != nil || at != AddressTypeP256 {
+		t.Fatalf("UnmarshalText(tz3) got=%v err=%v", at, err)
+	}
+	if err := at.UnmarshalText([]byte("nope")); err == nil {
+		t.Fatalf("UnmarshalText(nope) expected error")
+	}
+
+	// Prefix detection
+	if !HasAddressPrefix("tz1burnburnburnburnburnburnburjAYjjX") {
+		t.Fatalf("HasAddressPrefix(tz1...) expected true")
+	}
+	if HasAddressPrefix("not-an-address") {
+		t.Fatalf("HasAddressPrefix(not...) expected false")
+	}
+}
+
+func TestAddressMoreHelpers(t *testing.T) {
+	tz1 := MustParseAddress("tz1LggX2HUdvJ1tF4Fvv8fjsrzLeW4Jr9t2Q")
+	kt1 := MustParseAddress("KT1GyeRktoGPEKsWpchWguyy8FAf3aNHkw2T")
+	txr1 := MustParseAddress("txr1QVAMSfhGduYQoQwrWroJW5b2796Qmb9ej")
+	sr1 := MustParseAddress("sr1Fq8fPi2NjhWUXtcXBggbL6zFjZctGkmso")
+
+	if !tz1.IsEOA() || tz1.IsContract() || tz1.IsRollup() {
+		t.Fatalf("tz1 classification mismatch: eoa=%v contract=%v rollup=%v", tz1.IsEOA(), tz1.IsContract(), tz1.IsRollup())
+	}
+	if kt1.IsEOA() || !kt1.IsContract() || kt1.IsRollup() {
+		t.Fatalf("kt1 classification mismatch: eoa=%v contract=%v rollup=%v", kt1.IsEOA(), kt1.IsContract(), kt1.IsRollup())
+	}
+	if !txr1.IsRollup() || !sr1.IsRollup() {
+		t.Fatalf("rollup classification mismatch")
+	}
+
+	// Hash()/KeyType()
+	if len(tz1.Hash()) != 20 {
+		t.Fatalf("Hash len=%d want 20", len(tz1.Hash()))
+	}
+	if !tz1.KeyType().IsValid() {
+		t.Fatalf("KeyType invalid for tz1")
+	}
+
+	// Clone() is a deep copy of bytes
+	c := tz1.Clone()
+	if !c.Equal(tz1) {
+		t.Fatalf("Clone not equal")
+	}
+	c[1] ^= 0xff
+	if c.Equal(tz1) {
+		t.Fatalf("Clone shares backing array unexpectedly")
+	}
+
+	// MarshalBinary/UnmarshalBinary (tzgo 21-byte format)
+	bin, err := tz1.MarshalBinary()
+	if err != nil {
+		t.Fatalf("MarshalBinary err=%v", err)
+	}
+	var tz1b Address
+	if err := tz1b.UnmarshalBinary(bin); err != nil {
+		t.Fatalf("UnmarshalBinary err=%v", err)
+	}
+	if !tz1b.Equal(tz1) {
+		t.Fatalf("binary roundtrip mismatch got=%s want=%s", tz1b, tz1)
+	}
+	// error branch
+	if err := tz1b.UnmarshalBinary(bin[:20]); err == nil {
+		t.Fatalf("UnmarshalBinary(short) expected error")
+	}
+
+	// IsAddressBytes detection
+	if !IsAddressBytes(tz1.Encode()) || !IsAddressBytes(tz1.EncodePadded()) {
+		t.Fatalf("IsAddressBytes expected true for tz1 encodings")
+	}
+	if IsAddressBytes([]byte{0x01, 0x02}) {
+		t.Fatalf("IsAddressBytes expected false for short buffer")
+	}
+	if IsAddressBytes(make([]byte, 23)) {
+		t.Fatalf("IsAddressBytes expected false for other lengths")
+	}
+
+	// Contract/rollup address string helpers (reinterpret the hash bytes)
+	if got := tz1.ContractAddress(); got[:3] != "KT1" {
+		t.Fatalf("ContractAddress prefix=%q", got[:3])
+	}
+	if got := tz1.TxRollupAddress(); got[:4] != "txr1" {
+		t.Fatalf("TxRollupAddress prefix=%q", got[:4])
+	}
+	if got := tz1.SmartRollupAddress(); got[:3] != "sr1" {
+		t.Fatalf("SmartRollupAddress prefix=%q", got[:3])
+	}
+
+	// flags.Value Set
+	var a Address
+	if err := a.Set(tz1.String()); err != nil {
+		t.Fatalf("Address.Set err=%v", err)
+	}
+	if !a.Equal(tz1) {
+		t.Fatalf("Address.Set mismatch got=%s want=%s", a, tz1)
+	}
+
+	// Address.UnmarshalText should ignore entrypoint suffix (e.g. KT1...%default)
+	var a2 Address
+	if err := a2.UnmarshalText([]byte(kt1.String() + "%default")); err != nil {
+		t.Fatalf("Address.UnmarshalText(entrypoint) err=%v", err)
+	}
+	if !a2.Equal(kt1) {
+		t.Fatalf("Address.UnmarshalText(entrypoint) mismatch got=%s want=%s", a2, kt1)
+	}
+
+	// Ensure EncodeAddress(AddressTypeInvalid, ...) is empty string.
+	if EncodeAddress(AddressTypeInvalid, tz1.Hash()) != "" {
+		t.Fatalf("EncodeAddress(invalid) expected empty")
+	}
+
+	// Decode should accept longer byte strings (suffix/padding) and ignore extra bytes.
+	buf := append(tz1.EncodePadded(), bytes.Repeat([]byte{0x00}, 10)...)
+	var a3 Address
+	if err := a3.Decode(buf); err != nil {
+		t.Fatalf("Decode(with suffix) err=%v", err)
+	}
+	if !a3.Equal(tz1) {
+		t.Fatalf("Decode(with suffix) mismatch got=%s want=%s", a3, tz1)
 	}
 }

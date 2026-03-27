@@ -6,6 +6,7 @@ package rpc
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -15,6 +16,26 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/trilitech/tzgo/tezos"
 )
+
+// Offline fixtures for operation endpoints at mainnet block level 11680082.
+//
+//go:embed testdata/mainnet_block_level_11680082_operation_hashes.json
+var mainnetBlockLevel11680082OperationHashesJSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_operation_hashes_0.json
+var mainnetBlockLevel11680082OperationHashes0JSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_operation_hashes_0_0.json
+var mainnetBlockLevel11680082OperationHashes00JSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_operations.json
+var mainnetBlockLevel11680082OperationsJSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_operations_0.json
+var mainnetBlockLevel11680082Operations0JSON []byte
+
+//go:embed testdata/mainnet_block_level_11680082_operations_0_0.json
+var mainnetBlockLevel11680082Operations00JSON []byte
 
 func TestOperationMetadataAddressRegistryDiff(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -120,4 +141,76 @@ func TestOperationMetadataAddressRegistryDiff(t *testing.T) {
 	assert.NoError(t, e)
 	assert.Len(t, value.Contents, 1)
 	assert.Equal(t, &[]AddressRegistryDiff{{Address: tezos.MustParseAddress("tz1ZvUkxJHPTy1tC7kF8Fg1Ko8jFvSumeENg"), Index: 5}}, value.Contents.N(0).Meta().Result.AddressRegistryDiff)
+}
+
+func TestBlockOperationsAPI_FromTestdataFixtures(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Accept") != "application/json" {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+			return
+		}
+
+		switch r.URL.Path {
+		case "/chains/main/blocks/11680082/operation_hashes":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082OperationHashesJSON)
+		case "/chains/main/blocks/11680082/operation_hashes/0":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082OperationHashes0JSON)
+		case "/chains/main/blocks/11680082/operation_hashes/0/0":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082OperationHashes00JSON)
+
+		case "/chains/main/blocks/11680082/operations":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082OperationsJSON)
+		case "/chains/main/blocks/11680082/operations/0":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082Operations0JSON)
+		case "/chains/main/blocks/11680082/operations/0/0":
+			w.WriteHeader(http.StatusOK)
+			w.Write(mainnetBlockLevel11680082Operations00JSON)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprintf(w, "unexpected url: %s", r.URL.Path)
+		}
+	}))
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+
+	// hashes
+	h, err := c.GetBlockOperationHash(context.Background(), BlockLevel(11680082), 0, 0)
+	assert.NoError(t, err)
+	assert.Equal(t, tezos.MustParseOpHash("opQ6YSNmjZi2XkM7GTeLXTJyzYZzdKCfUo9qcqPaXXcC82p77Qx"), h)
+
+	hashes, err := c.GetBlockOperationHashes(context.Background(), BlockLevel(11680082))
+	assert.NoError(t, err)
+	assert.Len(t, hashes, 4)
+	assert.Greater(t, len(hashes[0]), 0)
+	assert.Equal(t, tezos.MustParseOpHash("opQ6YSNmjZi2XkM7GTeLXTJyzYZzdKCfUo9qcqPaXXcC82p77Qx"), hashes[0][0])
+
+	listHashes, err := c.GetBlockOperationListHashes(context.Background(), BlockLevel(11680082), 0)
+	assert.NoError(t, err)
+	assert.Greater(t, len(listHashes), 0)
+	assert.Equal(t, tezos.MustParseOpHash("opQ6YSNmjZi2XkM7GTeLXTJyzYZzdKCfUo9qcqPaXXcC82p77Qx"), listHashes[0])
+
+	// operations
+	op, err := c.GetBlockOperation(context.Background(), BlockLevel(11680082), 0, 0)
+	assert.NoError(t, err)
+	assert.Equal(t, tezos.MustParseOpHash("opQ6YSNmjZi2XkM7GTeLXTJyzYZzdKCfUo9qcqPaXXcC82p77Qx"), op.Hash)
+	assert.GreaterOrEqual(t, len(op.Contents), 1)
+	assert.Equal(t, tezos.OpTypeAttestationWithDal, op.Contents[0].Kind())
+
+	ops0, err := c.GetBlockOperationList(context.Background(), BlockLevel(11680082), 0)
+	assert.NoError(t, err)
+	assert.Greater(t, len(ops0), 0)
+	assert.Equal(t, tezos.MustParseOpHash("opQ6YSNmjZi2XkM7GTeLXTJyzYZzdKCfUo9qcqPaXXcC82p77Qx"), ops0[0].Hash)
+
+	ops, err := c.GetBlockOperations(context.Background(), BlockLevel(11680082))
+	assert.NoError(t, err)
+	assert.Len(t, ops, 4)
+	assert.Greater(t, len(ops[0]), 0)
+	assert.Equal(t, tezos.MustParseOpHash("opQ6YSNmjZi2XkM7GTeLXTJyzYZzdKCfUo9qcqPaXXcC82p77Qx"), ops[0][0].Hash)
 }
