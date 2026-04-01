@@ -136,6 +136,8 @@ type Task struct {
 	Value       string         `yaml:"value,omitempty"`    // wait only
 	Log         string         `yaml:"log,omitempty"`      // log level override
 	OnError     ErrorMode      `yaml:"on_error,omitempty"` // how to handle errors: fail|warn|ignore
+	Edge        uint64         `yaml:"edge,omitempty"`     // set_baker_params only
+	Limit       uint64         `yaml:"limit,omitempty"`    // set_baker_params only
 }
 
 func (t Task) Validate(ctx compose.Context) error {

@@ -229,8 +229,8 @@ func (o *Op) WithSetBakerParams(edge, limit int64) *Op {
 		micheline.Parameters{
 			Entrypoint: micheline.SET_DELEGATE_PARAMETERS,
 			Value: micheline.NewCombPair(
-				micheline.NewInt64(edge),
 				micheline.NewInt64(limit),
+				micheline.NewInt64(edge),
 				micheline.Unit,
 			),
 		},
