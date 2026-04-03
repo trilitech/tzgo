@@ -1,6 +1,6 @@
 module github.com/trilitech/tzgo
 
-go 1.18
+go 1.24.0
 
 require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
@@ -14,7 +14,7 @@ require (
 	github.com/tyler-smith/go-bip32 v1.0.0
 	golang.org/x/crypto v0.18.0
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
-	golang.org/x/term v0.16.0
+	golang.org/x/term v0.38.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -29,7 +29,7 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
 	gopkg.in/bson.v2 v2.0.0-20171018101713-d8c8987b8862 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
