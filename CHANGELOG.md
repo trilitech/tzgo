@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
+
+#### Native Contracts / sTEZ (FA2.1)
+* Verified that the v025 enshrined liquid-staking (sTEZ) FA2.1 contract parameters decode through TzGo's generic Micheline layer; FA2.1 keeps the FA2/TZIP-12 `transfer` type unchanged, so no SDK-specific decoder is required. Added `TestFA21TransferRoundTrip` as the regression test backing this conclusion. Contract events and addresses remain handled generically (no known-contract table entry needed).
+
 ## v1.24.0
 
 ### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 
