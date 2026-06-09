@@ -18,7 +18,12 @@ type Endorsement struct {
 	Slot           int                 `json:"slot"`                  // v009+
 	Round          int                 `json:"round"`                 // v012+
 	PayloadHash    tezos.PayloadHash   `json:"block_payload_hash"`    // v012+
-	DalAttestation tezos.Z             `json:"dal_attestation"`       // v019+
+	// DalAttestation is a raw bitset of attested DAL slots. v019+.
+	// BREAKING in v025 (Ushuaia): the bit semantics changed (baker-attested vs
+	// protocol-attested slots) and a multi-lag layout was introduced. The value
+	// still decodes as a Z, but code that interprets individual bits must account
+	// for the new layout for v025+ blocks.
+	DalAttestation tezos.Z `json:"dal_attestation"` // v019+
 }
 
 func (e Endorsement) GetLevel() int64 {

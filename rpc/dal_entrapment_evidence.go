@@ -44,4 +44,8 @@ type DalEntrapmentEvidence struct {
 	ConsensusSlot  uint16             `json:"consensus_slot"`
 	SlotIndex      uint8              `json:"slot_index"`
 	ShardWithProof ShardWithProof     `json:"shard_with_proof"`
+	// LagIndex identifies which attestation lag (an index into the
+	// attestation_lags parameter list) the evidence refers to. Added in v025
+	// (Ushuaia) together with dynamic attestation lag; nil for pre-v025 blocks.
+	LagIndex *uint8 `json:"lag_index,omitempty"`
 }

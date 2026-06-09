@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
+
+#### DAL Changes (BREAKING)
+* `DalEntrapmentEvidence` - added optional `LagIndex` (`lag_index`) field for the new dynamic attestation lag; nil for pre-v025 blocks
+* `Endorsement.DalAttestation` / `Committee.DalAttestation` - documented the BREAKING change to DAL attestation bitset semantics in v025 (baker-attested vs protocol-attested slots, multi-lag layout). The value still decodes as a `Z`; only bit-level interpretation changed
+
 ## v1.24.0
 
 ### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 
