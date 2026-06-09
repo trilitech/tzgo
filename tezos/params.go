@@ -115,6 +115,12 @@ type Params struct {
 	// feature flags
 	AllBakersAttestActivationThreshold Ratio `json:"all_bakers_attest_activation_threshold"`
 
+	// data availability layer (v019+, attestation_lags new in v025)
+	DalNumberOfSlots   int64   `json:"dal_number_of_slots,omitempty"`
+	DalSlotSize        int64   `json:"dal_slot_size,omitempty"`
+	DalAttestationLag  int64   `json:"dal_attestation_lag,omitempty"`
+	DalAttestationLags []int64 `json:"dal_attestation_lags,omitempty"`
+
 	// extra features to follow protocol upgrades
 	OperationTagsVersion int   `json:"operation_tags_version,omitempty"` // 1: v5..v11, 2: v12..v18, 3:v19-v22, 4: v23+
 	StartHeight          int64 `json:"start_height"`                     // protocol start (may be != cycle start!!)

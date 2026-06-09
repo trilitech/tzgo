@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
+
+#### Protocol Constants
+* `Constants` - decode the `dal_parametric` block into a new `DalParametric` struct (`number_of_slots` → 160, `slot_size` → 380832, `attestation_lag` → 5, and the new dynamic-lag list `attestation_lags`), plus the new top-level `cache_layout_size`
+* `tezos.Params` - added `DalNumberOfSlots`, `DalSlotSize`, `DalAttestationLag`, and `DalAttestationLags`; `MapToChainParams` now surfaces the DAL constants
+
 ## v1.24.0
 
 ### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 

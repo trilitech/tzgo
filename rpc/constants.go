@@ -46,6 +46,27 @@ type Constants struct {
 	SmartRollupMaxLookaheadInBlocks     int64       `json:"smart_rollup_max_lookahead_in_blocks"`
 	SmartRollupTimeoutPeriodInBlocks    int64       `json:"smart_rollup_timeout_period_in_blocks"`
 	AllBakersAttestActivationThreshold  tezos.Ratio `json:"all_bakers_attest_activation_threshold"`
+
+	// DAL parameters, nested under dal_parametric. v019+; AttestationLags is new
+	// in v025 (Ushuaia, dynamic attestation lag).
+	Dal DalParametric `json:"dal_parametric"`
+
+	// Ushuaia additions (v025)
+	CacheLayoutSize int64 `json:"cache_layout_size"`
+}
+
+// DalParametric holds the data-availability-layer protocol constants returned
+// under the dal_parametric key of the chain constants.
+type DalParametric struct {
+	FeatureEnable        bool    `json:"feature_enable"`
+	NumberOfSlots        int64   `json:"number_of_slots"`
+	SlotSize             int64   `json:"slot_size"`
+	PageSize             int64   `json:"page_size"`
+	NumberOfShards       int64   `json:"number_of_shards"`
+	RedundancyFactor     int64   `json:"redundancy_factor"`
+	AttestationLag       int64   `json:"attestation_lag"`
+	AttestationThreshold int64   `json:"attestation_threshold"`
+	AttestationLags      []int64 `json:"attestation_lags"` // v025+
 }
 
 // GetConstants returns chain configuration constants at block id
@@ -131,6 +152,20 @@ func (c Constants) MapToChainParams() *tezos.Params {
 	if c.AllBakersAttestActivationThreshold.Den != 0 {
 		p.AllBakersAttestActivationThreshold.Num = c.AllBakersAttestActivationThreshold.Num
 		p.AllBakersAttestActivationThreshold.Den = c.AllBakersAttestActivationThreshold.Den
+	}
+
+	// DAL parameters (v019+; attestation_lags new in v025)
+	if c.Dal.NumberOfSlots > 0 {
+		p.DalNumberOfSlots = c.Dal.NumberOfSlots
+	}
+	if c.Dal.SlotSize > 0 {
+		p.DalSlotSize = c.Dal.SlotSize
+	}
+	if c.Dal.AttestationLag > 0 {
+		p.DalAttestationLag = c.Dal.AttestationLag
+	}
+	if len(c.Dal.AttestationLags) > 0 {
+		p.DalAttestationLags = c.Dal.AttestationLags
 	}
 
 	// Paris blocks per snapshot
