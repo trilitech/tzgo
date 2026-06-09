@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
+
+#### New RPC Handlers
+* `GetDalPastParameters` - returns the DAL parameters active at a given level
+* `DecodeDalAttestation` / `EncodeDalAttestation` - decode a DAL attestation bitset into attested slots per lag, and encode the inverse
+* `GetSwrrSelectedBakers` - SWRR-selected bakers for a cycle's round 0; returns nil when the `swrr_new_baker_lottery_enable` flag is disabled
+* `GetSwrrCredits` - current SWRR credits per active delegate; returns nil when the feature flag is disabled
+* `GetStezTotalSupply`, `GetStezTotalAmountOfTez`, `GetStezExchangeRate` - enshrined liquid staking (sTEZ) context queries
+
 ## v1.24.0
 
 ### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 
