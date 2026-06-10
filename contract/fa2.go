@@ -116,7 +116,8 @@ func (p *FA2Approval) UnmarshalJSON(data []byte) error {
 	}
 	v, ok := nested["add_operator"]
 	if ok {
-		err = json.Unmarshal(v, p)
+		type alias FA2Approval
+		err = json.Unmarshal(v, (*alias)(p))
 		if err != nil {
 			return err
 		}
@@ -126,10 +127,12 @@ func (p *FA2Approval) UnmarshalJSON(data []byte) error {
 		if !ok {
 			return fmt.Errorf("invalid FA2 approval data")
 		}
-		err = json.Unmarshal(v, p)
+		type alias FA2Approval
+		err = json.Unmarshal(v, (*alias)(p))
 		if err != nil {
 			return err
 		}
+		p.Add = false
 	}
 	return nil
 }
@@ -202,7 +205,7 @@ func (p *FA2ApprovalArgs) RemoveOperator(owner, operator tezos.Address, id tezos
 		Owner:    owner.Clone(),
 		Operator: operator.Clone(),
 		TokenId:  id.Clone(),
-		Add:      true,
+		Add:      false,
 	})
 	return p
 }

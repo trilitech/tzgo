@@ -1,0 +1,21 @@
+{
+  "balance": "0",
+  "delegate": "",
+  "counter": "0",
+  "manager": "",
+  "frozen_deposits": {
+    "initial_amount": "0",
+    "actual_amount": "0"
+  },
+  "frozen_deposits_pseudotokens": "0",
+  "missed_attestations": {
+    "remaining_slots": 0,
+    "missed_levels": 0
+  },
+  "staking_parameters": {},
+  "unstake_requests": {
+    "delegate": "",
+    "requests": null
+  },
+  "unstaked_frozen_deposits": null
+}

@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/trilitech/tzgo/micheline"
@@ -61,4 +62,53 @@ type nestedUnmarshaler struct {
 
 func (u *nestedUnmarshaler) UnmarshalPrim(prim micheline.Prim) error {
 	return UnmarshalPrimPaths(prim, map[string]any{"l": &u.U, "r": &u.S})
+}
+
+func TestUnmarshalPrim_PointerInit(t *testing.T) {
+	var i *big.Int
+	require.Nil(t, i)
+
+	err := UnmarshalPrim(micheline.NewInt64(42), &i)
+	require.NoError(t, err)
+	require.NotNil(t, i)
+	require.Equal(t, big.NewInt(42), i)
+}
+
+func TestUnmarshalPrim_TimeFromString(t *testing.T) {
+	var ts time.Time
+	err := UnmarshalPrim(micheline.NewString("1970-01-01T00:00:01Z"), &ts)
+	require.NoError(t, err)
+	require.Equal(t, time.Unix(1, 0).UTC(), ts.UTC())
+}
+
+func TestUnmarshalPrim_AddressFromStringAndBytes(t *testing.T) {
+	addr := tezos.MustParseAddress("tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb")
+
+	var a1 tezos.Address
+	require.NoError(t, UnmarshalPrim(micheline.NewString(addr.String()), &a1))
+	require.True(t, a1.Equal(addr))
+
+	var a2 tezos.Address
+	require.NoError(t, UnmarshalPrim(micheline.NewBytes(addr.EncodePadded()), &a2))
+	require.True(t, a2.Equal(addr))
+}
+
+func TestUnmarshalPrim_SequenceIntoSlice(t *testing.T) {
+	a1 := tezos.MustParseAddress("tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb")
+	a2 := tezos.MustParseAddress("tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6")
+	prim := micheline.NewSeq(
+		micheline.NewString(a1.String()),
+		micheline.NewString(a2.String()),
+	)
+
+	var out []tezos.Address
+	require.NoError(t, UnmarshalPrim(prim, &out))
+	require.Len(t, out, 2)
+	require.True(t, out[0].Equal(a1))
+	require.True(t, out[1].Equal(a2))
+}
+
+func TestUnmarshalPrim_RequiresPointer(t *testing.T) {
+	var s string
+	require.Error(t, UnmarshalPrim(micheline.NewString("x"), s))
 }

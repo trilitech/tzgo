@@ -1,6 +1,7 @@
 package hash
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"hash/fnv"
 	"testing"
@@ -36,6 +37,35 @@ func TestStaticHash64(t *testing.T) {
 	}
 	if err := quick.CheckEqual(Hash64, expect, nil); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestInlineFNV64a_WriteStringSumReset(t *testing.T) {
+	h := NewInlineFNV64a()
+	if got := h.Sum64(); got != offset64 {
+		t.Fatalf("initial Sum64=%d, want %d", got, uint64(offset64))
+	}
+
+	// WriteString delegates to Write([]byte(...)).
+	if n, err := h.WriteString("abc"); err != nil || n != 3 {
+		t.Fatalf("WriteString n=%d err=%v, want n=3 err=nil", n, err)
+	}
+	want := Hash64([]byte("abc"))
+	if got := h.Sum64(); got != want {
+		t.Fatalf("Sum64=%d, want %d", got, want)
+	}
+
+	sum := h.Sum()
+	if len(sum) != 8 {
+		t.Fatalf("Sum len=%d, want 8", len(sum))
+	}
+	if got := binary.BigEndian.Uint64(sum); got != want {
+		t.Fatalf("Sum bytes=%d, want %d", got, want)
+	}
+
+	h.Reset()
+	if got := h.Sum64(); got != offset64 {
+		t.Fatalf("after Reset Sum64=%d, want %d", got, uint64(offset64))
 	}
 }
 
