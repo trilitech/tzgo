@@ -594,7 +594,7 @@ func (k PrivateKey) Public() Key {
 			pk.Type = KeyTypeInvalid
 			return pk
 		}
-		pk.Data = elliptic.MarshalCompressed(curve, ecKey.PublicKey.X, ecKey.PublicKey.Y)
+		pk.Data = elliptic.MarshalCompressed(curve, ecKey.X, ecKey.Y)
 	case KeyTypeBls12_381:
 		// TODO
 	}
