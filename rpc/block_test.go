@@ -105,6 +105,33 @@ func TestGetBlockHeader(t *testing.T) {
 	assert.Nil(t, value.AdaptiveIssuanceVote)
 }
 
+func TestBlockHeaderProtocolData_NilAdaptiveIssuanceVote(t *testing.T) {
+	// Regression test: starting with v024, `adaptive_issuance_vote` is removed from
+	// block headers and unmarshals to nil. ProtocolData must not panic in this case.
+	//
+	// See incident report: core-inc-2604.
+	var h BlockHeader
+	err := json.Unmarshal([]byte(`{
+		"payload_hash": "vh3TEnHL6vFNebqDtQnt4rAEfrorSt4kiqB7saK3B2FSZ4UpxGFT",
+		"payload_round": 0,
+		"proof_of_work_nonce": "60afd4da00000000",
+		"liquidity_baking_toggle_vote": "pass"
+	}`), &h)
+	assert.NoError(t, err)
+	assert.Nil(t, h.AdaptiveIssuanceVote)
+
+	var data []byte
+	assert.NotPanics(t, func() {
+		data = h.ProtocolData()
+	})
+
+	// protocol_data without signature (invalid/missing) is:
+	// payload_hash(32) + payload_round(4) + pow_nonce(8) + seed_nonce_presence(1) + votes(1)
+	assert.Len(t, data, 32+4+8+1+1)
+	assert.Equal(t, byte(0x0), data[32+4+8])          // seed nonce absent
+	assert.Equal(t, h.LbVote().Tag(), data[32+4+8+1]) // ai vote missing => ai tag == 0
+}
+
 func TestGetBlockMetadataV023(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Accept") != "application/json" {
