@@ -1,18 +1,34 @@
+version: "2"
 linters:
   enable:
     - bodyclose
-    - durationcheck
     - copyloopvar
+    - durationcheck
+    - gocritic
     - gomoddirectives
     - prealloc
     - reassign
-    - gocritic
-    - gofmt
-    - govet
-    - prealloc
     - unconvert
     - unparam
-    - gosimple
-    - unused
   disable:
-   - errcheck
+    - errcheck
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
