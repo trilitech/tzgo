@@ -23,7 +23,7 @@ type Transaction struct {
 func (t Transaction) Costs() tezos.Costs {
 	res := t.Metadata.Result
 	cost := tezos.Costs{
-		Fee:         t.Manager.Fee,
+		Fee:         t.Fee,
 		GasUsed:     res.Gas(),
 		StorageUsed: res.PaidStorageSizeDiff,
 	}

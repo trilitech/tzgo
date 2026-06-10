@@ -26,7 +26,7 @@ func (o SetDepositsLimit) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	if o.Limit != nil {
 		buf.WriteString(`,"limit":`)
 		buf.WriteString(strconv.Quote(o.Limit.String()))

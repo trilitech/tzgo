@@ -29,7 +29,7 @@ func (o Origination) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"balance":`)
 	buf.WriteString(strconv.Quote(o.Balance.String()))
 	if o.Delegate.IsValid() {

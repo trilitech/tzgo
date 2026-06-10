@@ -80,7 +80,7 @@ func ecPrivateKeyFromBytes(b []byte, curve elliptic.Curve) (key *ecdsa.PrivateKe
 	}
 
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.17.5:src/crypto/ecdsa/ecdsa.go;l=149
-	priv.PublicKey.X, priv.PublicKey.Y = curve.ScalarBaseMult(k.Bytes())
+	priv.X, priv.Y = curve.ScalarBaseMult(k.Bytes())
 	return priv, nil
 }
 
@@ -174,7 +174,7 @@ func encryptPrivateKey(key []byte, fn PassphraseFunc) ([]byte, error) {
 		return nil, ErrPassphrase
 	}
 
-	salt := make([]byte, 8)
+	salt := make([]byte, 8, 8+len(key)+secretbox.Overhead)
 	_, err = rand.Read(salt)
 	if err != nil {
 		return nil, err

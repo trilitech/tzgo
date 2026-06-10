@@ -27,7 +27,7 @@ func (o SmartRollupAddMessages) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"messages":[`)
 	if len(o.Messages) > 0 {
 		buf.WriteString(strconv.Quote(o.Messages[0].String()))

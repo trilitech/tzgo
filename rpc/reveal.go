@@ -19,7 +19,7 @@ type Reveal struct {
 // Costs returns operation cost to implement TypedOperation interface.
 func (r Reveal) Costs() tezos.Costs {
 	return tezos.Costs{
-		Fee:     r.Manager.Fee,
+		Fee:     r.Fee,
 		GasUsed: r.Metadata.Result.Gas(),
 	}
 }

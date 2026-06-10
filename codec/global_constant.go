@@ -28,7 +28,7 @@ func (o RegisterGlobalConstant) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"value":`)
 	b, _ := o.Value.MarshalJSON()
 	buf.Write(b)

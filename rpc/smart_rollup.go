@@ -110,7 +110,7 @@ func (s *SmartRollupRefuteStep) UnmarshalJSON(buf []byte) error {
 		s.Proof = &SmartRollupProof{}
 		return json.Unmarshal(buf, s.Proof)
 	default:
-		return fmt.Errorf("Invalid refute step data %q", string(buf))
+		return fmt.Errorf("invalid refute step data %q", string(buf))
 	}
 }
 
@@ -180,7 +180,7 @@ func (s *GameStatus) UnmarshalJSON(buf []byte) error {
 		a := wrapper{alias(s)}
 		_ = json.Unmarshal(buf, &a)
 	default:
-		return fmt.Errorf("Invalid game status data %q", string(buf))
+		return fmt.Errorf("invalid game status data %q", string(buf))
 	}
 	return nil
 }
