@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
+
+#### Protocol Registration
+* Registered protocol `ProtoV025` (`PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY`) with alias `PsUshuai`; bumped `ProtoAlpha` to version 26 so it no longer collides with the v025 slot
+* Fixed `WithProtocol` to assign `OperationTagsVersion = 4` for protocols v023+ (was capped at 3); tag encoding is unchanged (v2+ tag table)
+* Deployment rows and `DefaultParams`/`GhostnetParams`/`ShadownetParams` repointing deferred until activation heights are published
+
 ## v1.24.0
 
 ### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 
