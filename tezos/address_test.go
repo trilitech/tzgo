@@ -59,14 +59,6 @@ func TestAddress(t *testing.T) {
 			Bytes:   "015c149d65c5ca113bc2bc3c861ef6ea8030d7155300",
 			Padded:  "015c149d65c5ca113bc2bc3c861ef6ea8030d7155300",
 		},
-		// btz1
-		{
-			Address: "btz1LKs15uHQ4PgCoY3ZDq55CKJ5wDq9jQwfk",
-			Hash:    "000b80d92ce17aa6070fde1a99288a4213a5b650",
-			Type:    AddressTypeBlinded,
-			Bytes:   "04000b80d92ce17aa6070fde1a99288a4213a5b650",
-			Padded:  "0004000b80d92ce17aa6070fde1a99288a4213a5b650",
-		},
 		// TODO: AddressTypeSapling
 		// tz4
 		{
@@ -75,6 +67,14 @@ func TestAddress(t *testing.T) {
 			Type:    AddressTypeBls12_381,
 			Bytes:   "035d1497f39b87599983fe8f29599b679564be822d",
 			Padded:  "00035d1497f39b87599983fe8f29599b679564be822d",
+		},
+		// tz5 (v025 Ushuaia, ML-DSA-44 PKH only)
+		{
+			Address: "tz5VWE3unqGsLVrYhxCGBxiVVYXDjHHbmbTY",
+			Hash:    "5d1497f39b87599983fe8f29599b679564be822d",
+			Type:    AddressTypeMlDsa44,
+			Bytes:   "045d1497f39b87599983fe8f29599b679564be822d",
+			Padded:  "00045d1497f39b87599983fe8f29599b679564be822d",
 		},
 		// txr1
 		{
@@ -231,5 +231,59 @@ func BenchmarkAddressEncode(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_ = a.String()
+	}
+}
+
+// TestMlDsa44Address verifies tz5 (v025 Ushuaia) PKH-only semantics: implicit
+// account classification and binary tag 4 ownership.
+func TestMlDsa44Address(t *testing.T) {
+	a, err := ParseAddress("tz5VWE3unqGsLVrYhxCGBxiVVYXDjHHbmbTY")
+	if err != nil {
+		t.Fatalf("parse tz5: %v", err)
+	}
+	if !a.IsEOA() {
+		t.Errorf("tz5 address must classify as EOA")
+	}
+	if a.IsContract() || a.IsRollup() {
+		t.Errorf("tz5 address must not classify as contract or rollup")
+	}
+	if got := a.KeyType(); got != KeyTypeMlDsa44 {
+		t.Errorf("tz5 KeyType = %v, want KeyTypeMlDsa44", got)
+	}
+	// ML-DSA key material is unsupported in the PKH-only slice
+	if KeyTypeMlDsa44.PkHashType().Len != 0 || KeyTypeMlDsa44.PkPrefixBytes() != nil {
+		t.Errorf("ML-DSA pk decoding must remain unsupported")
+	}
+	if DetectAddressType("tz5VWE3unqGsLVrYhxCGBxiVVYXDjHHbmbTY") != AddressTypeMlDsa44 {
+		t.Errorf("DetectAddressType must recognize tz5")
+	}
+}
+
+// TestBlindedAddressNoBinaryTag verifies that blinded (btz1) addresses no longer
+// alias on-chain binary tag 4, which belongs to ML-DSA-44 (tz5) since v025.
+// Text parsing of btz1 addresses is unchanged.
+func TestBlindedAddressNoBinaryTag(t *testing.T) {
+	a, err := ParseAddress("btz1LKs15uHQ4PgCoY3ZDq55CKJ5wDq9jQwfk")
+	if err != nil {
+		t.Fatalf("parse btz1: %v", err)
+	}
+	if got, want := a.Type(), AddressTypeBlinded; got != want {
+		t.Fatalf("type = %v, want %v", got, want)
+	}
+	if got, want := a.String(), "btz1LKs15uHQ4PgCoY3ZDq55CKJ5wDq9jQwfk"; got != want {
+		t.Errorf("text round-trip = %s, want %s", got, want)
+	}
+	// binary encoding must not emit tag 4 anymore
+	if enc := a.Encode(); len(enc) > 0 && enc[0] == 4 {
+		t.Errorf("blinded address must not binary-encode with tag 4 (tz5)")
+	}
+	// tag 4 binary decodes as tz5, not blinded
+	var b Address
+	buf := MustDecodeString("045d1497f39b87599983fe8f29599b679564be822d")
+	if err := b.Decode(buf); err != nil {
+		t.Fatalf("decode tag 4: %v", err)
+	}
+	if got, want := b.Type(), AddressTypeMlDsa44; got != want {
+		t.Errorf("tag 4 decodes as %v, want %v", got, want)
 	}
 }

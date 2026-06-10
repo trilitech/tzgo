@@ -9,6 +9,11 @@
 * Fixed `WithProtocol` to assign `OperationTagsVersion = 4` for protocols v023+ (was capped at 3); tag encoding is unchanged (v2+ tag table)
 * Deployment rows and `DefaultParams`/`GhostnetParams`/`ShadownetParams` repointing deferred until activation heights are published
 
+#### tz5 Addresses (ML-DSA-44, PKH only)
+* Added `AddressTypeMlDsa44` (tz5): base58 parse/format, 21-byte tag-4 and 22-byte padded binary encode/decode, usable as transaction destination. tz5 addresses classify as EOAs via the new `KeyTypeMlDsa44`
+* ML-DSA-44 keys and signatures remain unsupported in this slice — decoding them still fails with explicit errors (Signature V3 support is a follow-up)
+* BREAKING: blinded (btz1) addresses no longer alias internal binary tag 4, which belongs to tz5 on-chain since v025; blinded addresses never legitimately appear in tagged binary form
+
 ## v1.24.0
 
 ### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 

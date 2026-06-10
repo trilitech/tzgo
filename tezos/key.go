@@ -46,6 +46,11 @@ const (
 	KeyTypeSecp256k1
 	KeyTypeP256
 	KeyTypeBls12_381
+	// KeyTypeMlDsa44 identifies ML-DSA-44 (post-quantum) accounts introduced in
+	// v025 (Ushuaia). Only the address (tz5 PKH) side is supported; ML-DSA key
+	// material and signatures are not implemented yet, so all key operations on
+	// this type return invalid/unsupported results.
+	KeyTypeMlDsa44
 	KeyTypeInvalid
 )
 
@@ -108,6 +113,8 @@ func (t KeyType) AddressType() AddressType {
 		return AddressTypeP256
 	case KeyTypeBls12_381:
 		return AddressTypeBls12_381
+	case KeyTypeMlDsa44:
+		return AddressTypeMlDsa44
 	default:
 		return AddressTypeInvalid
 	}

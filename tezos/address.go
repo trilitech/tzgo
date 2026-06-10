@@ -59,6 +59,7 @@ const (
 	AddressTypeBls12_381                      // 6
 	AddressTypeTxRollup                       // 7
 	AddressTypeSmartRollup                    // 8
+	AddressTypeMlDsa44                        // 9, tz5 (v025 Ushuaia)
 )
 
 var (
@@ -68,10 +69,13 @@ var (
 		{2, 1, "secp256k1", HashTypePkhSecp256k1, KeyTypeSecp256k1},
 		{3, 2, "p256", HashTypePkhP256, KeyTypeP256},
 		{4, 255, "contract", HashTypePkhNocurve, KeyTypeInvalid},
-		{5, 4, "blinded", HashTypePkhBlinded, KeyTypeInvalid},
+		// Note: blinded addresses never appear in tagged binary form; their
+		// former internal tag 4 is used on-chain by ML-DSA-44 (tz5) since v025.
+		{5, 255, "blinded", HashTypePkhBlinded, KeyTypeInvalid},
 		{6, 3, "bls12_381", HashTypePkhBls12_381, KeyTypeBls12_381},
 		{7, 255, "tx_rollup", HashTypeTxRollupAddress, KeyTypeInvalid},
 		{8, 255, "smart_rollup", HashTypeSmartRollupAddress, KeyTypeInvalid},
+		{9, 4, "mldsa44", HashTypePkhMlDsa44, KeyTypeMlDsa44},
 	}
 
 	addressTags = []AddressType{
@@ -79,7 +83,7 @@ var (
 		AddressTypeSecp256k1, // 1
 		AddressTypeP256,      // 2
 		AddressTypeBls12_381, // 3
-		AddressTypeBlinded,   // 4, can be anything actually as it is never supposed to have a tag
+		AddressTypeMlDsa44,   // 4, tz5 since v025 (Ushuaia)
 	}
 )
 

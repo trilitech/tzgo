@@ -99,6 +99,9 @@ var (
 	HashTypeSmartRollupStateHash      = HashType{SMART_ROLLUP_STATE_HASH_ID, 32, SMART_ROLLUP_STATE_HASH_PREFIX, 54}
 	HashTypeSmartRollupCommitHash     = HashType{SMART_ROLLUP_COMMITMENT_HASH_ID, 32, SMART_ROLLUP_COMMITMENT_HASH_PREFIX, 54}
 	HashTypeSmartRollupRevealHash     = HashType{SMART_ROLLUP_REVEAL_HASH_ID, 32, SMART_ROLLUP_REVEAL_HASH_PREFIX, 56}
+
+	// v025 Ushuaia, ML-DSA-44 (PKH only)
+	HashTypePkhMlDsa44 = HashType{MLDSA44_PUBLIC_KEY_HASH_ID, 20, MLDSA44_PUBLIC_KEY_HASH_PREFIX, 36}
 )
 
 func (t HashType) IsValid() bool {
