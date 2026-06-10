@@ -251,7 +251,7 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 				}
 			}
 			*values = (*values)[1:]
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_BIG_MAP:
 			val := (*values)[0]
@@ -262,7 +262,7 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 				}
 			}
 			*values = (*values)[1:]
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_OPTION:
 			val := (*values)[0]
@@ -280,7 +280,7 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 				}
 			}
 			*values = (*values)[1:]
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_PAIR:
 			for _, arg := range p.Args {
@@ -288,7 +288,7 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 					named[uniqueName(n)] = v
 				}
 			}
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_LIST:
 			val := (*values)[0]
@@ -303,7 +303,7 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 				}
 			}
 			*values = (*values)[1:]
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_OR:
 			val := (*values)[0]
@@ -321,7 +321,7 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 				}
 			}
 			*values = (*values)[1:]
-			return PrimSkip
+			return ErrPrimSkip
 
 		default:
 			if len(*values) > 0 {
@@ -331,7 +331,7 @@ func linkStorageTypeAndValue(typ Prim, values *[]Prim) map[string]storageItem {
 				}
 				*values = (*values)[1:]
 			}
-			return PrimSkip
+			return ErrPrimSkip
 		}
 	})
 	return named
@@ -380,11 +380,11 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 			for _, v := range DetectBigmapTypes(p.Args[1]) {
 				named[uniqueName(key)] = v
 			}
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_BIG_MAP:
 			named[uniqueName(p.GetVarAnnoAny())] = NewType(p)
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_LIST, T_OPTION:
 			// Type definition of list items and option values is in the
@@ -392,7 +392,7 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 			for n, v := range DetectBigmapTypes(p.Args[0]) {
 				named[uniqueName(n)] = v
 			}
-			return PrimSkip
+			return ErrPrimSkip
 
 		case T_OR, T_PAIR:
 			// OR candidates are defined in the arguments of the OR primitive
@@ -401,10 +401,10 @@ func DetectBigmapTypes(typ Prim) map[string]Type {
 					named[uniqueName(n)] = v
 				}
 			}
-			return PrimSkip
+			return ErrPrimSkip
 
 		default:
-			return PrimSkip
+			return ErrPrimSkip
 		}
 	})
 	return named

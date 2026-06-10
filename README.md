@@ -43,6 +43,11 @@ TzGo contains a full set of features to read, monitor, decode, translate, analyz
 - a **Code generator** [TzGen](https://github.com/blockwatch-cc/tzgo/tree/master/cmd/tzgen) to produce pure Go clients for smart contract interfaces
 - an **Automation Tool** [TzCompose](https://github.com/blockwatch-cc/tzgo/tree/master/cmd/tzcompose) to setup test cases and deploy complex contract ecosystems
 
+### Developer Resources
+
+For AI-assisted development or a comprehensive overview of the codebase structure:
+- See [.ai-context.md](.ai-context.md) - A detailed guide covering all packages, types, common workflows, and best practices for working with TzGo
+
 ### TzGo Compatibility
 
 TzGo's RPC package attempts to be compatible with all protocols so that reading historic block data is always supported. Binary transaction encoding and signing support is limited to the most recent protocol.
@@ -364,6 +369,13 @@ func main() {
 }
 ```
 
+## Documentation
+
+- **[AI Context Guide](.ai-context.md)** - Comprehensive codebase reference for AI assistants and developers
+- **[TzGen Documentation](cmd/tzgen/README.md)** - Code generation for smart contract bindings  
+- **[TzCompose Documentation](cmd/tzcompose/README.md)** - Transaction automation and testing
+- **Examples** - See the `examples/` directory for working code samples
+- **Protocol Documentation** - https://tezos.gitlab.io/
 
 ## License
 
