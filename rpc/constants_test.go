@@ -62,3 +62,26 @@ func TestConstantsV025Dal(t *testing.T) {
 		t.Errorf("DalAttestationLags = %v, want length 5", p.DalAttestationLags)
 	}
 }
+
+// TestConstantsPreV025NoDal verifies that constants from chains without DAL
+// parameters (no dal_parametric key, no cache_layout_size) decode cleanly and
+// leave the DAL fields in tezos.Params zero-valued.
+func TestConstantsPreV025NoDal(t *testing.T) {
+	const blob = `{"blocks_per_cycle": 8192, "consensus_rights_delay": 2}`
+
+	var c Constants
+	if err := json.Unmarshal([]byte(blob), &c); err != nil {
+		t.Fatalf("unmarshal pre-v025 constants: %v", err)
+	}
+	if c.CacheLayoutSize != 0 {
+		t.Errorf("CacheLayoutSize = %d, want 0 on pre-v025 chains", c.CacheLayoutSize)
+	}
+	if c.Dal.NumberOfSlots != 0 || c.Dal.AttestationLag != 0 || c.Dal.AttestationLags != nil {
+		t.Errorf("unexpected non-zero DAL constants: %+v", c.Dal)
+	}
+
+	p := c.MapToChainParams()
+	if p.DalNumberOfSlots != 0 || p.DalSlotSize != 0 || p.DalAttestationLag != 0 || p.DalAttestationLags != nil {
+		t.Errorf("DAL params must stay zero without dal_parametric: %+v", p)
+	}
+}
