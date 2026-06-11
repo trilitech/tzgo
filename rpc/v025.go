@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/trilitech/tzgo/tezos"
@@ -61,7 +62,7 @@ type DalAttestationByLag struct {
 // at id. RPC introduced in v025 (Ushuaia).
 func (c *Client) DecodeDalAttestation(ctx context.Context, id BlockID, bitset string) ([]DalAttestationByLag, error) {
 	var res []DalAttestationByLag
-	u := fmt.Sprintf("chains/main/blocks/%s/helpers/decode_dal_attestation/%s", id, bitset)
+	u := fmt.Sprintf("chains/main/blocks/%s/helpers/decode_dal_attestation/%s", id, url.PathEscape(bitset))
 	if err := c.Get(ctx, u, &res); err != nil {
 		return nil, err
 	}
@@ -165,6 +166,31 @@ func (c *Client) GetStezExchangeRate(ctx context.Context, id BlockID) (*StezExch
 	u := fmt.Sprintf("chains/main/blocks/%s/context/stez/exchange_rate", id)
 	if err := c.Get(ctx, u, &res); err != nil {
 		return nil, err
+	}
+	return res, nil
+}
+
+// GetDelegateStezStakingPower returns the current staking power from sTEZ
+// allocated to the given delegate. This is the public read path for sTEZ stake
+// allocations; the related stez_frozen field added to the protocol's internal
+// staking-balance representation in v025 is not exposed through any RPC
+// response schema. RPC introduced in v025 (Ushuaia).
+func (c *Client) GetDelegateStezStakingPower(ctx context.Context, id BlockID, addr tezos.Address) (tezos.Z, error) {
+	var res tezos.Z
+	u := fmt.Sprintf("chains/main/blocks/%s/context/delegates/%s/stez_staking_power", id, addr)
+	if err := c.Get(ctx, u, &res); err != nil {
+		return tezos.Z{}, err
+	}
+	return res, nil
+}
+
+// GetDelegateStezRegistered reports whether the given delegate is registered
+// with the sTEZ contract. RPC introduced in v025 (Ushuaia).
+func (c *Client) GetDelegateStezRegistered(ctx context.Context, id BlockID, addr tezos.Address) (bool, error) {
+	var res bool
+	u := fmt.Sprintf("chains/main/blocks/%s/context/delegates/%s/stez_registered", id, addr)
+	if err := c.Get(ctx, u, &res); err != nil {
+		return false, err
 	}
 	return res, nil
 }

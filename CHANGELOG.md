@@ -11,6 +11,10 @@
 * `GetSwrrSelectedBakers` - SWRR-selected bakers for a cycle's round 0; returns nil when the `swrr_new_baker_lottery_enable` flag is disabled
 * `GetSwrrCredits` - current SWRR credits per active delegate; returns nil when the feature flag is disabled
 * `GetStezTotalSupply`, `GetStezTotalAmountOfTez`, `GetStezExchangeRate` - enshrined liquid staking (sTEZ) context queries
+* `GetDelegateStezStakingPower`, `GetDelegateStezRegistered` - per-delegate sTEZ staking power and registration status (the public read path for sTEZ stake allocations; the protocol-internal `stez_frozen` staking-balance field is not exposed via any RPC schema)
+
+#### Modified Behavior
+* `GetContractScript` / `GetNormalizedScript` - since v025 native contracts (e.g. sTEZ) return a synthesized Michelson script (real entrypoints and view types, placeholder bodies) instead of an empty response; documented and covered by a decode test
 
 
 #### Protocol Registration

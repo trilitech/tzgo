@@ -24,7 +24,7 @@ func newJSONServer(t *testing.T, routes map[string]string) *httptest.Server {
 			if strings.Contains(r.URL.Path, suffix) {
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(body))
+				_, _ = w.Write([]byte(body))
 				return
 			}
 		}
@@ -94,10 +94,12 @@ func TestGetSwrrCredits(t *testing.T) {
 // TestGetSwrrCreditsNonActivated verifies that a non_activated_feature RPC error
 // is mapped to (nil, nil) so callers can treat a disabled feature flag gracefully.
 func TestGetSwrrCreditsNonActivated(t *testing.T) {
+	// full Octez error envelope shape: kind/id plus extra fields that must be
+	// tolerated by the error decoder
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`[{"kind":"permanent","id":"proto.025-PsUshuai.non_activated_feature"}]`))
+		_, _ = w.Write([]byte(`[{"kind":"permanent","id":"proto.025-PsUshuai.non_activated_feature","msg":"Feature swrr_new_baker_lottery is not yet activated","location":"swrr_selected_bakers"}]`))
 	}))
 	defer server.Close()
 
@@ -131,4 +133,53 @@ func TestGetStezSupplyAndRate(t *testing.T) {
 	assert.NotNil(t, rate)
 	assert.Equal(t, int64(654321), rate.Numerator.Int64())
 	assert.Equal(t, int64(123456), rate.Denominator.Int64())
+}
+
+func TestGetDelegateStez(t *testing.T) {
+	server := newJSONServer(t, map[string]string{
+		"/stez_staking_power": `"5000000"`,
+		"/stez_registered":    `true`,
+	})
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+	id := tezos.MustParseBlockHash(v025TestBlock)
+	baker := tezos.MustParseAddress("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx")
+
+	power, err := c.GetDelegateStezStakingPower(context.TODO(), id, baker)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(5000000), power.Int64())
+
+	registered, err := c.GetDelegateStezRegistered(context.TODO(), id, baker)
+	assert.NoError(t, err)
+	assert.True(t, registered)
+}
+
+// TestGetContractScriptSynthesized verifies that the synthesized Michelson
+// script returned for native contracts since v025 (Ushuaia) decodes through
+// the existing GetContractScript path like any regular contract script.
+func TestGetContractScriptSynthesized(t *testing.T) {
+	// minimal synthesized-script shape: parameter/storage/code sections with
+	// placeholder bodies, as produced for native contracts (e.g. sTEZ)
+	script := `{
+		"script": {
+			"code": [
+				{"prim": "parameter", "args": [{"prim": "or", "args": [{"prim": "unit", "annots": ["%approve"]}, {"prim": "unit", "annots": ["%transfer"]}]}]},
+				{"prim": "storage", "args": [{"prim": "unit"}]},
+				{"prim": "code", "args": [[{"prim": "FAILWITH"}]]}
+			],
+			"storage": {"prim": "Unit"}
+		}
+	}`
+	server := newJSONServer(t, map[string]string{"/context/contracts/": script})
+	defer server.Close()
+
+	c, _ := NewClient(server.URL, nil)
+	s, err := c.GetContractScript(context.TODO(), tezos.MustParseAddress("KT1GyeRktoGPEKsWpchWguyy8FAf3aNHkw2T"))
+	assert.NoError(t, err)
+	assert.NotNil(t, s)
+	eps, err := s.Entrypoints(false)
+	assert.NoError(t, err)
+	assert.Contains(t, eps, "approve")
+	assert.Contains(t, eps, "transfer")
 }
