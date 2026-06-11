@@ -25,7 +25,7 @@ type TransferTicket struct {
 func (t TransferTicket) Costs() tezos.Costs {
 	res := t.Metadata.Result
 	cost := tezos.Costs{
-		Fee:     t.Manager.Fee,
+		Fee:     t.Fee,
 		GasUsed: res.Gas(),
 	}
 	if !t.Result().IsSuccess() {

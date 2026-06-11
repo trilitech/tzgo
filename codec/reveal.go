@@ -29,7 +29,7 @@ func (o Reveal) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"public_key":`)
 	buf.WriteString(strconv.Quote(o.PublicKey.String()))
 	if o.PublicKey.Type == tezos.KeyTypeBls12_381 && o.Proof.Data != nil {

@@ -32,7 +32,7 @@ func (o SmartRollupOriginate) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"pvm_kind":`)
 	buf.WriteString(strconv.Quote(o.Pvm.String()))
 	buf.WriteString(`,"kernel":`)
@@ -66,7 +66,7 @@ func (o *SmartRollupOriginate) DecodeBuffer(buf *bytes.Buffer, p *tezos.Params) 
 	if b, err = readByte(buf.Next(1)); err != nil {
 		return
 	} else if typ := tezos.PvmKind(b); !typ.IsValid() {
-		err = fmt.Errorf("Unsupported PVM type %d", b)
+		err = fmt.Errorf("unsupported PVM type %d", b)
 		return
 	} else {
 		o.Pvm = typ

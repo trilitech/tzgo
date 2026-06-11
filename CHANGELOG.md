@@ -4,12 +4,20 @@
 
 ### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
 
+
 #### New RPC Handlers
 * `GetDalPastParameters` - returns the DAL parameters active at a given level
 * `DecodeDalAttestation` / `EncodeDalAttestation` - decode a DAL attestation bitset into attested slots per lag, and encode the inverse
 * `GetSwrrSelectedBakers` - SWRR-selected bakers for a cycle's round 0; returns nil when the `swrr_new_baker_lottery_enable` flag is disabled
 * `GetSwrrCredits` - current SWRR credits per active delegate; returns nil when the feature flag is disabled
 * `GetStezTotalSupply`, `GetStezTotalAmountOfTez`, `GetStezExchangeRate` - enshrined liquid staking (sTEZ) context queries
+
+
+#### Protocol Registration
+* Registered protocol `ProtoV025` (`PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY`) with alias `PsUshuai`; bumped `ProtoAlpha` to version 26 so it no longer collides with the v025 slot
+* Fixed `WithProtocol` to assign `OperationTagsVersion = 4` for protocols v023+ (was capped at 3); tag encoding is unchanged (v2+ tag table)
+* Deployment rows and `DefaultParams`/`GhostnetParams`/`ShadownetParams` repointing deferred until activation heights are published
+
 
 ## v1.24.0
 
