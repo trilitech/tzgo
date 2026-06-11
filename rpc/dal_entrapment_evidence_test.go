@@ -167,4 +167,71 @@ func TestParseDalEntrapmentEvidence(t *testing.T) {
 	assert.Equal(t, "69494c5d6a472b7ad772a5ffb816530c02ef84ca4695ee59fb77ab7d53daa05d", stringShard[0])
 	assert.Equal(t, "1dc980199e4e1f73c9776ff357123107d513e044d765ef4a47567f3013595603", stringShard[63])
 	assert.Equal(t, "sh1whSSiBcztN8LCEvjebGwVfCyueMdkAe8ZFtZDF4A9nwF5AznfCwEZuComZtsodbkAsdBGkz", ops[0].ShardWithProof.Proof)
+	// pre-v025 evidence has no lag_index
+	assert.Nil(t, ops[0].LagIndex)
+}
+
+// TestDalEntrapmentEvidenceLagIndex verifies the optional v025 lag_index field
+// decodes when present and stays nil when absent.
+func TestDalEntrapmentEvidenceLagIndex(t *testing.T) {
+	withLag := `{
+		"kind": "dal_entrapment_evidence",
+		"attestation": {
+			"branch": "BMLJapq1nxNo67Cak9nyU9p6EZ8DGK5NFjc4nVQYXwhHdmapAz7",
+			"operations": {"kind": "attestation_with_dal", "slot": 6, "level": 13151123, "round": 0, "block_payload_hash": "vh1he5NXZcwZmGe3cGdepQU83C6Qky7m1tWJsShNnjT7amg8X7Jy", "dal_attestation": "42"},
+			"signature": "sigrP9miXpMmFZpn8TbAy1j8RPFTvrzLHDE6ZtrFCQ4q7E1dzRomHXxca8SAtXtdj95s5CcZhMvm1nYQBQgcAxu7JGgiof5N"
+		},
+		"consensus_slot": 6,
+		"slot_index": 15,
+		"lag_index": 3,
+		"shard_with_proof": {"shard": [403], "proof": "sh1whSSiBcztN8LCEvjebGwVfCyueMdkAe8ZFtZDF4A9nwF5AznfCwEZuComZtsodbkAsdBGkz"}
+	}`
+
+	var op DalEntrapmentEvidence
+	if err := json.Unmarshal([]byte(withLag), &op); err != nil {
+		t.Fatalf("unmarshal with lag_index: %v", err)
+	}
+	if assert.NotNil(t, op.LagIndex) {
+		assert.Equal(t, uint8(3), *op.LagIndex)
+	}
+
+	withoutLag := `{"kind": "dal_entrapment_evidence", "consensus_slot": 6, "slot_index": 15, "shard_with_proof": {"shard": [403], "proof": "x"}}`
+	var op2 DalEntrapmentEvidence
+	if err := json.Unmarshal([]byte(withoutLag), &op2); err != nil {
+		t.Fatalf("unmarshal without lag_index: %v", err)
+	}
+	assert.Nil(t, op2.LagIndex)
+}
+
+// TestDalEntrapmentEvidenceLagIndexMarshal locks the omitempty contract for the
+// pointer field: nil omits the key entirely, while a present zero value emits
+// "lag_index":0 and survives a marshal/unmarshal round trip distinct from nil.
+func TestDalEntrapmentEvidenceLagIndexMarshal(t *testing.T) {
+	// nil pointer: key must be absent
+	var op DalEntrapmentEvidence
+	op.OpKind = tezos.OpTypeDalEntrapmentEvidence
+	buf, err := json.Marshal(op)
+	if err != nil {
+		t.Fatalf("marshal without lag_index: %v", err)
+	}
+	assert.NotContains(t, string(buf), "lag_index")
+
+	// pointer to zero: key must be present with value 0 (distinct from nil)
+	zero := uint8(0)
+	op.LagIndex = &zero
+	buf, err = json.Marshal(op)
+	if err != nil {
+		t.Fatalf("marshal with zero lag_index: %v", err)
+	}
+	assert.Contains(t, string(buf), `"lag_index":0`)
+
+	// decode of an explicit zero from node JSON is non-nil: the round trip of
+	// a present zero value is preserved and stays distinct from nil
+	var op3 DalEntrapmentEvidence
+	if err := json.Unmarshal([]byte(`{"kind": "dal_entrapment_evidence", "lag_index": 0}`), &op3); err != nil {
+		t.Fatalf("unmarshal explicit zero lag_index: %v", err)
+	}
+	if assert.NotNil(t, op3.LagIndex) {
+		assert.Equal(t, uint8(0), *op3.LagIndex)
+	}
 }
