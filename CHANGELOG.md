@@ -5,9 +5,9 @@
 ### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
 
 
-#### DAL Changes (BREAKING)
+#### DAL Changes (BREAKING, see [Ushuaia "Breaking Changes"](https://octez.tezos.com/docs/protocols/025_u025.html#breaking-changes))
 * `DalEntrapmentEvidence` - added optional `LagIndex` (`lag_index`) field for the new dynamic attestation lag; nil for pre-v025 blocks
-* `Endorsement.DalAttestation` / `Committee.DalAttestation` - documented the BREAKING change to DAL attestation bitset semantics in v025 (baker-attested vs protocol-attested slots, multi-lag layout). The value still decodes as a `Z`; only bit-level interpretation changed
+* `Endorsement.DalAttestation` / `Committee.DalAttestation` - documented the BREAKING change to DAL attestation bitset semantics in v025 (baker-attested vs protocol-attested slots, multi-lag layout). The value still decodes as a `Z`; only bit-level interpretation changed. Use the node's `decode_dal_attestation`/`encode_dal_attestation` helper RPCs to interpret v025+ bitsets
 
 #### Protocol Registration
 * Registered protocol `ProtoV025` (`PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY`) with alias `PsUshuai`; bumped `ProtoAlpha` to version 26 so it no longer collides with the v025 slot
