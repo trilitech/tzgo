@@ -44,3 +44,39 @@ func TestTransactionWithTz5Destination(t *testing.T) {
 		t.Errorf("binary round-trip mismatch:\n enc=%x\n got=%x", enc, buf2.Bytes())
 	}
 }
+
+// TestTransactionWithTz5Source verifies the source side of FR-005: a tz5
+// address in the Manager.Source field round-trips through binary
+// encode/decode. Source-side signing needs ML-DSA keys (out of scope), but
+// the address field encoding itself is key-independent.
+func TestTransactionWithTz5Source(t *testing.T) {
+	src := tezos.MustParseAddress("tz5VWE3unqGsLVrYhxCGBxiVVYXDjHHbmbTY")
+	dst := tezos.MustParseAddress("tz1LggX2HUdvJ1tF4Fvv8fjsrzLeW4Jr9t2Q")
+	tx := &Transaction{
+		Manager:     Manager{Source: src},
+		Destination: dst,
+		Amount:      tezos.N(1000),
+	}
+
+	buf := bytes.NewBuffer(nil)
+	if err := tx.EncodeBuffer(buf, tezos.DefaultParams); err != nil {
+		t.Fatalf("encode tx with tz5 source: %v", err)
+	}
+	enc := append([]byte(nil), buf.Bytes()...)
+
+	tx2 := &Transaction{}
+	if err := tx2.DecodeBuffer(bytes.NewBuffer(enc), tezos.DefaultParams); err != nil {
+		t.Fatalf("decode tx with tz5 source: %v", err)
+	}
+	if got, want := tx2.Source.String(), src.String(); got != want {
+		t.Errorf("source = %s, want %s", got, want)
+	}
+
+	buf2 := bytes.NewBuffer(nil)
+	if err := tx2.EncodeBuffer(buf2, tezos.DefaultParams); err != nil {
+		t.Fatalf("re-encode: %v", err)
+	}
+	if !bytes.Equal(enc, buf2.Bytes()) {
+		t.Errorf("binary round-trip mismatch:\n enc=%x\n got=%x", enc, buf2.Bytes())
+	}
+}

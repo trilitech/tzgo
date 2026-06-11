@@ -86,7 +86,8 @@ const (
 	SMART_ROLLUP_COMMITMENT_HASH_PREFIX       = "src1"
 	SMART_ROLLUP_REVEAL_HASH_PREFIX           = "scrrh1"
 
-	// base58 prefix for ML-DSA-44 magics (v025 Ushuaia, PKH only)
+	// MLDSA44_PUBLIC_KEY_HASH_PREFIX is the base58 prefix of ML-DSA-44
+	// public key hashes (v025 Ushuaia, PKH only).
 	MLDSA44_PUBLIC_KEY_HASH_PREFIX = "tz5"
 )
 
@@ -171,6 +172,7 @@ var (
 	SMART_ROLLUP_COMMITMENT_HASH_ID       = []byte{17, 165, 134, 138}       // "\017\165\134\138" (* src1(54) *)
 	SMART_ROLLUP_REVEAL_HASH_ID           = []byte{230, 206, 128, 200, 196} // "\230\206\128\200\196" scrrh1(56)
 
-	// ML-DSA-44 hash magics (v025 Ushuaia, PKH only)
+	// MLDSA44_PUBLIC_KEY_HASH_ID is the base58 version prefix of ML-DSA-44
+	// public key hashes (v025 Ushuaia, PKH only).
 	MLDSA44_PUBLIC_KEY_HASH_ID = []byte{6, 161, 169} // "\006\161\169" tz5(36) 20
 )

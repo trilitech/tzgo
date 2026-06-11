@@ -49,7 +49,10 @@ const (
 	// KeyTypeMlDsa44 identifies ML-DSA-44 (post-quantum) accounts introduced in
 	// v025 (Ushuaia). Only the address (tz5 PKH) side is supported; ML-DSA key
 	// material and signatures are not implemented yet, so all key operations on
-	// this type return invalid/unsupported results.
+	// this type return invalid/unsupported results (explicit per-switch cases
+	// below). Note: inserting this constant shifted KeyTypeInvalid's numeric
+	// value from 4 to 5; this is a Go-API-only change — wire encodings always
+	// go through Tag()/ParseKeyTag and are unaffected.
 	KeyTypeMlDsa44
 	KeyTypeInvalid
 )
@@ -68,6 +71,9 @@ func (t KeyType) Curve() elliptic.Curve {
 		return secp256k1.S256()
 	case KeyTypeP256:
 		return elliptic.P256()
+	case KeyTypeMlDsa44:
+		// PKH-only: ML-DSA-44 is not an elliptic curve scheme
+		return nil
 	default:
 		return nil
 	}
@@ -83,6 +89,9 @@ func (t KeyType) PkHashType() HashType {
 		return HashTypePkP256
 	case KeyTypeBls12_381:
 		return HashTypePkBls12_381
+	case KeyTypeMlDsa44:
+		// PKH-only: ML-DSA key material is not supported yet
+		return HashTypeInvalid
 	default:
 		return HashTypeInvalid
 	}
@@ -98,6 +107,9 @@ func (t KeyType) SkHashType() HashType {
 		return HashTypeSkP256
 	case KeyTypeBls12_381:
 		return HashTypeSkBls12_381
+	case KeyTypeMlDsa44:
+		// PKH-only: ML-DSA key material is not supported yet
+		return HashTypeInvalid
 	default:
 		return HashTypeInvalid
 	}
@@ -130,6 +142,9 @@ func (t KeyType) PkPrefixBytes() []byte {
 		return P256_PUBLIC_KEY_ID
 	case KeyTypeBls12_381:
 		return BLS12_381_PUBLIC_KEY_ID
+	case KeyTypeMlDsa44:
+		// PKH-only: mdpk parsing is not supported yet
+		return nil
 	default:
 		return nil
 	}
@@ -145,6 +160,9 @@ func (t KeyType) PkPrefix() string {
 		return P256_PUBLIC_KEY_PREFIX
 	case KeyTypeBls12_381:
 		return BLS12_381_PUBLIC_KEY_PREFIX
+	case KeyTypeMlDsa44:
+		// PKH-only: mdpk parsing is not supported yet
+		return ""
 	default:
 		return ""
 	}
@@ -160,6 +178,9 @@ func (t KeyType) SkPrefixBytes() []byte {
 		return P256_SECRET_KEY_ID
 	case KeyTypeBls12_381:
 		return BLS12_381_SECRET_KEY_ID
+	case KeyTypeMlDsa44:
+		// PKH-only: mdsk parsing is not supported yet
+		return nil
 	default:
 		return nil
 	}
@@ -175,6 +196,9 @@ func (t KeyType) SkePrefixBytes() []byte {
 		return P256_ENCRYPTED_SECRET_KEY_ID
 	case KeyTypeBls12_381:
 		return BLS12_381_SECRET_KEY_ID
+	case KeyTypeMlDsa44:
+		// PKH-only: mdesk parsing is not supported yet
+		return nil
 	default:
 		return nil
 	}
@@ -190,6 +214,9 @@ func (t KeyType) SkPrefix() string {
 		return P256_SECRET_KEY_PREFIX
 	case KeyTypeBls12_381:
 		return BLS12_381_SECRET_KEY_PREFIX
+	case KeyTypeMlDsa44:
+		// PKH-only: mdsk parsing is not supported yet
+		return ""
 	default:
 		return ""
 	}
@@ -205,6 +232,9 @@ func (t KeyType) SkePrefix() string {
 		return P256_ENCRYPTED_SECRET_KEY_PREFIX
 	case KeyTypeBls12_381:
 		return BLS12_381_ENCRYPTED_SECRET_KEY_PREFIX
+	case KeyTypeMlDsa44:
+		// PKH-only: mdesk parsing is not supported yet
+		return ""
 	default:
 		return ""
 	}
@@ -220,11 +250,21 @@ func (t KeyType) Tag() byte {
 		return 2
 	case KeyTypeBls12_381:
 		return 3
+	case KeyTypeMlDsa44:
+		// The on-wire public key tag for ML-DSA-44 is 4 (signature_v3), but
+		// it is intentionally unmapped while key material is unsupported so
+		// an accidental encode produces a visibly invalid tag instead of a
+		// well-formed blob with arbitrary data. Map this when Signature V3
+		// support lands.
+		return 255
 	default:
 		return 255
 	}
 }
 
+// ParseKeyTag maps a binary public key tag to its KeyType. Tag 4 (ML-DSA-44,
+// v025 Ushuaia) is intentionally unmapped while key material is unsupported;
+// binary key decoders return an explicit unsupported error for it.
 func ParseKeyTag(b byte) KeyType {
 	switch b {
 	case 0:
@@ -426,9 +466,13 @@ func (k *Key) UnmarshalBinary(b []byte) error {
 		k.Type = KeyTypeInvalid
 		return nil
 	}
-	// check data size
+	// check data size; tz1/tz2/tz3 keys are 32-33 bytes, tz4 (BLS) is 48;
+	// tz5 (ML-DSA-44) will be 1312 bytes when key support lands
 	if l < 33 {
 		return fmt.Errorf("tezos: invalid binary key length %d", l)
+	}
+	if b[0] == 4 {
+		return fmt.Errorf("tezos: unsupported binary key type 4 (ML-DSA-44 not implemented)")
 	}
 	if typ := ParseKeyTag(b[0]); !typ.IsValid() {
 		return fmt.Errorf("tezos: invalid binary key type %x", b[0])
@@ -450,10 +494,15 @@ func (k *Key) EncodeBuffer(buf *bytes.Buffer) error {
 }
 
 func (k *Key) DecodeBuffer(buf *bytes.Buffer) error {
+	// tz1/tz2/tz3 keys are 32-33 bytes, tz4 (BLS) is 48; tz5 (ML-DSA-44)
+	// will be 1312 bytes when key support lands
 	if l := buf.Len(); l < 33 {
 		return fmt.Errorf("tezos: invalid binary key length %d", l)
 	}
 	tag := buf.Next(1)[0]
+	if tag == 4 {
+		return fmt.Errorf("tezos: unsupported binary key type 4 (ML-DSA-44 not implemented)")
+	}
 	if typ := ParseKeyTag(tag); !typ.IsValid() {
 		return fmt.Errorf("tezos: invalid binary key type %x", tag)
 	} else {

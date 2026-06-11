@@ -10,9 +10,10 @@
 * Deployment rows and `DefaultParams`/`GhostnetParams`/`ShadownetParams` repointing deferred until activation heights are published
 
 #### tz5 Addresses (ML-DSA-44, PKH only)
-* Added `AddressTypeMlDsa44` (tz5): base58 parse/format, 21-byte tag-4 and 22-byte padded binary encode/decode, usable as transaction destination. tz5 addresses classify as EOAs via the new `KeyTypeMlDsa44`
-* ML-DSA-44 keys and signatures remain unsupported in this slice — decoding them still fails with explicit errors (Signature V3 support is a follow-up)
-* BREAKING: blinded (btz1) addresses no longer alias internal binary tag 4, which belongs to tz5 on-chain since v025; blinded addresses never legitimately appear in tagged binary form
+* Added `AddressTypeMlDsa44` (tz5): base58 parse/format, 21-byte tag-4 and 22-byte padded binary encode/decode, usable as transaction source and destination. tz5 addresses classify as EOAs via the new `KeyTypeMlDsa44`. Note: tz5 accounts are gated on-chain by the `tz5_account_enable` feature flag (off on mainnet at v025 activation); the SDK recognizes the address type unconditionally
+* ML-DSA-44 keys and signatures remain unsupported in this slice — binary key tag 4 now fails with an explicit "ML-DSA-44 not implemented" error instead of a generic unknown-type error (Signature V3 support is a follow-up)
+* BREAKING: blinded (btz1) addresses no longer alias internal binary tag 4, which belongs to tz5 on-chain since v025; `AddressTypeBlinded.Tag()` now returns 255 (was 4), so binary-encoding a blinded address produces a visibly invalid tag instead of aliasing to tz5. Blinded addresses never legitimately appear in tagged binary form; text (btz1) parsing is unchanged
+* `KeyTypeInvalid`'s numeric value shifted from 4 to 5 (Go API only; wire encodings go through `Tag()`/`ParseKeyTag` and are unaffected)
 
 ## v1.24.0
 

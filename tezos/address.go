@@ -59,7 +59,13 @@ const (
 	AddressTypeBls12_381                      // 6
 	AddressTypeTxRollup                       // 7
 	AddressTypeSmartRollup                    // 8
-	AddressTypeMlDsa44                        // 9, tz5 (v025 Ushuaia)
+	// AddressTypeMlDsa44 is the tz5 ML-DSA-44 (post-quantum) account type
+	// introduced in protocol v025 (Ushuaia). PKH-only: key material and
+	// signatures are not implemented. tz5 accounts are gated on-chain by the
+	// tz5_account_enable feature flag (off on mainnet at activation); the SDK
+	// recognizes the address type unconditionally because the same code path
+	// decodes data from networks where the flag is enabled.
+	AddressTypeMlDsa44 // 9, tz5 (v025 Ushuaia)
 )
 
 var (

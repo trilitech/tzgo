@@ -100,7 +100,8 @@ var (
 	HashTypeSmartRollupCommitHash     = HashType{SMART_ROLLUP_COMMITMENT_HASH_ID, 32, SMART_ROLLUP_COMMITMENT_HASH_PREFIX, 54}
 	HashTypeSmartRollupRevealHash     = HashType{SMART_ROLLUP_REVEAL_HASH_ID, 32, SMART_ROLLUP_REVEAL_HASH_PREFIX, 56}
 
-	// v025 Ushuaia, ML-DSA-44 (PKH only)
+	// HashTypePkhMlDsa44 is the tz5 public key hash type for ML-DSA-44
+	// accounts (v025 Ushuaia, PKH only): 20-byte hash, 36-char base58.
 	HashTypePkhMlDsa44 = HashType{MLDSA44_PUBLIC_KEY_HASH_ID, 20, MLDSA44_PUBLIC_KEY_HASH_PREFIX, 36}
 )
 

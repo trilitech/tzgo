@@ -6,6 +6,7 @@ package tezos
 import (
 	"bytes"
 	"encoding/hex"
+	"strings"
 	"testing"
 )
 
@@ -257,6 +258,22 @@ func TestMlDsa44Address(t *testing.T) {
 	if DetectAddressType("tz5VWE3unqGsLVrYhxCGBxiVVYXDjHHbmbTY") != AddressTypeMlDsa44 {
 		t.Errorf("DetectAddressType must recognize tz5")
 	}
+
+	// malformed inputs must fail explicitly
+	if _, err := ParseAddress("tz5VWE3unqGsLVrYhxCGBxiVVYXDjHHbmbTZ"); err == nil {
+		t.Errorf("expected checksum error on corrupted tz5 string")
+	}
+	if _, err := ParseAddress("tz5VWE3unq"); err == nil {
+		t.Errorf("expected error on truncated tz5 string")
+	}
+
+	// binary ML-DSA public keys (tag 4) remain unsupported with an explicit error
+	var k Key
+	buf := append([]byte{4}, make([]byte, 32)...)
+	err = k.UnmarshalBinary(buf)
+	if err == nil || !strings.Contains(err.Error(), "ML-DSA-44") {
+		t.Errorf("binary key tag 4 must fail with explicit unsupported error, got %v", err)
+	}
 }
 
 // TestBlindedAddressNoBinaryTag verifies that blinded (btz1) addresses no longer
@@ -269,6 +286,11 @@ func TestBlindedAddressNoBinaryTag(t *testing.T) {
 	}
 	if got, want := a.Type(), AddressTypeBlinded; got != want {
 		t.Fatalf("type = %v, want %v", got, want)
+	}
+	// hash check preserved from the former TestAddress table entry; only the
+	// binary tag round-trip is intentionally no longer supported since v025
+	if want := MustDecodeString("000b80d92ce17aa6070fde1a99288a4213a5b650"); !bytes.Equal(a[1:], want) {
+		t.Errorf("hash = %x, want %x", a[1:], want)
 	}
 	if got, want := a.String(), "btz1LKs15uHQ4PgCoY3ZDq55CKJ5wDq9jQwfk"; got != want {
 		t.Errorf("text round-trip = %s, want %s", got, want)
