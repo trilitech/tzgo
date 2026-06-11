@@ -7,6 +7,12 @@
 #### Native Contracts / sTEZ (FA2.1)
 * Verified that the v025 enshrined liquid-staking (sTEZ) FA2.1 contract parameters decode through TzGo's generic Micheline layer; FA2.1 keeps the FA2/TZIP-12 `transfer` type unchanged, so no SDK-specific decoder is required. Added `TestFA21TransferRoundTrip` as the regression test backing this conclusion. Contract events and addresses remain handled generically (no known-contract table entry needed).
 
+
+#### Protocol Registration
+* Registered protocol `ProtoV025` (`PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY`) with alias `PsUshuai`; bumped `ProtoAlpha` to version 26 so it no longer collides with the v025 slot
+* Fixed `WithProtocol` to assign `OperationTagsVersion = 4` for protocols v023+ (was capped at 3); tag encoding is unchanged (v2+ tag table)
+* Deployment rows and `DefaultParams`/`GhostnetParams`/`ShadownetParams` repointing deferred until activation heights are published
+
 ## v1.24.0
 
 ### [Tallinn Protocol](https://octez.tezos.com/docs/protocols/024_tallinn.html) Support 

@@ -33,7 +33,7 @@ var (
 	InvalidPrim = Prim{}
 	EmptyPrim   = Prim{Type: PrimNullary, OpCode: 255}
 
-	PrimSkip        = errors.New("skip branch")
+	ErrPrimSkip     = errors.New("skip branch")
 	ErrTypeMismatch = errors.New("type mismatch")
 )
 
@@ -325,7 +325,7 @@ type PrimWalkerFunc func(p Prim) error
 // value copies to the callback.
 func (p Prim) Walk(f PrimWalkerFunc) error {
 	if err := f(p); err != nil {
-		if err == PrimSkip {
+		if err == ErrPrimSkip {
 			return nil
 		}
 		return err
@@ -347,7 +347,7 @@ type PrimVisitorFunc func(p *Prim) error
 // alter the contents of a visited node.
 func (p *Prim) Visit(f PrimVisitorFunc) error {
 	if err := f(p); err != nil {
-		if err == PrimSkip {
+		if err == ErrPrimSkip {
 			return nil
 		}
 		return err
@@ -979,9 +979,10 @@ func (p Prim) Value(as OpCode) interface{} {
 	default:
 		switch as {
 		case T_BOOL:
-			if p.OpCode == D_TRUE {
+			switch p.OpCode {
+			case D_TRUE:
 				return true
-			} else if p.OpCode == D_FALSE {
+			case D_FALSE:
 				return false
 			}
 		case T_LAMBDA:

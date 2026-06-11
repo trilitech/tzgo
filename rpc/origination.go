@@ -34,7 +34,7 @@ func (o Origination) ManagerAddress() tezos.Address {
 func (o Origination) Costs() tezos.Costs {
 	res := o.Metadata.Result
 	cost := tezos.Costs{
-		Fee:         o.Manager.Fee,
+		Fee:         o.Fee,
 		GasUsed:     res.Gas(),
 		StorageUsed: res.PaidStorageSizeDiff,
 	}

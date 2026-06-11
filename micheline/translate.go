@@ -346,7 +346,7 @@ func walkTree(m map[string]interface{}, label string, typ Type, stack *Stack, lv
 		mm := make(map[string]interface{})
 		switch val.OpCode {
 		case D_LEFT:
-			if !(haveTypeLabel || haveKeyLabel) {
+			if !haveTypeLabel && !haveKeyLabel {
 				mmm := make(map[string]interface{})
 				if err := walkTree(mmm, EMPTY_LABEL, Type{typ.Args[0]}, NewStack(val.Args[0]), lvl+1); err != nil {
 					return err
@@ -370,7 +370,7 @@ func walkTree(m map[string]interface{}, label string, typ Type, stack *Stack, lv
 				}
 			}
 		case D_RIGHT:
-			if !(haveTypeLabel || haveKeyLabel) {
+			if !haveTypeLabel && !haveKeyLabel {
 				mmm := make(map[string]interface{})
 				if err := walkTree(mmm, EMPTY_LABEL, Type{typ.Args[1]}, NewStack(val.Args[0]), lvl+1); err != nil {
 					return err

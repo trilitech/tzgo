@@ -172,7 +172,7 @@ func (p Prim) GetIndexExt(index []int, typ OpCode) (Prim, error) {
 //	Field string  `prim:"-"`
 func (p Prim) Decode(v interface{}) error {
 	val := reflect.ValueOf(v)
-	if val.Kind() != reflect.Ptr {
+	if val.Kind() != reflect.Pointer {
 		return fmt.Errorf("micheline: non-pointer passed to Decode: %s %s", val.Kind(), val.Type().String())
 	}
 	val = reflect.Indirect(val)
@@ -205,7 +205,7 @@ func (p Prim) unmarshal(val reflect.Value) error {
 		if !dst.IsValid() {
 			continue
 		}
-		if dst.Kind() == reflect.Ptr {
+		if dst.Kind() == reflect.Pointer {
 			if dst.IsNil() && dst.CanSet() {
 				dst.Set(reflect.New(dst.Type()))
 			}
@@ -369,7 +369,7 @@ func (p Prim) unmarshal(val reflect.Value) error {
 			}
 			for idx, ppp := range pp.Args {
 				sval := reflect.New(styp.Elem())
-				if sval.Type().Kind() == reflect.Ptr && sval.IsNil() && sval.CanSet() {
+				if sval.Type().Kind() == reflect.Pointer && sval.IsNil() && sval.CanSet() {
 					sval.Set(reflect.New(sval.Type().Elem()))
 				}
 				// decode from value prim
@@ -407,7 +407,7 @@ func (p Prim) unmarshal(val reflect.Value) error {
 
 				// allocate value
 				mval := reflect.New(mtyp.Elem()).Elem()
-				if mval.Type().Kind() == reflect.Ptr && mval.IsNil() && mval.CanSet() {
+				if mval.Type().Kind() == reflect.Pointer && mval.IsNil() && mval.CanSet() {
 					mval.Set(reflect.New(mval.Type().Elem()))
 				}
 

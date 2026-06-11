@@ -22,7 +22,7 @@ func (c ConstantRegistration) Costs() tezos.Costs {
 	res := c.Metadata.Result
 	burn := res.BalanceUpdates[0].Amount()
 	return tezos.Costs{
-		Fee:         c.Manager.Fee,
+		Fee:         c.Fee,
 		GasUsed:     res.Gas(),
 		Burn:        -burn,
 		StorageUsed: res.StorageSize,
