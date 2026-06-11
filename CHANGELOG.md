@@ -5,6 +5,17 @@
 ### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
 
 
+#### New RPC Handlers
+* `GetDalPastParameters` - returns the DAL parameters active at a given level
+* `DecodeDalAttestation` / `EncodeDalAttestation` - decode a DAL attestation bitset into attested slots per lag, and encode the inverse
+* `GetSwrrSelectedBakers` - SWRR-selected bakers for a cycle's round 0; returns nil when the `swrr_new_baker_lottery_enable` flag is disabled
+* `GetSwrrCredits` - current SWRR credits per active delegate; returns nil when the feature flag is disabled
+* `GetStezTotalSupply`, `GetStezTotalAmountOfTez`, `GetStezExchangeRate` - enshrined liquid staking (sTEZ) context queries
+* `GetDelegateStezStakingPower`, `GetDelegateStezRegistered` - per-delegate sTEZ staking power and registration status (the public read path for sTEZ stake allocations; the protocol-internal `stez_frozen` staking-balance field is not exposed via any RPC schema)
+
+#### Modified Behavior
+* `GetContractScript` / `GetNormalizedScript` - since v025 native contracts (e.g. sTEZ) return a synthesized Michelson script (real entrypoints and view types, placeholder bodies) instead of an empty response; documented and covered by a decode test
+
 #### Protocol Constants
 * `Constants` - decode the `dal_parametric` block into a new `DalParametric` struct (`number_of_slots` → 160, `slot_size` → 380832, `attestation_lag` → 5, and the new dynamic-lag list `attestation_lags`), plus the new top-level `cache_layout_size`
 * `tezos.Params` - added `DalNumberOfSlots`, `DalSlotSize`, `DalAttestationLag`, and `DalAttestationLags`; `MapToChainParams` now surfaces the DAL constants
