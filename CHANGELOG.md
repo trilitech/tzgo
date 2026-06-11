@@ -18,6 +18,7 @@
 #### Protocol Constants
 * `Constants` - decode the `dal_parametric` block into a new `DalParametric` struct (`number_of_slots` → 160, `slot_size` → 380832, `attestation_lag` → 5, and the new dynamic-lag list `attestation_lags`), plus the new top-level `cache_layout_size`
 * `tezos.Params` - added `DalNumberOfSlots`, `DalSlotSize`, `DalAttestationLag`, and `DalAttestationLags`; `MapToChainParams` now surfaces the DAL constants
+ 
 #### DAL Changes (BREAKING, see [Ushuaia "Breaking Changes"](https://octez.tezos.com/docs/protocols/025_u025.html#breaking-changes))
 * `DalEntrapmentEvidence` - added optional `LagIndex` (`lag_index`) field for the new dynamic attestation lag; nil for pre-v025 blocks
 * `Endorsement.DalAttestation` / `Committee.DalAttestation` - documented the BREAKING change to DAL attestation bitset semantics in v025 (baker-attested vs protocol-attested slots, multi-lag layout). The value still decodes as a `Z`; only bit-level interpretation changed. Use the node's `decode_dal_attestation`/`encode_dal_attestation` helper RPCs to interpret v025+ bitsets
@@ -26,6 +27,12 @@
 * Registered protocol `ProtoV025` (`PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY`) with alias `PsUshuai`; bumped `ProtoAlpha` to version 26 so it no longer collides with the v025 slot
 * Fixed `WithProtocol` to assign `OperationTagsVersion = 4` for protocols v023+ (was capped at 3); tag encoding is unchanged (v2+ tag table)
 * Deployment rows and `DefaultParams`/`GhostnetParams`/`ShadownetParams` repointing deferred until activation heights are published
+
+#### tz5 Addresses (ML-DSA-44, PKH only)
+* Added `AddressTypeMlDsa44` (tz5): base58 parse/format, 21-byte tag-4 and 22-byte padded binary encode/decode, usable as transaction source and destination. tz5 addresses classify as EOAs via the new `KeyTypeMlDsa44`. Note: tz5 accounts are gated on-chain by the `tz5_account_enable` feature flag (off on mainnet at v025 activation); the SDK recognizes the address type unconditionally
+* ML-DSA-44 keys and signatures remain unsupported in this slice — binary key tag 4 now fails with an explicit "ML-DSA-44 not implemented" error instead of a generic unknown-type error (Signature V3 support is a follow-up)
+* BREAKING: blinded (btz1) addresses no longer alias internal binary tag 4, which belongs to tz5 on-chain since v025; `AddressTypeBlinded.Tag()` now returns 255 (was 4), so binary-encoding a blinded address produces a visibly invalid tag instead of aliasing to tz5. Blinded addresses never legitimately appear in tagged binary form; text (btz1) parsing is unchanged
+* `KeyTypeInvalid`'s numeric value shifted from 4 to 5 (Go API only; wire encodings go through `Tag()`/`ParseKeyTag` and are unaffected)
 
 #### Native Contracts / sTEZ (FA2.1)
 * Verified that the v025 enshrined liquid-staking (sTEZ) FA2.1 contract parameters decode through TzGo's generic Micheline layer. The sTEZ `transfer` type (transcribed from the protocol source, `script_native_types.ml`) is the FA2/TZIP-12 type with the inner triple written as a right-comb tup3; tests decode both nested-pair and comb-pair value encodings into the existing FA2 helpers and assert structural type equivalence with `micheline.ITzip12`. No SDK-specific decoder is required. Note: no on-chain sTEZ values exist yet — the `stez` feature flag is disabled on all networks including ushuaianet — so the protocol source is the authoritative fixture until activation.
