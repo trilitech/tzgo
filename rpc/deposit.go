@@ -30,7 +30,7 @@ func (r SetDepositsLimit) Result() OperationResult {
 // Costs returns operation cost to implement TypedOperation interface.
 func (r SetDepositsLimit) Costs() tezos.Costs {
 	return tezos.Costs{
-		Fee:     r.Manager.Fee,
+		Fee:     r.Fee,
 		GasUsed: r.Metadata.Result.Gas(),
 	}
 }

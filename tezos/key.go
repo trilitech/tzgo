@@ -587,7 +587,7 @@ func (k PrivateKey) Public() Key {
 			pk.Type = KeyTypeInvalid
 			return pk
 		}
-		pk.Data = elliptic.MarshalCompressed(curve, ecKey.PublicKey.X, ecKey.PublicKey.Y)
+		pk.Data = elliptic.MarshalCompressed(curve, ecKey.X, ecKey.Y)
 	case KeyTypeBls12_381:
 		// TODO
 	}
@@ -647,7 +647,7 @@ func (k PrivateKey) Sign(hash []byte) (Signature, error) {
 // and expected to return the decoding passphrase.
 func ParseEncryptedPrivateKey(s string, fn PassphraseFunc) (k PrivateKey, err error) {
 	var (
-		prefixLen     int = 4
+		prefixLen     = 4
 		shouldDecrypt bool
 	)
 	if IsEncryptedKey(s) {

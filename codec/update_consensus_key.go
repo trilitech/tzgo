@@ -27,7 +27,7 @@ func (o UpdateConsensusKey) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"pk":`)
 	buf.WriteString(strconv.Quote(o.PublicKey.String()))
 	buf.WriteByte('}')

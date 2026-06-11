@@ -29,7 +29,7 @@ func (o Transaction) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"amount":`)
 	buf.WriteString(strconv.Quote(o.Amount.String()))
 	buf.WriteString(`,"destination":`)

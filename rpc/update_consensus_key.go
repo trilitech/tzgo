@@ -19,7 +19,7 @@ type UpdateConsensusKey struct {
 // Costs returns operation cost to implement TypedOperation interface.
 func (t UpdateConsensusKey) Costs() tezos.Costs {
 	return tezos.Costs{
-		Fee:     t.Manager.Fee,
+		Fee:     t.Fee,
 		GasUsed: t.Metadata.Result.Gas(),
 	}
 }

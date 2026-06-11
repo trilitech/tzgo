@@ -33,6 +33,7 @@ var (
 	ProtoV022      = MustParseProtocolHash("PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7")
 	ProtoV023      = MustParseProtocolHash("PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh")
 	ProtoV024      = MustParseProtocolHash("PtTALLiNtPec7mE7yY4m3k26J8Qukef3E3ehzhfXgFZKGtDdAXu")
+	ProtoV025      = MustParseProtocolHash("PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY")
 
 	// aliases
 	PtAthens  = ProtoV004
@@ -56,6 +57,7 @@ var (
 	PsRiotum  = ProtoV022
 	PtSeouLo  = ProtoV023
 	PtTallin  = ProtoV024
+	PsUshuai  = ProtoV025
 
 	Mainnet   = MustParseChainIdHash("NetXdQprcVkpaWU")
 	Ghostnet  = MustParseChainIdHash("NetXnHfVqm9iesp")
@@ -89,7 +91,8 @@ var (
 		ProtoV022:      22,
 		ProtoV023:      23,
 		ProtoV024:      24,
-		ProtoAlpha:     25,
+		ProtoV025:      25,
+		ProtoAlpha:     26,
 	}
 
 	Deployments = map[ChainIdHash]ProtocolHistory{

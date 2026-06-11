@@ -172,7 +172,7 @@ func TestDefaultParams(t *testing.T) {
 		if p.MaxOperationDataLength == 0 {
 			t.Errorf("%s params: zero MaxOperationDataLength", n)
 		}
-		if p.OperationTagsVersion < 0 || p.OperationTagsVersion > 3 {
+		if p.OperationTagsVersion < 0 || p.OperationTagsVersion > 4 {
 			t.Errorf("%s params: unknown OperationTagsVersion %d", n, p.OperationTagsVersion)
 		}
 		if p.StartHeight == 0 {

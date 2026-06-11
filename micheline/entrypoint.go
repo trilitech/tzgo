@@ -22,7 +22,7 @@ func (e Entrypoint) Type() Type {
 	}
 	typ := NewType(*e.Prim)
 	if !typ.HasLabel() {
-		typ.Prim.Anno = []string{"@" + e.Name}
+		typ.Anno = []string{"@" + e.Name}
 	}
 	return typ
 }
