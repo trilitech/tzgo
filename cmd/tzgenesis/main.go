@@ -38,7 +38,7 @@ func run() error {
 
 	ts, err := time.Parse(time.RFC3339, tm)
 	if err != nil {
-		return fmt.Errorf("Parsing timestamp %q: %v", tm, err)
+		return fmt.Errorf("parsing timestamp %q: %v", tm, err)
 	}
 
 	genesis := Genesis{

@@ -85,7 +85,7 @@ func getTypeInfo(typ reflect.Type) (*typeInfo, error) {
 		// For embedded structs, embed their fields.
 		if f.Anonymous {
 			t := f.Type
-			if t.Kind() == reflect.Ptr {
+			if t.Kind() == reflect.Pointer {
 				t = t.Elem()
 			}
 			if t.Kind() == reflect.Struct {
@@ -247,7 +247,7 @@ func (finfo *fieldInfo) value(v reflect.Value) reflect.Value {
 	for i, x := range finfo.idx {
 		if i > 0 {
 			t := v.Type()
-			if t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Struct {
+			if t.Kind() == reflect.Pointer && t.Elem().Kind() == reflect.Struct {
 				if v.IsNil() {
 					v.Set(reflect.New(v.Type().Elem()))
 				}
@@ -263,12 +263,12 @@ func (finfo *fieldInfo) value(v reflect.Value) reflect.Value {
 func derefValue(val reflect.Value) reflect.Value {
 	if val.Kind() == reflect.Interface && !val.IsNil() {
 		e := val.Elem()
-		if e.Kind() == reflect.Ptr && !e.IsNil() {
+		if e.Kind() == reflect.Pointer && !e.IsNil() {
 			val = e
 		}
 	}
 
-	if val.Kind() == reflect.Ptr {
+	if val.Kind() == reflect.Pointer {
 		if val.IsNil() {
 			val.Set(reflect.New(val.Type().Elem()))
 		}
@@ -278,7 +278,7 @@ func derefValue(val reflect.Value) reflect.Value {
 }
 
 func indirectType(typ reflect.Type) reflect.Type {
-	if typ.Kind() == reflect.Ptr {
+	if typ.Kind() == reflect.Pointer {
 		val := reflect.New(typ.Elem())
 		return val.Elem().Type()
 	}

@@ -403,7 +403,7 @@ func (op OpCode) MarshalText() ([]byte, error) {
 func ParseOpCode(str string) (OpCode, error) {
 	op, ok := stringToOp[str]
 	if !ok {
-		return 255, fmt.Errorf("Unknown michelson primitive %s", str)
+		return 255, fmt.Errorf("unknown michelson primitive %s", str)
 	}
 	return op, nil
 }

@@ -30,7 +30,7 @@ func (o SmartRollupTimeout) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"rollup":`)
 	buf.WriteString(strconv.Quote(o.Rollup.String()))
 	buf.WriteString(`,"stakers":{`)
