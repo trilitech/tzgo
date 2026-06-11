@@ -46,6 +46,47 @@ type Constants struct {
 	SmartRollupMaxLookaheadInBlocks     int64       `json:"smart_rollup_max_lookahead_in_blocks"`
 	SmartRollupTimeoutPeriodInBlocks    int64       `json:"smart_rollup_timeout_period_in_blocks"`
 	AllBakersAttestActivationThreshold  tezos.Ratio `json:"all_bakers_attest_activation_threshold"`
+
+	// Dal holds the data-availability-layer parameters nested under the
+	// dal_parametric key. Present since v019; the AttestationLags vector is
+	// new in v025 (Ushuaia, dynamic attestation lag). Zero-valued on chains
+	// that predate the DAL.
+	Dal DalParametric `json:"dal_parametric"`
+
+	// Ushuaia additions
+	// CacheLayoutSize is the number of protocol cache layouts (v025: raised
+	// from 3 to 5). Zero on pre-v025 chains where the key is absent. This is
+	// internal protocol caching configuration and is intentionally not mapped
+	// into tezos.Params; read it from Constants (or GetCustomConstants).
+	CacheLayoutSize int64 `json:"cache_layout_size"`
+}
+
+// DalParametric holds the data-availability-layer protocol constants returned
+// under the dal_parametric key of the chain constants.
+type DalParametric struct {
+	// FeatureEnable reports whether the DAL is enabled on this chain.
+	FeatureEnable bool `json:"feature_enable"`
+	// NumberOfSlots is the number of DAL slots per block (v025: 160).
+	NumberOfSlots int64 `json:"number_of_slots"`
+	// SlotSize is the size of a DAL slot in bytes (v025: 380832).
+	SlotSize int64 `json:"slot_size"`
+	// PageSize is the size of a DAL page in bytes.
+	PageSize int64 `json:"page_size"`
+	// NumberOfShards is the number of shards a slot is split into.
+	NumberOfShards int64 `json:"number_of_shards"`
+	// RedundancyFactor is the erasure-coding redundancy factor.
+	RedundancyFactor int64 `json:"redundancy_factor"`
+	// AttestationLag is the legacy scalar attestation lag in blocks, still
+	// emitted for backward compatibility (v025 default: 5). From v025 on the
+	// canonical representation is the AttestationLags vector below.
+	AttestationLag int64 `json:"attestation_lag"`
+	// AttestationThreshold is the minimum percentage of attested shards
+	// required to declare a slot available.
+	AttestationThreshold int64 `json:"attestation_threshold"`
+	// AttestationLags lists the allowed attestation lags for the dynamic-lag
+	// mechanism introduced in v025 (Ushuaia), e.g. [1,2,3,4,5]. Nil on
+	// pre-v025 chains.
+	AttestationLags []int64 `json:"attestation_lags"`
 }
 
 // GetConstants returns chain configuration constants at block id
@@ -131,6 +172,20 @@ func (c Constants) MapToChainParams() *tezos.Params {
 	if c.AllBakersAttestActivationThreshold.Den != 0 {
 		p.AllBakersAttestActivationThreshold.Num = c.AllBakersAttestActivationThreshold.Num
 		p.AllBakersAttestActivationThreshold.Den = c.AllBakersAttestActivationThreshold.Den
+	}
+
+	// DAL parameters (v019+; attestation_lags new in v025)
+	if c.Dal.NumberOfSlots > 0 {
+		p.DalNumberOfSlots = c.Dal.NumberOfSlots
+	}
+	if c.Dal.SlotSize > 0 {
+		p.DalSlotSize = c.Dal.SlotSize
+	}
+	if c.Dal.AttestationLag > 0 {
+		p.DalAttestationLag = c.Dal.AttestationLag
+	}
+	if len(c.Dal.AttestationLags) > 0 {
+		p.DalAttestationLags = c.Dal.AttestationLags
 	}
 
 	// Paris blocks per snapshot
