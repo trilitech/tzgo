@@ -5,8 +5,7 @@
 ### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
 
 #### Native Contracts / sTEZ (FA2.1)
-* Verified that the v025 enshrined liquid-staking (sTEZ) FA2.1 contract parameters decode through TzGo's generic Micheline layer; FA2.1 keeps the FA2/TZIP-12 `transfer` type unchanged, so no SDK-specific decoder is required. Added `TestFA21TransferRoundTrip` as the regression test backing this conclusion. Contract events and addresses remain handled generically (no known-contract table entry needed).
-
+* Verified that the v025 enshrined liquid-staking (sTEZ) FA2.1 contract parameters decode through TzGo's generic Micheline layer. The sTEZ `transfer` type (transcribed from the protocol source, `script_native_types.ml`) is the FA2/TZIP-12 type with the inner triple written as a right-comb tup3; tests decode both nested-pair and comb-pair value encodings into the existing FA2 helpers and assert structural type equivalence with `micheline.ITzip12`. No SDK-specific decoder is required. Note: no on-chain sTEZ values exist yet — the `stez` feature flag is disabled on all networks including ushuaianet — so the protocol source is the authoritative fixture until activation.
 
 #### Protocol Registration
 * Registered protocol `ProtoV025` (`PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY`) with alias `PsUshuai`; bumped `ProtoAlpha` to version 26 so it no longer collides with the v025 slot
