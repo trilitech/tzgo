@@ -186,7 +186,8 @@ func (p *Params) WithProtocol(h ProtocolHash) *Params {
 		Versions[h] = p.Version
 	}
 	switch {
-	// FIXME: tagv4 from v023
+	case p.Version > 22:
+		p.OperationTagsVersion = 4
 	case p.Version > 18:
 		p.OperationTagsVersion = 3
 	case p.Version > 11:

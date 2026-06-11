@@ -245,17 +245,17 @@ func TestSeoulPrimitivesErrorMessages(t *testing.T) {
 		{
 			name:        "typo in IS_IMPLICIT_ACCOUNT",
 			json:        `{"prim": "IS_IMPLICIT_ACCONT"}`,
-			expectedErr: "Unknown michelson primitive IS_IMPLICIT_ACCONT",
+			expectedErr: "unknown michelson primitive IS_IMPLICIT_ACCONT",
 		},
 		{
 			name:        "lowercase IS_IMPLICIT_ACCOUNT",
 			json:        `{"prim": "is_implicit_account"}`,
-			expectedErr: "Unknown michelson primitive is_implicit_account",
+			expectedErr: "unknown michelson primitive is_implicit_account",
 		},
 		{
 			name:        "partial primitive name",
 			json:        `{"prim": "IS_IMPLICIT"}`,
-			expectedErr: "Unknown michelson primitive IS_IMPLICIT",
+			expectedErr: "unknown michelson primitive IS_IMPLICIT",
 		},
 	}
 

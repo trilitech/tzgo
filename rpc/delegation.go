@@ -19,7 +19,7 @@ type Delegation struct {
 // Cost returns operation cost to implement TypedOperation interface.
 func (d Delegation) Costs() tezos.Costs {
 	return tezos.Costs{
-		Fee:     d.Manager.Fee,
+		Fee:     d.Fee,
 		GasUsed: d.Metadata.Result.ConsumedGas,
 	}
 }

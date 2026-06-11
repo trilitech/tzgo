@@ -150,8 +150,8 @@ func (m *Observer) listenMempool() {
 func (m *Observer) listenBlocks() {
 	var (
 		mon       *BlockHeaderMonitor
-		useEvents bool = true
-		firstLoop bool = true
+		useEvents = true
+		firstLoop = true
 	)
 	defer func() {
 		if mon != nil {

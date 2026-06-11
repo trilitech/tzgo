@@ -300,7 +300,7 @@ type Storage struct {
 
 func (s Script) Validate(ctx compose.Context) error {
 	// either script-level source or both storage+code sources are required
-	if s.ValueSource.IsUsed() {
+	if s.IsUsed() {
 		if err := s.ValueSource.Validate(ctx); err != nil {
 			return err
 		}
@@ -308,7 +308,7 @@ func (s Script) Validate(ctx compose.Context) error {
 		if s.Code == nil {
 			return fmt.Errorf("missing code section")
 		}
-		if err := s.Code.ValueSource.Validate(ctx); err != nil {
+		if err := s.Code.Validate(ctx); err != nil {
 			return err
 		}
 		if s.Storage == nil {
@@ -316,7 +316,7 @@ func (s Script) Validate(ctx compose.Context) error {
 		}
 		if s.Storage.Args == nil {
 			// without args, storage must come from a valid source
-			if err := s.Storage.ValueSource.Validate(ctx); err != nil {
+			if err := s.Storage.Validate(ctx); err != nil {
 				return fmt.Errorf("storage: %v", err)
 			}
 		}

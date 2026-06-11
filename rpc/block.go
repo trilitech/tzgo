@@ -181,7 +181,9 @@ func (h BlockHeader) ProtocolData() []byte {
 	} else {
 		buf.WriteByte(0x0)
 	}
-
+	// Note: adaptive_issuance_vote was removed from block header in Tallinn protocol
+	// (see https://octez.tezos.com/docs/introduction/breaking_changes.html#protocol-tallinn)
+	// so we must check for nil before accessing it
 	aiVote := h.AiVote()
 	aiTag := byte(0)
 	if aiVote != nil {

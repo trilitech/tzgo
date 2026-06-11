@@ -26,7 +26,7 @@ func (o Delegation) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	if o.Delegate.IsValid() {
 		buf.WriteString(`,"delegate":`)
 		buf.WriteString(strconv.Quote(o.Delegate.String()))
