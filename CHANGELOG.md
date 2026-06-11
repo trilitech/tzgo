@@ -4,13 +4,32 @@
 
 ### [Ushuaia Protocol (v025)](https://octez.tezos.com/docs/protocols/025_u025.html) Support
 
-#### Native Contracts / sTEZ (FA2.1)
-* Verified that the v025 enshrined liquid-staking (sTEZ) FA2.1 contract parameters decode through TzGo's generic Micheline layer. The sTEZ `transfer` type (transcribed from the protocol source, `script_native_types.ml`) is the FA2/TZIP-12 type with the inner triple written as a right-comb tup3; tests decode both nested-pair and comb-pair value encodings into the existing FA2 helpers and assert structural type equivalence with `micheline.ITzip12`. No SDK-specific decoder is required. Note: no on-chain sTEZ values exist yet — the `stez` feature flag is disabled on all networks including ushuaianet — so the protocol source is the authoritative fixture until activation.
+#### New RPC Handlers
+* `GetDalPastParameters` - returns the DAL parameters active at a given level
+* `DecodeDalAttestation` / `EncodeDalAttestation` - decode a DAL attestation bitset into attested slots per lag, and encode the inverse
+* `GetSwrrSelectedBakers` - SWRR-selected bakers for a cycle's round 0; returns nil when the `swrr_new_baker_lottery_enable` flag is disabled
+* `GetSwrrCredits` - current SWRR credits per active delegate; returns nil when the feature flag is disabled
+* `GetStezTotalSupply`, `GetStezTotalAmountOfTez`, `GetStezExchangeRate` - enshrined liquid staking (sTEZ) context queries
+* `GetDelegateStezStakingPower`, `GetDelegateStezRegistered` - per-delegate sTEZ staking power and registration status (the public read path for sTEZ stake allocations; the protocol-internal `stez_frozen` staking-balance field is not exposed via any RPC schema)
+
+#### Modified Behavior
+* `GetContractScript` / `GetNormalizedScript` - since v025 native contracts (e.g. sTEZ) return a synthesized Michelson script (real entrypoints and view types, placeholder bodies) instead of an empty response; documented and covered by a decode test
+
+#### Protocol Constants
+* `Constants` - decode the `dal_parametric` block into a new `DalParametric` struct (`number_of_slots` → 160, `slot_size` → 380832, `attestation_lag` → 5, and the new dynamic-lag list `attestation_lags`), plus the new top-level `cache_layout_size`
+* `tezos.Params` - added `DalNumberOfSlots`, `DalSlotSize`, `DalAttestationLag`, and `DalAttestationLags`; `MapToChainParams` now surfaces the DAL constants
+#### DAL Changes (BREAKING, see [Ushuaia "Breaking Changes"](https://octez.tezos.com/docs/protocols/025_u025.html#breaking-changes))
+* `DalEntrapmentEvidence` - added optional `LagIndex` (`lag_index`) field for the new dynamic attestation lag; nil for pre-v025 blocks
+* `Endorsement.DalAttestation` / `Committee.DalAttestation` - documented the BREAKING change to DAL attestation bitset semantics in v025 (baker-attested vs protocol-attested slots, multi-lag layout). The value still decodes as a `Z`; only bit-level interpretation changed. Use the node's `decode_dal_attestation`/`encode_dal_attestation` helper RPCs to interpret v025+ bitsets
 
 #### Protocol Registration
 * Registered protocol `ProtoV025` (`PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY`) with alias `PsUshuai`; bumped `ProtoAlpha` to version 26 so it no longer collides with the v025 slot
 * Fixed `WithProtocol` to assign `OperationTagsVersion = 4` for protocols v023+ (was capped at 3); tag encoding is unchanged (v2+ tag table)
 * Deployment rows and `DefaultParams`/`GhostnetParams`/`ShadownetParams` repointing deferred until activation heights are published
+
+#### Native Contracts / sTEZ (FA2.1)
+* Verified that the v025 enshrined liquid-staking (sTEZ) FA2.1 contract parameters decode through TzGo's generic Micheline layer. The sTEZ `transfer` type (transcribed from the protocol source, `script_native_types.ml`) is the FA2/TZIP-12 type with the inner triple written as a right-comb tup3; tests decode both nested-pair and comb-pair value encodings into the existing FA2 helpers and assert structural type equivalence with `micheline.ITzip12`. No SDK-specific decoder is required. Note: no on-chain sTEZ values exist yet — the `stez` feature flag is disabled on all networks including ushuaianet — so the protocol source is the authoritative fixture until activation.
+
 
 ## v1.24.0
 

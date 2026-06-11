@@ -153,6 +153,13 @@ type rawContract struct {
 }
 
 // GetContractScript returns the originated contract script in default data mode.
+//
+// Since v025 (Ushuaia) this also returns a script for native contracts (e.g.
+// the sTEZ contract): instead of an empty response the node synthesizes a
+// Michelson script exposing the contract's real entrypoints and view types
+// with non-functional placeholder bodies. The synthesized script decodes like
+// any other script; callers that branched on an empty script for such
+// addresses must account for the new behavior.
 func (c *Client) GetContractScript(ctx context.Context, addr tezos.Address) (*micheline.Script, error) {
 	u := fmt.Sprintf("chains/main/blocks/head/context/contracts/%s", addr)
 	var rc rawContract
@@ -165,6 +172,9 @@ func (c *Client) GetContractScript(ctx context.Context, addr tezos.Address) (*mi
 
 // GetNormalizedScript returns the originated contract script with global constants
 // expanded using given unparsing mode.
+//
+// Since v025 (Ushuaia) native contracts (e.g. sTEZ) return a synthesized
+// script instead of an empty response; see GetContractScript for details.
 func (c *Client) GetNormalizedScript(ctx context.Context, addr tezos.Address, mode UnparsingMode) (*micheline.Script, error) {
 	u := fmt.Sprintf("chains/main/blocks/head/context/contracts/%s/script/normalized", addr)
 	s := micheline.NewScript()

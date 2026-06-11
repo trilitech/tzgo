@@ -21,7 +21,11 @@ type ConsensusContent struct {
 }
 
 type Committee struct {
-	Slot           int     `json:"slot"`            // v023+
+	Slot int `json:"slot"` // v023+
+	// DalAttestation is a raw bitset of attested DAL slots. v023+.
+	// BREAKING in v025 (Ushuaia): the bit semantics changed (baker-attested vs
+	// protocol-attested slots) and a multi-lag layout was introduced. See the
+	// note on Endorsement.DalAttestation.
 	DalAttestation tezos.Z `json:"dal_attestation"` // v023+
 }
 
