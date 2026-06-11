@@ -30,7 +30,7 @@ func (o DalPublishCommitment) MarshalJSON() ([]byte, error) {
 	buf.WriteString(`"kind":`)
 	buf.WriteString(strconv.Quote(o.Kind().String()))
 	buf.WriteByte(',')
-	o.Manager.EncodeJSON(buf)
+	o.EncodeJSON(buf)
 	buf.WriteString(`,"slot_header":{`)
 	buf.WriteString(`"level":`)
 	buf.WriteString(strconv.Itoa(int(o.Level)))

@@ -979,9 +979,10 @@ func (p Prim) Value(as OpCode) interface{} {
 	default:
 		switch as {
 		case T_BOOL:
-			if p.OpCode == D_TRUE {
+			switch p.OpCode {
+			case D_TRUE:
 				return true
-			} else if p.OpCode == D_FALSE {
+			case D_FALSE:
 				return false
 			}
 		case T_LAMBDA:

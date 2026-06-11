@@ -37,7 +37,7 @@ func UnmarshalPrimPaths(root micheline.Prim, dst map[string]any) error {
 // v must be a non-nil pointer to the expected result.
 func UnmarshalPrim(prim micheline.Prim, v any) error {
 	val := reflect.ValueOf(v)
-	if val.Kind() != reflect.Ptr || val.IsNil() {
+	if val.Kind() != reflect.Pointer || val.IsNil() {
 		return errors.New("v should be a non-nil pointer")
 	}
 
@@ -48,7 +48,7 @@ var _ micheline.PrimUnmarshaler = &Bigmap[string, []byte]{}
 
 func unmarshalPrimVal(prim micheline.Prim, val reflect.Value) error {
 	// Init Elem value if val is Nil
-	if val.Kind() == reflect.Ptr && val.IsNil() {
+	if val.Kind() == reflect.Pointer && val.IsNil() {
 		val.Set(reflect.New(val.Type().Elem()))
 	}
 
@@ -80,7 +80,7 @@ func unmarshalPrimVal(prim micheline.Prim, val reflect.Value) error {
 	}
 
 	// Wasn't handled with *T, try with T
-	if val.Kind() == reflect.Ptr {
+	if val.Kind() == reflect.Pointer {
 		return unmarshalPrimVal(prim, val.Elem())
 	}
 
@@ -88,7 +88,7 @@ func unmarshalPrimVal(prim micheline.Prim, val reflect.Value) error {
 }
 
 func unmarshalInt(i *big.Int, v reflect.Value) error {
-	if v.Kind() == reflect.Ptr && v.Type() != tBigInt {
+	if v.Kind() == reflect.Pointer && v.Type() != tBigInt {
 		return unmarshalInt(i, v.Elem())
 	}
 
@@ -105,7 +105,7 @@ func unmarshalInt(i *big.Int, v reflect.Value) error {
 }
 
 func unmarshalString(str string, v reflect.Value) error {
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		return unmarshalString(str, v.Elem())
 	}
 
@@ -149,7 +149,7 @@ func unmarshalString(str string, v reflect.Value) error {
 }
 
 func unmarshalBytes(b []byte, v reflect.Value) error {
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		return unmarshalBytes(b, v.Elem())
 	}
 
@@ -187,7 +187,7 @@ func unmarshalBytes(b []byte, v reflect.Value) error {
 }
 
 func unmarshalBool(b bool, v reflect.Value) error {
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		return unmarshalBool(b, v.Elem())
 	}
 
@@ -201,7 +201,7 @@ func unmarshalBool(b bool, v reflect.Value) error {
 
 // unmarshalSlice unmarshals a Prim sequence, into a slice (through a reflect.Value).
 func unmarshalSlice(prim micheline.Prim, v reflect.Value) error {
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		return unmarshalSlice(prim, v.Elem())
 	}
 

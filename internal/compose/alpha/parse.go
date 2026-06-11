@@ -24,7 +24,7 @@ func ParseScript(ctx compose.Context, task Task) (*micheline.Script, error) {
 		script *micheline.Script
 		err    error
 	)
-	if task.Script.ValueSource.IsUsed() {
+	if task.Script.IsUsed() {
 		script, err = loadSource[micheline.Script](ctx, task.Script.ValueSource)
 		if err != nil {
 			return nil, errors.Wrap(err, "loading script")
@@ -34,14 +34,14 @@ func ParseScript(ctx compose.Context, task Task) (*micheline.Script, error) {
 			code  *micheline.Code
 			store *micheline.Prim
 		)
-		if task.Script.Code == nil || !task.Script.Code.ValueSource.IsUsed() {
+		if task.Script.Code == nil || !task.Script.Code.IsUsed() {
 			return nil, fmt.Errorf("missing script code source")
 		}
 		code, err = loadSource[micheline.Code](ctx, task.Script.Code.ValueSource)
 		if err != nil {
 			return nil, errors.Wrap(err, "loading script code")
 		}
-		if task.Script.Storage == nil || (!task.Script.Storage.ValueSource.IsUsed() && task.Script.Storage.Args == nil) {
+		if task.Script.Storage == nil || (!task.Script.Storage.IsUsed() && task.Script.Storage.Args == nil) {
 			return nil, fmt.Errorf("missing initial storage source")
 		}
 		if task.Script.Storage.Args != nil {
@@ -120,7 +120,7 @@ func ParseParams(ctx compose.Context, task Task) (*micheline.Prim, error) {
 		params *micheline.Prim
 		err    error
 	)
-	if task.Params.ValueSource.IsUsed() {
+	if task.Params.IsUsed() {
 		params, err = loadSource[micheline.Prim](ctx, task.Params.ValueSource)
 		if err != nil {
 			return nil, err
